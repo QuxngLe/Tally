@@ -6,7 +6,7 @@
 /* Layout: one centered column (max 640px); sticky date header, prompt bar, today list; tab bar fixed to the bottom on phones, top row on wide screens. */
 :root {
   --bg: #F3F5F1; --surface: #FFFFFF; --surface-2: #E8EDE7; --line: #D5DCD4;
-  --fg: #16201B; --muted: #5C6962; --accent: var(--ua-l, #2E6B57); --accent-ink: #FFFFFF;
+  --fg: #16201B; --muted: #5C6962; --accent: #2E6B57; --accent-ink: #FFFFFF;
   --flame: #C9701C; --danger: #B83A3A; --shadow: 0 1px 2px rgba(20,32,27,.06), 0 6px 20px rgba(20,32,27,.06);
   --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --f-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -14,11 +14,11 @@
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0E1311; --surface: #171E1B; --surface-2: #202925; --line: #2C3732;
-  --fg: #E6ECE8; --muted: #93A199; --accent: var(--ua-d, #72C3A5); --accent-ink: #0E1311;
+  --fg: #E6ECE8; --muted: #93A199; --accent: #72C3A5; --accent-ink: #0E1311;
   --flame: #F0A24F; --danger: #F07A7A; --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0E1311; --surface: #171E1B; --surface-2: #202925; --line: #2C3732;
-  --fg: #E6ECE8; --muted: #93A199; --accent: var(--ua-d, #72C3A5); --accent-ink: #0E1311;
+  --fg: #E6ECE8; --muted: #93A199; --accent: #72C3A5; --accent-ink: #0E1311;
   --flame: #F0A24F; --danger: #F07A7A; --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark }
 
 * { box-sizing: border-box }
@@ -160,10 +160,45 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
   padding: 10px 14px; border-radius: 12px; font-weight: 600; font-size: 14px; display: flex; gap: 12px; align-items: center; max-width: calc(100% - 32px) }
 .toast button { border: 0; background: none; color: var(--bg); text-decoration: underline; font-weight: 700 }
 @media (min-width: 760px) { .toast { bottom: 24px } }
+/* appearance options */
+#bgimg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-size: cover; background-position: center }
+#bgimg::after { content: ""; position: absolute; inset: 0; background: var(--bg); opacity: var(--bg-dim, .3) }
+.wrap { position: relative; z-index: 1; zoom: var(--zoom, 1) }
+.tabs { zoom: var(--zoom, 1) }
+body.glass .item:not(.done), body.glass .tile, body.glass .card, body.glass .mrow, body.glass .prompt, body.glass .banner, body.glass .empty { background: color-mix(in srgb, var(--surface) 80%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px) }
+body.glass .item.done { background: color-mix(in srgb, var(--surface) 45%, transparent) }
+body.compact .list { gap: 5px }
+body.compact .item, body.compact .mrow { padding: 6px 10px }
+body.compact .check { width: 34px; height: 34px }
+body.compact .check .pie { -webkit-mask: radial-gradient(circle, transparent 10px, #000 11px); mask: radial-gradient(circle, transparent 10px, #000 11px) }
+body.square .check, body.square .check .pie { border-radius: 28% }
+body.square .check .pie { -webkit-mask: none; mask: none; opacity: .35 }
+body.no-streak .fl { display: none }
+.list.grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+.list.grid .item { grid-template-columns: auto minmax(0, 1fr); align-content: start }
+.list.grid .item > span:last-child { display: none }
+.list.grid .counter { grid-column: 1 / -1; justify-content: space-between }
+.themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px }
+.theme { border: 2px solid var(--line); border-radius: 12px; padding: 0; overflow: hidden; background: var(--tb); text-align: left }
+.theme[aria-pressed="true"] { border-color: var(--fg) }
+.theme .tv { display: grid; gap: 4px; padding: 8px }
+.theme .tv i { display: block; height: 9px; border-radius: 4px; background: var(--ts) }
+.theme .tv i:first-child { width: 60%; background: var(--ta) }
+.theme b { display: block; padding: 4px 8px 6px; font-size: 12px; color: var(--tf); background: var(--ts) }
+.bgs { display: flex; gap: 8px; flex-wrap: wrap }
+.bgs button, .bgs label { width: 56px; height: 56px; border-radius: 12px; border: 2px solid var(--line); background: var(--g); background-size: cover; background-position: center; padding: 0; font-size: 11px; font-weight: 700; color: var(--muted); display: grid; place-items: center; cursor: pointer }
+.bgs [aria-pressed="true"] { border-color: var(--fg) }
+.colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px }
+.colors label { display: flex; align-items: center; gap: 8px; font-size: 13px; border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; background: var(--surface) }
+input[type=color] { width: 30px; height: 30px; border: 0; padding: 0; background: none; border-radius: 8px; cursor: pointer }
+input[type=range] { width: min(220px, 100%); accent-color: var(--accent) }
+.set input[type=text] { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 7px 10px; font-size: 15px; width: min(220px, 100%) }
+.set .sub { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-top: 6px }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
 </style>
 
 <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+<div id="bgimg" hidden></div>
 <main class="wrap" id="view"></main>
 <div id="layer"></div>
 
@@ -177,7 +212,6 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
 };
 const COLORS = ["#2E8B6F", "#3C7DD9", "#8A5CD6", "#D2557A", "#D9822B", "#B8931A", "#3E9EA0", "#6E8B2F", "#7D7D8C"];
-const ACCENTS = { pine: ["#2E6B57", "#72C3A5"], ocean: ["#245FA8", "#7EB0F0"], plum: ["#6D3FB0", "#B99AF0"], rose: ["#A83A5C", "#F08FAE"], amber: ["#9A5A12", "#F0B060"], slate: ["#3E4A57", "#AEB9C6"] };
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const uid = () => Math.random().toString(36).slice(2, 10);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -196,7 +230,13 @@ const fmtShort = d => d.toLocaleDateString(undefined, { month: "short", day: "nu
 
 // ---------- state ----------
 let S = store.get(KEY, null);
-const defaults = () => ({ trackers: [], log: {}, fired: {}, examples: false, settings: { theme: "system", accent: "pine", weekStart: 1, notify: false, showDone: true } });
+const defaultLook = () => ({ preset: "pine", accent: "", custom: { bg: "#F3F5F1", surface: "#FFFFFF", fg: "#16201B", accent: "#2E6B57" }, bg: "none", dim: 0.4, glass: true, font: "modern", size: 1, radius: 14, density: "comfy", layout: "list", check: "circle", streaks: true, title: "Tally" });
+const defaults = () => ({ trackers: [], log: {}, fired: {}, examples: false, settings: { theme: "system", weekStart: 1, notify: false, showDone: true, look: defaultLook() } });
+function fixSettings() {
+  const st = fixSettings();
+  if (st.accent) { st.look.preset = { ocean: "ocean", plum: "lavender", rose: "sakura", amber: "sand", slate: "mono" }[st.accent] || st.look.preset; delete st.accent }
+  st.look = Object.assign(defaultLook(), st.look || {}); st.look.custom = Object.assign(defaultLook().custom, st.look.custom || {});
+}
 if (!S) { S = defaults(); seedExamples(); }
 S.settings = Object.assign(defaults().settings, S.settings || {});
 S.fired = S.fired || {};
@@ -411,13 +451,74 @@ const I = {
 // ---------- rendering ----------
 const $ = s => document.querySelector(s);
 const view = $("#view"), layer = $("#layer");
+const PRESETS = {
+  pine: { name: "Pine", light: ["#F3F5F1", "#FFFFFF", "#16201B", "#2E6B57"], dark: ["#0E1311", "#171E1B", "#E6ECE8", "#72C3A5"] },
+  ocean: { name: "Ocean", light: ["#EEF3F8", "#FFFFFF", "#132033", "#245FA8"], dark: ["#0B1220", "#131C2E", "#E3EAF5", "#7EB0F0"] },
+  sakura: { name: "Sakura", light: ["#FBF1F3", "#FFFFFF", "#2B1A20", "#B23A62"], dark: ["#1A1014", "#251820", "#F5E6EB", "#F08FAE"] },
+  sand: { name: "Sand", light: ["#F5EFE4", "#FFFBF4", "#2A2218", "#9A5A12"], dark: ["#17130D", "#221C14", "#F0E8DA", "#F0B060"] },
+  lavender: { name: "Lavender", light: ["#F2F0FA", "#FFFFFF", "#1F1A33", "#6D3FB0"], dark: ["#110E1C", "#1C1730", "#ECE7FA", "#B99AF0"] },
+  neon: { name: "Neon", light: ["#EAF7F6", "#FFFFFF", "#0F2A2A", "#0E8C8C"], dark: ["#05070D", "#0E1220", "#E6F1FF", "#3BE0C8"] },
+  mono: { name: "Mono", light: ["#F4F4F4", "#FFFFFF", "#111111", "#111111"], dark: ["#0A0A0A", "#161616", "#EEEEEE", "#EEEEEE"] }
+};
+const GRADS = {
+  dawn: ["linear-gradient(160deg,#FDE2D4,#F7EED9 45%,#DCEBF5)", "linear-gradient(160deg,#3A1F2A,#1A1722 50%,#0F1A2E)"],
+  lagoon: ["linear-gradient(160deg,#CDEFE6,#E3EEF9)", "linear-gradient(160deg,#0B2E28,#0C1830)"],
+  dusk: ["linear-gradient(160deg,#E9DDF7,#F9E1EA)", "linear-gradient(160deg,#241640,#2E1326)"],
+  sunset: ["linear-gradient(160deg,#FFD9B3,#FFC2C7 50%,#D9C7FF)", "linear-gradient(160deg,#4A2414,#3B1530 50%,#1F1838)"],
+  forest: ["linear-gradient(160deg,#D6E9CF,#EEF2E2)", "linear-gradient(160deg,#10261A,#17221B)"],
+  grid: ["linear-gradient(#0000000f 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,#0000000f 1px,transparent 1px) 0 0/22px 22px", "linear-gradient(#ffffff12 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,#ffffff12 1px,transparent 1px) 0 0/22px 22px"]
+};
+const FONTS = {
+  modern: { name: "Modern", d: '"Bricolage Grotesque"', b: '"Figtree"', q: "" },
+  rounded: { name: "Rounded", d: '"Nunito"', b: '"Nunito"', q: "family=Nunito:wght@400;600;700;800" },
+  classic: { name: "Classic", d: '"Fraunces"', b: '"Lora"', q: "family=Fraunces:opsz,wght@9..144,700&family=Lora:wght@400;600;700" },
+  mono: { name: "Typewriter", d: '"JetBrains Mono"', b: '"JetBrains Mono"', q: "family=JetBrains+Mono:wght@400;600;800" },
+  hand: { name: "Handwritten", d: '"Caveat"', b: '"Patrick Hand"', q: "family=Caveat:wght@700&family=Patrick+Hand" },
+  system: { name: "System", d: "system-ui", b: "system-ui", q: "" }
+};
+const lum = hex => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ""); if (!m) return .5; const n = parseInt(m[1], 16); const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4 }); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2] };
+let bgImage = store.get("tally.bgimg", "");
+function curMode() {
+  const r = document.documentElement, t = S.settings.theme;
+  if (t !== "system") return t;
+  if (r.dataset.theme && !r.dataset.themeOwned) return r.dataset.theme;
+  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function palette() { const L = S.settings.look; if (L.preset === "custom") { const c = L.custom; return [c.bg, c.surface, c.fg, c.accent] } return (PRESETS[L.preset] || PRESETS.pine)[curMode()] }
 function applyTheme() {
-  const r = document.documentElement, st = S.settings;
+  const r = document.documentElement, st = S.settings, L = st.look, set = (k, v) => r.style.setProperty(k, v);
   if (st.theme === "system") { if (r.dataset.themeOwned) { delete r.dataset.theme; delete r.dataset.themeOwned } }
   else { r.dataset.theme = st.theme; r.dataset.themeOwned = "1" }
-  const a = ACCENTS[st.accent] || ACCENTS.pine;
-  r.style.setProperty("--ua-l", a[0]); r.style.setProperty("--ua-d", a[1]);
-  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = a[0];
+  const [bg, surface, fg, acc0] = palette(), accent = L.accent || acc0, dark = lum(bg) < .2;
+  set("--bg", bg); set("--surface", surface); set("--fg", fg); set("--accent", accent);
+  set("--surface-2", `color-mix(in srgb, ${surface} 90%, ${fg})`); set("--line", `color-mix(in srgb, ${surface} 80%, ${fg})`); set("--muted", `color-mix(in srgb, ${fg} 62%, ${bg})`);
+  set("--accent-ink", lum(accent) > .45 ? "#111111" : "#FFFFFF");
+  set("--flame", dark ? "#F0A24F" : "#C9701C"); set("--danger", dark ? "#F07A7A" : "#B83A3A");
+  r.style.colorScheme = dark ? "dark" : "light";
+  const f = FONTS[L.font] || FONTS.modern;
+  if (f.q && !document.getElementById("font-" + L.font)) { const l = document.createElement("link"); l.id = "font-" + L.font; l.rel = "stylesheet"; l.href = `https://fonts.googleapis.com/css2?${f.q}&display=swap`; document.head.appendChild(l) }
+  set("--f-display", `${f.d}, "Segoe UI", system-ui, sans-serif`); set("--f-body", `${f.b}, "Segoe UI", system-ui, sans-serif`);
+  set("--r", L.radius + "px"); set("--zoom", L.size); set("--bg-dim", L.dim);
+  const b = document.body, img = $("#bgimg");
+  b.classList.toggle("compact", L.density === "compact"); b.classList.toggle("square", L.check === "square"); b.classList.toggle("no-streak", !L.streaks);
+  const hasBg = L.bg !== "none" && (L.bg !== "image" || bgImage);
+  b.classList.toggle("glass", hasBg && L.glass);
+  img.hidden = !hasBg;
+  if (hasBg) img.style.background = L.bg === "image" ? `center/cover no-repeat url("${bgImage}")` : (GRADS[L.bg.slice(2)] || GRADS.dawn)[dark ? 1 : 0];
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = bg;
+}
+try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { applyTheme(); render() }) } catch { }
+try { new MutationObserver(() => { if (!document.documentElement.dataset.themeOwned) applyTheme() }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] }) } catch { }
+function loadPhoto(file) {
+  const rd = new FileReader();
+  rd.onload = () => { const im = new Image(); im.onload = () => {
+    const k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+    c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+    let url = c.toDataURL("image/jpeg", .82);
+    try { localStorage.setItem("tally.bgimg", JSON.stringify(url)) } catch { url = c.toDataURL("image/jpeg", .6); try { localStorage.setItem("tally.bgimg", JSON.stringify(url)) } catch { toast("That photo is too big to save. It will show until you close the app.") } }
+    bgImage = url; S.settings.look.bg = "image"; save(); applyTheme(); render(); toast("Background photo set");
+  }; im.onerror = () => toast("That file isn't a picture this browser can open."); im.src = rd.result };
+  rd.readAsDataURL(file);
 }
 function renderTabs() {
   const tabs = [["today", "Today"], ["stats", "Progress"], ["manage", "Trackers"], ["settings", "Settings"]];
@@ -455,7 +556,7 @@ function rToday() {
   view.innerHTML = `
   <header class="head">
     <div>
-      <div class="eyebrow">${isToday ? "Today" : diffDays(d, today()) === -1 ? "Yesterday" : "Looking back"}</div>
+      <div class="eyebrow">${S.settings.look.title ? esc(S.settings.look.title) + " · " : ""}${isToday ? "Today" : diffDays(d, today()) === -1 ? "Yesterday" : "Looking back"}</div>
       <h1>${esc(fmtDate(d))}</h1>
       <div class="daynav"><button data-act="day" data-n="-1" aria-label="Previous day">‹ Prev</button>${isToday ? "" : `<button data-act="day" data-n="0">Back to today</button>`}${isToday ? "" : `<button data-act="day" data-n="1" aria-label="Next day">Next ›</button>`}</div>
     </div>
@@ -471,7 +572,7 @@ function rToday() {
   ${draft ? previewHTML(draft) : `<div class="hint">Try: ${["gym 3 times a week", "read 20 pages every night", "pay rent on 2026-11-01", "meditate weekdays at 7am", "call mom on sunday"].map(x => `<button class="chip" data-act="try" data-v="${esc(x)}">${esc(x)}</button>`).join("")}</div>`}
   ${S.examples ? `<div class="banner"><span>The trackers below are examples so you can see how it works.</span><button class="btn small" data-act="clearex">Remove examples</button></div>` : ""}
   ${!list.length ? `<div class="sec"><div class="empty">${active().length ? "Nothing scheduled for this day." : "Nothing to track yet. Type what you want to do in the box above and press Add."}</div></div>` : ""}
-  ${gKeys.map(g => `<section class="sec"><div class="sec-h"><h2>${esc(g || (gKeys.length > 1 ? "Other" : "To do"))}</h2><span class="muted num">${groups[g].length} left</span></div><div class="list">${groups[g].map(t => itemHTML(t, k)).join("")}</div></section>`).join("")}
+  ${gKeys.map(g => `<section class="sec"><div class="sec-h"><h2>${esc(g || (gKeys.length > 1 ? "Other" : "To do"))}</h2><span class="muted num">${groups[g].length} left</span></div><div class="list ${S.settings.look.layout === "grid" ? "grid" : ""}">${groups[g].map(t => itemHTML(t, k)).join("")}</div></section>`).join("")}
   ${list.length && !todo.length ? `<div class="sec"><div class="empty">🎉 Everything is done for ${isToday ? "today" : "this day"}.</div></div>` : ""}
   ${done.length ? `<section class="sec"><div class="sec-h"><h2>Done · ${done.length}</h2><button data-act="toggledone">${ui.doneOpen ? "Hide" : "Show"}</button></div>${ui.doneOpen ? `<div class="list">${done.map(t => itemHTML(t, k)).join("")}</div>` : ""}</section>` : ""}
   ${upcoming.length ? `<section class="sec"><div class="sec-h"><h2>Coming up</h2></div><div class="list">${upcoming.map(t => `<div class="item"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="open" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(fmtDate(fromKey(t.due)))}</span>${t.reminder ? `<span>⏰ ${fmtTime(t.reminder)}</span>` : ""}</div></div><span></span></div>`).join("")}</div></section>` : ""}
@@ -546,12 +647,37 @@ function rSettings() {
   const seg = (key, opts) => `<div class="seg">${opts.map(([v, l]) => `<button data-act="set" data-k="${key}" data-v="${v}" aria-pressed="${String(st[key]) === String(v)}">${l}</button>`).join("")}</div>`;
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   const notifOK = "Notification" in window;
+  const L = st.look, mode = curMode();
+  const lseg = (key, opts) => `<div class="seg">${opts.map(([v, l]) => `<button data-act="look" data-k="${key}" data-v="${v}" aria-pressed="${String(L[key]) === String(v)}">${l}</button>`).join("")}</div>`;
+  const pal = palette(), accNow = L.accent || pal[3];
+  const ACC = ["#2E6B57", "#245FA8", "#6D3FB0", "#B23A62", "#C2410C", "#9A5A12", "#0E8C8C", "#111111", "#72C3A5", "#7EB0F0", "#F08FAE", "#F0B060"];
   view.innerHTML = `<header class="head"><div><div class="eyebrow">Settings</div><h1>Make it yours</h1></div></header>
   <div class="list">
-  <div class="card set"><h3>Look</h3>
-    <div class="line"><span>Theme</span>${seg("theme", [["system", "Auto"], ["light", "Light"], ["dark", "Dark"]])}</div>
-    <div class="line"><span>Accent color</span><div class="swatches">${Object.entries(ACCENTS).map(([k, v]) => `<button class="sw" style="--c:${v[0]}" data-act="set" data-k="accent" data-v="${k}" aria-label="${k}" aria-pressed="${st.accent === k}"></button>`).join("")}</div></div>
+  <div class="card set"><h3>Theme</h3>
+    <div class="themes">${Object.entries(PRESETS).map(([k, p]) => { const c = p[mode]; return `<button class="theme" style="--tb:${c[0]};--ts:${c[1]};--tf:${c[2]};--ta:${c[3]}" data-act="look" data-k="preset" data-v="${k}" aria-pressed="${L.preset === k}"><span class="tv"><i></i><i></i><i></i></span><b>${p.name}</b></button>` }).join("")}
+      <button class="theme" style="--tb:${L.custom.bg};--ts:${L.custom.surface};--tf:${L.custom.fg};--ta:${L.custom.accent}" data-act="look" data-k="preset" data-v="custom" aria-pressed="${L.preset === "custom"}"><span class="tv"><i></i><i></i><i></i></span><b>Your colors</b></button></div>
+    ${L.preset === "custom" ? `<div class="colors">${[["bg", "Background"], ["surface", "Cards"], ["fg", "Text"], ["accent", "Accent"]].map(([k, l]) => `<label><input type="color" data-custom="${k}" value="${L.custom[k]}">${l}</label>`).join("")}</div>`
+      : `<div class="line"><span>Light or dark</span>${seg("theme", [["system", "Auto"], ["light", "Light"], ["dark", "Dark"]])}</div>`}
+    <div class="line"><span>Accent color</span><div class="swatches">${ACC.map(c => `<button class="sw" style="--c:${c}" data-act="look" data-k="accent" data-v="${c}" aria-label="Accent ${c}" aria-pressed="${L.accent === c}"></button>`).join("")}<input type="color" id="acc-pick" value="${accNow}" aria-label="Pick any accent color">${L.accent ? `<button class="btn small" data-act="look" data-k="accent" data-v="">Theme default</button>` : ""}</div></div>
+  </div>
+  <div class="card set"><h3>Background</h3>
+    <div class="bgs"><button style="--g:var(--bg)" data-act="look" data-k="bg" data-v="none" aria-pressed="${L.bg === "none"}">Plain</button>${Object.entries(GRADS).map(([k, g]) => `<button style="background:${g[mode === "dark" ? 1 : 0]};background-color:var(--bg)" data-act="look" data-k="bg" data-v="g:${k}" aria-label="${k} background" aria-pressed="${L.bg === "g:" + k}"></button>`).join("")}
+      <label style="${bgImage ? `background:center/cover url('${bgImage}')` : ""}" aria-pressed="${L.bg === "image"}">${bgImage ? "" : "Photo"}<input type="file" id="bg-file" accept="image/*" hidden></label></div>
+    <div class="row-btns">${bgImage ? `<label class="btn small">Change photo<input type="file" id="bg-file2" accept="image/*" hidden></label><button class="btn small" data-act="rmphoto">Remove photo</button>` : `<span class="muted">Tap Photo to use a picture from your device.</span>`}</div>
+    ${L.bg !== "none" ? `<div class="line"><label for="dim">Fade the background</label><input type="range" id="dim" min="0" max="0.85" step="0.05" value="${L.dim}"></div>
+    <div class="line"><span>See-through cards</span>${lseg("glass", [[true, "On"], [false, "Off"]])}</div>` : ""}
+  </div>
+  <div class="card set"><h3>Text and layout</h3>
+    <div class="line"><label for="title-in">App name</label><input type="text" id="title-in" value="${esc(L.title)}" maxlength="30" placeholder="Tally"></div>
+    <div class="line"><span>Font</span><div class="seg" style="flex-wrap:wrap">${Object.entries(FONTS).map(([k, f]) => `<button data-act="look" data-k="font" data-v="${k}" aria-pressed="${L.font === k}" style="font-family:${esc(f.b)},system-ui">${f.name}</button>`).join("")}</div></div>
+    <div class="line"><span>Size</span>${lseg("size", [[0.9, "Small"], [1, "Normal"], [1.1, "Large"], [1.22, "Huge"]])}</div>
+    <div class="line"><span>Corners</span>${lseg("radius", [[4, "Sharp"], [14, "Soft"], [24, "Round"]])}</div>
+    <div class="line"><span>Spacing</span>${lseg("density", [["comfy", "Roomy"], ["compact", "Compact"]])}</div>
+    <div class="line"><span>Today layout</span>${lseg("layout", [["list", "List"], ["grid", "Grid"]])}</div>
+    <div class="line"><span>Check buttons</span>${lseg("check", [["circle", "Circle"], ["square", "Square"]])}</div>
+    <div class="line"><span>Show streaks</span>${lseg("streaks", [[true, "On"], [false, "Off"]])}</div>
     <div class="line"><span>Week starts on</span>${seg("weekStart", [[1, "Monday"], [0, "Sunday"]])}</div>
+    <div class="row-btns"><button class="btn small" data-act="resetlook">Reset the look</button></div>
   </div>
   <div class="card set"><h3>Reminders</h3>
     <div class="muted">Reminders pop up at the time you set on each tracker while the app is open or running in the background on your device. If something is already done, it stays quiet.</div>
@@ -690,6 +816,12 @@ document.addEventListener("click", async ev => {
     case "new": openEditor(blankTracker(), true); break;
     case "unarchive": t.archived = false; save(); render(); break;
     case "mv": { const L = active(), i = L.indexOf(t), j = i + +b.dataset.n; if (j < 0 || j >= L.length) break; const A = S.trackers.indexOf(L[i]), B = S.trackers.indexOf(L[j]); [S.trackers[A], S.trackers[B]] = [S.trackers[B], S.trackers[A]]; save(); render(); break }
+    case "look": { let v = b.dataset.v; const k2 = b.dataset.k;
+      if (["size", "radius"].includes(k2)) v = +v; if (["glass", "streaks"].includes(k2)) v = v === "true";
+      if (k2 === "preset" && v === "custom" && S.settings.look.preset !== "custom") { const p = palette(); S.settings.look.custom = { bg: p[0], surface: p[1], fg: p[2], accent: S.settings.look.accent || p[3] } }
+      S.settings.look[k2] = v; save(); applyTheme(); render(); break }
+    case "resetlook": { const t = S.settings.look.title; S.settings.look = Object.assign(defaultLook(), { title: t }); S.settings.theme = "system"; save(); applyTheme(); render(); toast("Look reset"); break }
+    case "rmphoto": bgImage = ""; try { localStorage.removeItem("tally.bgimg") } catch { } if (S.settings.look.bg === "image") S.settings.look.bg = "none"; save(); applyTheme(); render(); break;
     case "set": { let v = b.dataset.v; if (b.dataset.k === "weekStart") v = +v; S.settings[b.dataset.k] = v; save(); applyTheme(); render(); break }
     case "notify": {
       if (S.settings.notify && Notification.permission === "granted") { S.settings.notify = false; save(); render(); break }
@@ -697,16 +829,28 @@ document.addEventListener("click", async ev => {
       catch { toast("Notifications aren't available here. You'll still see reminders inside the app.") }
       break }
     case "install": if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice.catch(() => { }); deferredInstall = null; render() } break;
-    case "export": { const txt = JSON.stringify(S); $("#dataio").innerHTML = `<textarea class="data" id="exp" readonly>${esc(txt)}</textarea>`; const ta = $("#exp");
+    case "export": { const txt = JSON.stringify(Object.assign({}, S, bgImage ? { bgimg: bgImage } : {})); $("#dataio").innerHTML = `<textarea class="data" id="exp" readonly>${esc(txt)}</textarea>`; const ta = $("#exp");
       try { await navigator.clipboard.writeText(txt); toast("Backup copied") } catch { ta.focus(); ta.select(); toast("Select all and copy the text above") } break }
-    case "download": { try { const blob = new Blob([JSON.stringify(S, null, 1)], { type: "application/json" }); const u = URL.createObjectURL(blob); const l = document.createElement("a"); l.href = u; l.download = `tally-backup-${keyOf(today())}.json`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); toast("Backup file saved") } catch { toast("Saving files isn't allowed here. Use Copy backup instead.") } break }
+    case "download": { try { const blob = new Blob([JSON.stringify(Object.assign({}, S, bgImage ? { bgimg: bgImage } : {}), null, 1)], { type: "application/json" }); const u = URL.createObjectURL(blob); const l = document.createElement("a"); l.href = u; l.download = `tally-backup-${keyOf(today())}.json`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); toast("Backup file saved") } catch { toast("Saving files isn't allowed here. Use Copy backup instead.") } break }
     case "importbox": $("#dataio").innerHTML = `<textarea class="data" id="imp" placeholder="Paste a backup here, or pick a file below"></textarea><div class="row-btns" style="margin-top:8px"><button class="btn small primary" data-act="doimport">Restore</button><label class="btn small" style="display:inline-block">Choose file<input id="impf" type="file" accept=".json,application/json" hidden></label></div>`;
       $("#impf").onchange = async e => { const f = e.target.files[0]; if (f) $("#imp").value = await f.text() }; break;
-    case "doimport": try { const d = JSON.parse($("#imp").value); if (!Array.isArray(d.trackers) || typeof d.log !== "object") throw 0; S = Object.assign(defaults(), d); S.settings = Object.assign(defaults().settings, d.settings || {}); save(); applyTheme(); render(); toast("Backup restored") } catch { toast("That text isn't a Tally backup. Copy the whole backup and try again.") } break;
+    case "doimport": try { const d = JSON.parse($("#imp").value); if (!Array.isArray(d.trackers) || typeof d.log !== "object") throw 0; if (d.bgimg) { bgImage = d.bgimg; store.set("tally.bgimg", bgImage) } delete d.bgimg; S = Object.assign(defaults(), d); fixSettings(); save(); applyTheme(); render(); toast("Backup restored") } catch { toast("That text isn't a Tally backup. Copy the whole backup and try again.") } break;
     case "reset": $("#dataio").innerHTML = `<div class="banner"><span>Erase all trackers and history on this device?</span><span class="row-btns"><button class="btn small danger" data-act="reset2">Erase</button><button class="btn small" data-act="noreset">Keep</button></span></div>`; break;
     case "noreset": $("#dataio").innerHTML = ""; break;
-    case "reset2": S = defaults(); save(); applyTheme(); render(); toast("Everything erased"); break;
+    case "reset2": S = defaults(); bgImage = ""; try { localStorage.removeItem("tally.bgimg") } catch { } save(); applyTheme(); render(); toast("Everything erased"); break;
   }
+});
+document.addEventListener("input", ev => {
+  const el = ev.target, L = S.settings.look;
+  if (el.dataset.custom) { L.custom[el.dataset.custom] = el.value; L.preset = "custom"; if (el.dataset.custom === "accent") L.accent = ""; save(); applyTheme() }
+  else if (el.id === "acc-pick") { L.accent = el.value; save(); applyTheme() }
+  else if (el.id === "dim") { L.dim = +el.value; save(); applyTheme() }
+  else if (el.id === "title-in") { L.title = el.value.trim(); save() }
+});
+document.addEventListener("change", ev => {
+  const el = ev.target;
+  if ((el.id === "bg-file" || el.id === "bg-file2") && el.files[0]) loadPhoto(el.files[0]);
+  else if (el.dataset.custom || el.id === "acc-pick") render();
 });
 document.addEventListener("submit", ev => {
   if (ev.target.id !== "pform") return; ev.preventDefault();
