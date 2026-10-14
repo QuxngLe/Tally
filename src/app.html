@@ -226,6 +226,8 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
   .wrap.wide { max-width: 1040px }
   body.has-q .toast { bottom: 140px }
   .cell { aspect-ratio: auto; min-height: 108px }
+  /* the month grid stretches down to just above the add bar */
+  .wrap.wide .month .cell { min-height: max(60px, calc((100vh / var(--zoom, 1) - 290px) / var(--rows, 6) - 4px)) }
   .cell .evs { display: grid; gap: 2px; position: relative; align-self: start; margin-top: 3px; min-width: 0 }
   .cell .evs span { display: block; font-size: 10.5px; line-height: 1.25; padding: 1px 4px; border-radius: 4px; background: color-mix(in srgb, var(--c) 16%, transparent); border-inline-start: 2px solid var(--c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
   .cell .evs em { font-style: normal; font-size: 10px; color: var(--muted) }
@@ -280,7 +282,8 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 #bgimg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-size: cover; background-position: center }
 #bgimg::after { content: ""; position: absolute; inset: 0; background: var(--bg); opacity: var(--bg-dim, .3) }
 .wrap { position: relative; z-index: 1; zoom: var(--zoom, 1) }
-.tabs { zoom: var(--zoom, 1) }
+.tabs, .sheet, .toast, .menu { zoom: var(--zoom, 1) }
+@media (min-width: 760px) { .wrap.wide .month + p.muted { display: none } }
 body.glass .item:not(.done), body.glass .tile, body.glass .card, body.glass .mrow, body.glass .prompt, body.glass .banner, body.glass .empty, body.glass .tabs { background: color-mix(in srgb, var(--surface) 58%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px) }
 body.glass .item.done { background: color-mix(in srgb, var(--surface) 35%, transparent) }
 .crop { position: relative; overflow: hidden; margin: 0 auto; border-radius: 14px; background: var(--surface-2); touch-action: none; cursor: grab; max-width: 100% }
@@ -701,6 +704,9 @@ function curMode() {
   return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 function palette() { const L = S.settings.look; if (L.preset === "custom") { const c = L.custom; return [c.bg, c.surface, c.fg, c.accent] } return (PRESETS[L.preset] || PRESETS.pine)[curMode()] }
+// Big screens get a bigger UI, so nothing looks tiny on a large monitor (stacks with the Text size setting).
+function screenScale() { return innerWidth < 1200 ? 1 : Math.min(1.5, Math.max(1, Math.min(innerWidth / 1150, innerHeight / 760))) }
+addEventListener("resize", () => { clearTimeout(window.__rs); window.__rs = setTimeout(applyTheme, 120) });
 function applyTheme() {
   const r = document.documentElement, st = S.settings, L = st.look, set = (k, v) => r.style.setProperty(k, v);
   if (st.theme === "system") { if (r.dataset.themeOwned) { delete r.dataset.theme; delete r.dataset.themeOwned } }
@@ -714,7 +720,7 @@ function applyTheme() {
   const f = FONTS[L.font] || FONTS.modern;
   if (f.q && !document.getElementById("font-" + L.font)) { const l = document.createElement("link"); l.id = "font-" + L.font; l.rel = "stylesheet"; l.href = `https://fonts.googleapis.com/css2?${f.q}&display=swap`; document.head.appendChild(l) }
   set("--f-display", `${f.d}, "Segoe UI", system-ui, sans-serif`); set("--f-body", `${f.b}, "Segoe UI", system-ui, sans-serif`);
-  set("--r", L.radius + "px"); set("--zoom", L.size); set("--bg-dim", L.dim);
+  set("--r", L.radius + "px"); set("--zoom", L.size * screenScale()); set("--bg-dim", L.dim);
   const b = document.body, img = $("#bgimg");
   b.classList.toggle("compact", L.density === "compact"); b.classList.toggle("square", L.check === "square"); b.classList.toggle("no-streak", !L.streaks);
   const hasBg = L.bg !== "none" && (L.bg !== "image" || bgImage);
@@ -1084,7 +1090,7 @@ function rCal() {
         <span class="evs">${evs.slice(0, 3).map(t => `<span style="--c:${t.color}" title="${esc(t.name)}" data-act="calev" data-id="${t.id}" data-k="${st.k}">${rems(t)[0] ? `<em>${esc(fmtTime(rems(t)[0]))}</em> ` : ""}${esc(t.name)}</span>`).join("")}${evs.length > 3 ? `<em>+${evs.length - 3}</em>` : ""}</span>
         <span class="dots">${once.slice(0, 4).map(t => `<i style="--c:${t.color}" title="${esc(t.name)}"></i>`).join("")}</span></button>`;
     }
-    body = `<div class="month">${dows.map(x => `<div class="dow">${x}</div>`).join("")}${cells}</div>
+    body = `<div class="month" style="--rows:${Math.ceil(cells.split('class="cell').length - 1) / 7}">${dows.map(x => `<div class="dow">${x}</div>`).join("")}${cells}</div>
       <p class="muted">${tx("Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.")}</p>`;
   } else {
     const start = weekStart(ref, ws);
