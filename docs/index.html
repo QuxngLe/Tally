@@ -738,6 +738,11 @@ function rSettings() {
     <div class="row-btns"><button class="btn small" data-act="resetlook">Reset the look</button></div>`
     : `<div class="muted">Your own colors, accent color, font, text size, layout, check buttons and streaks.</div>`}
   </div>
+  <div class="card set"><h3>Steps from your phone</h3>
+    <div class="muted">Tally can't read Apple Health or Google Fit by itself, but your phone can send it your step count. Open this link with your number at the end, and today's steps are saved to a Steps tracker (it's created if you don't have one):</div>
+    <div class="line"><code style="overflow-wrap:anywhere;font-size:13px">${esc(location.origin + location.pathname)}?steps=8421</code><button class="btn small" data-act="copysteps">Copy link</button></div>
+    <div class="muted">On iPhone, a Shortcut can read today's steps from Health and open this link for you every evening. Ask Claude in the project for the setup steps.</div>
+  </div>
   <div class="card set"><h3>Week</h3>
     <div class="line"><span>Week starts on</span>${seg("weekStart", [[1, "Monday"], [0, "Sunday"]])}</div>
   </div>
@@ -878,6 +883,7 @@ document.addEventListener("click", async ev => {
     case "new": openEditor(blankTracker(), true); break;
     case "unarchive": t.archived = false; save(); render(); break;
     case "mv": { const L = active(), i = L.indexOf(t), j = i + +b.dataset.n; if (j < 0 || j >= L.length) break; const A = S.trackers.indexOf(L[i]), B = S.trackers.indexOf(L[j]); [S.trackers[A], S.trackers[B]] = [S.trackers[B], S.trackers[A]]; save(); render(); break }
+    case "copysteps": { const u = location.origin + location.pathname + "?steps="; try { await navigator.clipboard.writeText(u); toast("Link copied") } catch { toast(u) } break }
     case "adv": ui.adv = !ui.adv; try { sessionStorage.setItem("tally.adv", ui.adv ? "1" : "") } catch { } render(); break;
     case "look": { let v = b.dataset.v; const k2 = b.dataset.k;
       if (["size", "radius"].includes(k2)) v = +v; if (["glass", "streaks"].includes(k2)) v = v === "true";
@@ -945,6 +951,23 @@ setInterval(checkReminders, 20000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { checkReminders(); if (ui.day !== keyOf(today()) && ui.tab === "today" && !layer.innerHTML) { } render() } });
 
 // ---------- boot ----------
+// Steps import: opening ...?steps=8421 (optionally &date=2026-10-14) sets that day's step count,
+// so a phone automation (e.g. an iPhone Shortcut reading Apple Health) can fill it in.
+function importSteps() {
+  let q; try { q = new URLSearchParams(location.search) } catch { return }
+  const raw = q.get("steps"); if (raw == null) return;
+  const n = Math.round(parseFloat(String(raw).replace(/[^\d.]/g, "")));
+  const k = /^\d{4}-\d{2}-\d{2}$/.test(q.get("date") || "") ? q.get("date") : keyOf(today());
+  try { history.replaceState(null, "", location.pathname + location.hash) } catch { }
+  if (!isFinite(n) || n < 0) { toast("That steps link had no number in it."); return }
+  let t = active().find(x => x.kind === "count" && /^steps?$/i.test(x.unit)) || active().find(x => /\bsteps?\b/i.test(x.name));
+  if (!t) { t = blankTracker({ name: "Steps", emoji: "🚶", color: COLORS[6], kind: "count", target: 10000, unit: "steps", category: "Health" }); S.trackers.push(t) }
+  if (t.kind !== "count") { t.kind = "count"; t.target = 10000; t.unit = "steps" }
+  (S.log[t.id] ||= {}); if (n) S.log[t.id][k] = n; else delete S.log[t.id][k];
+  save(); ui.tab = "today"; ui.day = k;
+  setTimeout(() => toast(`🚶 ${n.toLocaleString()} steps saved`), 300);
+}
+importSteps();
 // The open tab lives in the address (#settings etc.), so a refresh or the back button keeps you where you were.
 const TABS = ["today", "stats", "manage", "settings"];
 function goTab(id) {
@@ -954,7 +977,7 @@ function goTab(id) {
   try { sessionStorage.setItem("tally.tab", id) } catch { }
 }
 window.addEventListener("hashchange", () => goTab(location.hash.slice(1)));
-{ let start = location.hash.slice(1); if (!TABS.includes(start)) { try { start = sessionStorage.getItem("tally.tab") || "" } catch { } }
+{ let start = ui.tab !== "today" ? "" : location.hash.slice(1); if (new URLSearchParams(location.search).has("steps")) start = "today"; if (!TABS.includes(start)) { try { start = sessionStorage.getItem("tally.tab") || "" } catch { } }
   if (TABS.includes(start)) ui.tab = start;
   try { ui.adv = sessionStorage.getItem("tally.adv") === "1" } catch { } }
 applyTheme(); render(); setTimeout(checkReminders, 1500);
