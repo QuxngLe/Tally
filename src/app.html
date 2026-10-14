@@ -40,10 +40,17 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 .tabs button { flex: 1; max-width: 140px; border: 0; background: none; padding: 6px 4px; border-radius: 10px; display: grid; justify-items: center; gap: 2px; font-size: 12px; font-weight: 600; color: var(--muted) }
 .tabs button svg { width: 22px; height: 22px }
 .tabs button[aria-current="true"] { color: var(--accent); background: var(--surface-2) }
+.tabs .me span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.tabs .me .avatar { width: 22px; height: 22px; font: 800 11px var(--f-display); font-style: normal }
+.tabs .me.out { color: var(--accent) }
 @media (min-width: 760px) {
   .tabs { position: sticky; top: env(safe-area-inset-top, 0px); bottom: auto; border-top: 0; border-bottom: 1px solid var(--line); padding-top: 8px; padding-bottom: 8px }
   .tabs button { grid-auto-flow: column; gap: 8px; font-size: 14px; padding: 8px 12px }
   .tabs button svg { width: 18px; height: 18px }
+  .tabs .me { align-items: center; position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); max-width: 220px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px 4px 4px; color: var(--fg); background: var(--surface) }
+  .tabs .me.out { padding: 7px 16px; background: var(--accent); color: var(--accent-ink); border-color: transparent }
+  .tabs .me.out svg { width: 16px; height: 16px }
+  .tabs .me .avatar { width: 28px; height: 28px; font-size: 12px }
 }
 
 /* header */
@@ -675,7 +682,12 @@ function openCropper(im) {
 }
 function renderTabs() {
   const tabs = [["today", "Today"], ["calendar", "Calendar"], ["stats", "Progress"], ["manage", "Lists"], ["settings", "Settings"]];
-  $("#tabs").innerHTML = tabs.map(([id, l]) => `<button data-tab="${id}" aria-current="${ui.tab === id}">${I[{ today: "today", calendar: "cal", stats: "stats", manage: "list", settings: "gear" }[id]]}<span>${l}</span></button>`).join("");
+  $("#tabs").innerHTML = tabs.map(([id, l]) => `<button data-tab="${id}" aria-current="${ui.tab === id}">${I[{ today: "today", calendar: "cal", stats: "stats", manage: "list", settings: "gear" }[id]]}<span>${l}</span></button>`).join("") + meTabHTML();
+}
+function meTabHTML() {
+  if (!syncUser) return `<button class="me out" data-act="account">${I.user}<span>Sign in</span></button>`;
+  const n = userName(), first = n.split(/\s+/)[0];
+  return `<button class="me" data-act="account" aria-label="Your account"><i class="avatar">${esc(initial(n))}</i><span>Hi, ${esc(first)}</span></button>`;
 }
 function render() { renderTabs(); document.body.classList.remove("has-top"); renderView(); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth) }
 function renderView() { ({ today: rToday, calendar: rCal, stats: rStats, manage: rManage, settings: rSettings })[ui.tab]() }
@@ -762,7 +774,7 @@ function greetLine(list, nDone) {
 function topbarHTML(list, nDone) {
   const n = userName(), wave = ["👋", "🙂", "✨", "☀️"][greetSeed % 4];
   return `<div class="topbar"><div class="hello">${syncUser ? `<span class="avatar" aria-hidden="true">${esc(initial(n))}</span>` : ""}<div class="txt"><b>${esc(greetWord())}${n ? ", " + esc(n) : ""} ${wave}</b><span>${esc(greetLine(list, nDone))}</span></div></div>
-    ${syncUser ? `<button class="acct" data-act="account" aria-label="Your account"><span class="avatar" style="width:26px;height:26px;font-size:12px">${esc(initial(n))}</span>Account</button>` : `<button class="acct out" data-act="account">${I.user}Sign in</button>`}</div>`;
+  </div>`;
 }
 function openAccount(mode) {
   if (!syncReady()) {
@@ -1343,7 +1355,7 @@ async function initSync() {
   try {
     await loadSupabase();
     const { data } = await sb.auth.getSession(); syncUser = data.session ? data.session.user : null;
-    sb.auth.onAuthStateChange((_e, session) => { syncUser = session ? session.user : null; if (ui.tab === "settings" && !layer.innerHTML) render() });
+    sb.auth.onAuthStateChange((_e, session) => { syncUser = session ? session.user : null; if (!layer.innerHTML) render() });
     if (syncUser) syncNow();
   } catch (e) { syncErr = e.message }
 }
