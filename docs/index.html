@@ -164,6 +164,8 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 
 /* manage */
 .mrow { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; background: var(--surface); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--shadow) }
+.emopick { display: flex; gap: 4px; flex-wrap: wrap }
+.emopick button { width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-size: 18px; padding: 0 }
 .dot { width: 34px; height: 34px; border-radius: 10px; background: var(--c); display: grid; place-items: center; font-size: 16px; font-weight: 800; color: #fff; font-family: var(--f-display); line-height: 1 }
 .mrow .acts { display: flex; gap: 4px }
 .icon-btn { width: 32px; height: 32px; border: 1px solid var(--line); background: var(--surface); border-radius: 9px; display: grid; place-items: center; padding: 0; color: var(--muted) }
@@ -290,7 +292,7 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .filters button { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--muted) }
 .filters button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: transparent }
 .tpl { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; background: var(--surface); border-radius: var(--r); padding: 12px; box-shadow: var(--shadow) }
-.tpl .dot.big { width: 42px; height: 42px; font-size: 19px; flex: none }
+.tpl .dot.big { width: 42px; height: 42px; font-size: 22px; flex: none }
 .tpl .items { font-size: 13px; color: var(--muted) }
 .tagt { color: var(--accent); font-weight: 600 }
 /* greeting + account */
@@ -700,8 +702,8 @@ const I = {
 };
 
 // ---------- rendering ----------
-// Trackers show the first letter of their name in a colored badge (no emoji anywhere in the UI).
-const ini = x => esc(([...String((x && x.name) || "").trim()][0] || "•").toLocaleUpperCase(LOC));
+// A tracker's icon is its emoji; if it has none, the first letter of its name.
+const ini = x => esc((x && x.emoji) || ([...String((x && x.name) || "").trim()][0] || "•").toLocaleUpperCase(LOC));
 const $ = s => document.querySelector(s);
 const view = $("#view"), layer = $("#layer");
 const PRESETS = {
@@ -1267,7 +1269,7 @@ const TEMPLATES = [
 function openTemplates() {
   layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tph">
     <h2 id="tph">${tx("Start from a template")}</h2><p class="muted" style="margin-top:-6px">${tx("Adds a ready-made set in one tap. You can change anything afterwards.")}</p>
-    <div class="list">${TEMPLATES.map((tp, i) => `<div class="tpl"><span class="dot big" style="--c:${tp.items[0].color}">${esc([...tx(tp.name)][0].toLocaleUpperCase(LOC))}</span><div style="min-width:0"><div class="name">${esc(tx(tp.name))}</div><div class="items">${tp.items.length === 1 && tp.items[0].subtasks ? esc(tp.items[0].subtasks.map(x => tx(x)).join(" · ")) : esc(tp.items.map(x => tx(x.name)).join(" · "))}</div></div><button class="btn small primary" data-tp="${i}">${tx("Add")}</button></div>`).join("")}</div>
+    <div class="list">${TEMPLATES.map((tp, i) => `<div class="tpl"><span class="dot big" style="--c:${tp.items[0].color}">${tp.emoji}</span><div style="min-width:0"><div class="name">${esc(tx(tp.name))}</div><div class="items">${tp.items.length === 1 && tp.items[0].subtasks ? esc(tp.items[0].subtasks.map(x => tx(x)).join(" · ")) : esc(tp.items.map(x => tx(x.name)).join(" · "))}</div></div><button class="btn small primary" data-tp="${i}">${tx("Add")}</button></div>`).join("")}</div>
     <div class="row-btns" style="margin-top:14px"><button class="btn" data-tp="close">${tx("Close")}</button></div></div></div>`;
   layer.onclick = ev => {
     const b = ev.target.closest("[data-tp]");
@@ -1352,6 +1354,7 @@ function rSettings() {
 }
 
 // ---------- editor sheet ----------
+const EMOJIS = ["✅", "💧", "📖", "🏋️", "🏃", "🧘", "😴", "💊", "🍎", "📚", "✍️", "💻", "🎸", "🧹", "💸", "📞", "🪴", "🐾", "🪥", "🙏", "🚫", "⭐"];
 function openEditor(t, isNew) {
   const e = JSON.parse(JSON.stringify(t));
   const cats = [...new Set(S.trackers.map(x => x.category).filter(Boolean))];
@@ -1359,6 +1362,7 @@ function openEditor(t, isNew) {
     layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="edh">
     <h2 id="edh">${isNew ? tx("New tracker") : tx("Edit tracker")}</h2>
     <div class="field"><label for="f-name">${tx("Name")}</label><input id="f-name" type="text" value="${esc(e.name)}" placeholder="${tx("e.g. Drink water")}"></div>
+    <div class="field"><span class="l">${tx("Icon")}</span><div class="emopick">${EMOJIS.map(x => `<button data-ed="emoji" data-v="${x}" aria-pressed="${e.emoji === x}" style="${e.emoji === x ? "outline:2px solid var(--accent)" : ""}">${x}</button>`).join("")}<input id="f-emoji" type="text" value="${esc(e.emoji)}" aria-label="${tx("Or type any emoji")}" style="width:56px;text-align:center;border:1px solid var(--line);border-radius:9px;background:var(--surface)"></div></div>
     <div class="field"><span class="l">${tx("Color")}</span><div class="swatches">${COLORS.map(c => `<button class="sw" style="--c:${c}" data-ed="color" data-v="${c}" aria-label="Color ${c}" aria-pressed="${e.color === c}"></button>`).join("")}</div></div>
     <div class="field"><span class="l">${tx("How do you finish it?")}</span><div class="seg"><button data-ed="kind" data-v="check" aria-pressed="${e.kind === "check"}">${tx("Check it off")}</button><button data-ed="kind" data-v="count" aria-pressed="${e.kind === "count"}">${tx("Reach an amount")}</button></div></div>
     ${e.kind === "count" ? `<div class="two"><div class="field"><label for="f-target">${tx("Amount")}</label><input id="f-target" type="number" min="1" value="${e.target}"></div><div class="field"><label for="f-unit">${tx("Unit")}</label><input id="f-unit" type="text" value="${esc(e.unit)}" placeholder="${tx("glasses, pages, km…")}"></div></div>` : ""}
