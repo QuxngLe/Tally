@@ -240,6 +240,17 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
   .qprev .qi.bad { color: var(--muted) }
   .qprev .qi .w { color: var(--flame) }
 }
+.prompt select { border: 0; background: var(--bg); color: inherit; border-radius: 10px; padding: 8px 6px; font: inherit; font-size: 14px; max-width: 34% }
+.cell .evs span { cursor: pointer }
+.cell .evs span:hover { background: color-mix(in srgb, var(--c) 30%, transparent) }
+.dlist { display: grid; gap: 8px }
+.drow { display: flex; align-items: center; gap: 10px; background: var(--surface); border-radius: 14px; padding: 8px 10px; box-shadow: var(--shadow) }
+.drow.focus { outline: 2px solid var(--accent) }
+.drow .body { flex: 1; min-width: 0 }
+.drow .name { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.drow .meta { font-size: 13px }
+.dchk { width: 38px; height: 38px; flex: none; border-radius: 50%; border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); font-size: 17px; display: grid; place-items: center; color: var(--accent-ink) }
+.dchk.on { background: var(--c); color: #fff; font-weight: 800 }
 .wday { background: var(--surface); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--shadow) }
 .wday.today { outline: 2px solid var(--accent) }
 .wday .wh { display: flex; justify-content: space-between; align-items: baseline; border: 0; background: none; padding: 0; width: 100%; font-weight: 700; margin-bottom: 6px }
@@ -649,6 +660,7 @@ const I = {
   down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
   globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9s1.3-6.3 3.8-9z"/></svg>',
   out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
   edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>'
 };
 
@@ -988,58 +1000,65 @@ function parseEvent(raw, base = today()) {
 }
 window.parseEvent = parseEvent;
 const quickLines = v => v.split(/\n|;/).map(x => x.trim()).filter(Boolean).map(x => parseEvent(x));
+const REPEATS = [["once", "Once"], ["weekly", "Every week"], ["daily", "Every day"], ["weekdays", "Weekdays"]]; /* i18n: tx("Once") tx("Every week") tx("Every day") tx("Weekdays") */
+function repText(r, due) { return r === "weekly" ? tx("every {day}", { day: DOW[fromKey(due).getDay()] }) : r === "daily" ? tx("every day") : r === "weekdays" ? tx("weekdays") : "" }
 function quickPreview(v) {
-  const ev = quickLines(v || "");
-  if (aiOn()) return `<span class="qi">✨ ${tx("Press Enter and the AI will add it to your calendar")}</span>`;
+  const ev = quickLines(v || ""), r = ui.qrep || "once";
   if (!ev.length) return `<span class="qi bad">${tx("Type an event, like: wed 15 CS341 midterm 2 12:30 pm")}</span>`;
   return ev.map(e => !e.name ? `<span class="qi bad">${tx("Add a name for the event")}</span>` : !e.due ? `<span class="qi bad">${esc(e.name)} · ${tx("add a date, like fri or Oct 20")}</span>`
-    : `<span class="qi">${esc(e.emoji)} <b>${esc(e.name)}</b> · ${esc(fmtDate(fromKey(e.due)))}${e.time ? " · " + fmtTime(e.time) : ""}${e.mismatch ? ` <span class="w">⚠ ${tx("check the day")}</span>` : ""}</span>`).join("");
+    : `<span class="qi">${esc(e.emoji)} <b>${esc(e.name)}</b> · ${esc(fmtDate(fromKey(e.due)))}${e.time ? " · " + fmtTime(e.time) : ""}${r !== "once" ? " · 🔁 " + esc(repText(r, e.due)) : ""}${e.mismatch ? ` <span class="w">⚠ ${tx("check the day")}</span>` : ""}</span>`).join("");
 }
-// Signed-in people get Claude (through the "schedule-ai" Supabase function) to read what they meant;
-// everyone else, or anyone offline, gets the built-in reader above.
-function aiOn() { return !!(sb && syncUser && sb.functions) }
-async function aiEvents(text) {
-  const n = new Date();
-  const { data, error } = await sb.functions.invoke("schedule-ai", { body: { text, today: keyOf(n), weekday: n.toLocaleDateString("en", { weekday: "long" }), now: `${pad(n.getHours())}:${pad(n.getMinutes())}`, lang: LANG } });
-  if (error && error.context && error.context.json) { const b = await error.context.json().catch(() => null); if (b && b.limit) return { evs: [], note: b.error || "", limit: true } }
-  if (error || !data || data.error) throw new Error((data && data.error) || (error && error.message) || "AI unavailable");
-  const ok = d => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
-  const evs = (data.events || []).filter(e => e && e.title && (e.repeat === "daily" || (e.repeat === "days" && (e.days || []).length) || (e.repeat === "once" && ok(e.date))))
-    .map(e => ({ name: String(e.title).slice(0, 120), emoji: e.emoji || "📅", repeat: e.repeat, due: e.date, days: e.days || [], time: /^\d{2}:\d{2}$/.test(e.time || "") ? e.time : null }));
-  return { evs, note: data.note || "" };
-}
-function addEvents(evs, note) {
-  const made = evs.map(e => blankTracker({ name: e.name, emoji: e.emoji, color: COLORS[Math.abs([...e.name].reduce((a, c) => a * 31 + c.charCodeAt(0), 7)) % COLORS.length], freq: e.repeat === "daily" ? "daily" : e.repeat === "days" ? "days" : "once", due: e.repeat === "once" || !e.repeat ? e.due : null, days: e.repeat === "days" ? e.days : [], reminders: e.time ? [e.time] : [], cal: true }));
+function addEvents(evs) {
+  const r = ui.qrep || "once";
+  const made = evs.map(e => blankTracker({ name: e.name, emoji: e.emoji, color: COLORS[Math.abs([...e.name].reduce((a, c) => a * 31 + c.charCodeAt(0), 7)) % COLORS.length],
+    freq: r === "daily" ? "daily" : r === "once" ? "once" : "days", due: r === "once" ? e.due : null, days: r === "weekly" ? [fromKey(e.due).getDay()] : r === "weekdays" ? [1, 2, 3, 4, 5] : [],
+    created: r === "once" ? keyOf(today()) : e.due, reminders: e.time ? [e.time] : [], cal: true }));
   S.trackers.push(...made); save();
-  const firstOnce = made.find(t => t.due);
-  if (firstOnce) ui.calRef = firstOnce.due;
+  ui.calRef = evs[0].due;
   ui.qtext = ""; render(); const q = $("#qin"); if (q) q.focus();
-  const m0 = made[0], when = m0.due ? fmtDate(fromKey(m0.due)) : schedText(m0);
+  const m0 = made[0], when = r === "once" ? fmtDate(fromKey(evs[0].due)) : repText(r, evs[0].due);
   const msg = made.length === 1 ? tx("Added {name} on {date}", { name: m0.name, date: when }) : tx("Added {n} events", { n: made.length });
-  toast(note ? msg + " · " + note : msg, tx("Undo"), () => { const ids = made.map(t => t.id); S.trackers = S.trackers.filter(t => !ids.includes(t.id)); save(); render() });
+  toast(msg, tx("Undo"), () => { const ids = made.map(t => t.id); S.trackers = S.trackers.filter(t => !ids.includes(t.id)); save(); render() });
 }
-let qBusy = false;
-async function quickSubmit(v) {
-  if (!v.trim() || qBusy) return;
-  const prev = $("#qprev"), inp = $("#qin");
-  // The built-in reader handles the easy, clear ones for free; Claude only gets what it can't read cleanly.
-  const mine = quickLines(v), clear = mine.length && mine.every(e => e.name && e.due && !e.mismatch) && !/\b(every|each|daily|weekly|weekdays?|weekends?|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays|sundays|until|except|other|and|then)\b/i.test(v) && (v.match(/\b(mon|tue|wed|thu|fri|sat|sun)[a-z]*\b/gi) || []).length < 2;
-  if (clear) return addEvents(mine.map(e => ({ name: e.name, emoji: e.emoji, repeat: "once", due: e.due, time: e.time })));
-  let limNote = "";
-  if (aiOn()) {
-    qBusy = true; if (inp) inp.disabled = true; prev.innerHTML = `<span class="qi">✨ ${tx("Reading that…")}</span>`;
-    try {
-      const r = await aiEvents(v); qBusy = false;
-      if (r.evs.length) return addEvents(r.evs, r.note);
-      if (r.limit) { if (inp) inp.disabled = false; limNote = r.note || tx("You've used today's AI adds, so Tally read it by itself.") }
-      else {
-      if (inp) { inp.disabled = false; inp.focus() }
-      prev.innerHTML = `<span class="qi bad">${esc(r.note || tx("I couldn't find anything to add in that."))}</span>`; return; }
-    } catch (e) { qBusy = false; if (inp) { inp.disabled = false } toast(tx("The AI isn't available right now, so Tally read it by itself.")) }
-  }
+function quickSubmit(v) {
+  if (!v.trim()) return;
   const ok = quickLines(v).filter(e => e.name && e.due);
-  if (!ok.length) { prev.innerHTML = quickPreview(v); if (inp) inp.focus(); if (limNote) toast(limNote); return }
-  addEvents(ok.map(e => ({ name: e.name, emoji: e.emoji, repeat: "once", due: e.due, time: e.time })), limNote);
+  if (!ok.length) { $("#qprev").innerHTML = quickPreview(v); $("#qin").focus(); return }
+  addEvents(ok);
+}
+
+// Tapping a day on the calendar opens this sheet: edit or delete what's on that day without leaving the calendar.
+function openDaySheet(k, focusId) {
+  const d = fromKey(k);
+  let confirmId = null;
+  const draw = () => {
+    const l = dueList(d);
+    layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dsh">
+     <h2 id="dsh" style="margin:0 0 12px">${esc(d.toLocaleDateString(LOC, { weekday: "long", month: "long", day: "numeric" }))}</h2>
+     ${l.length ? `<div class="dlist">${l.map(t => { const on = doneOn(t, k); return `<div class="drow ${t.id === focusId ? "focus" : ""}">
+       <button class="dchk ${on ? "on" : ""}" style="--c:${t.color}" data-ds="tog" data-id="${t.id}" aria-pressed="${on}" aria-label="${tx("Done")}">${on ? "✓" : esc(t.emoji)}</button>
+       <div class="body"><div class="name">${esc(t.name)}</div><div class="meta muted">${t.freq === "once" ? tx("One time") : esc(schedText(t))}${rems(t).length ? " · ⏰ " + remText(t) : ""}</div></div>
+       ${confirmId === t.id ? `<span class="row-btns"><button class="btn small danger" data-ds="del2" data-id="${t.id}">${tx("Delete")}</button><button class="btn small" data-ds="keep">${tx("Keep")}</button></span>`
+         : `<button class="icon-btn" data-ds="edit" data-id="${t.id}" aria-label="${tx("Edit")}">${I.edit}</button><button class="icon-btn" data-ds="del" data-id="${t.id}" aria-label="${tx("Delete")}">${I.trash}</button>`}</div>` }).join("")}</div>
+       ${confirmId && S.trackers.find(x => x.id === confirmId)?.freq !== "once" ? `<p class="muted" style="margin:8px 0 0">${tx("This repeats, so deleting removes every day of it.")}</p>` : ""}`
+       : `<p class="muted">${tx("Nothing planned")}</p>`}
+     <div class="row-btns" style="margin-top:16px"><button class="btn primary" data-ds="add">${tx("Add on this day")}</button><button class="btn" data-ds="open">${tx("Open day")}</button><button class="btn" data-ds="close">${tx("Close")}</button></div></div></div>`;
+  };
+  draw();
+  layer.onkeydown = ev => { if (ev.key === "Escape") closeSheet() };
+  layer.onclick = ev => {
+    const b = ev.target.closest("[data-ds]");
+    if (!b) { if (ev.target.dataset.act === "closebg") closeSheet(); return }
+    const t = S.trackers.find(x => x.id === b.dataset.id), a = b.dataset.ds;
+    if (a === "tog") { if (t.kind === "count") setCount(t, k, cnt(t, k) >= t.target ? 0 : t.target); else setCount(t, k, doneOn(t, k) ? 0 : 1); save(); draw() }
+    else if (a === "edit") openEditor(t, false);
+    else if (a === "del") { confirmId = t.id; draw() }
+    else if (a === "keep") { confirmId = null; draw() }
+    else if (a === "del2") { confirmId = null; removeTracker(t.id); draw() }
+    else if (a === "add") openEditor(blankTracker({ freq: "once", due: k, emoji: "📅", cal: true }), true);
+    else if (a === "open") { layer.innerHTML = ""; ui.day = k; goTab("today") }
+    else closeSheet();
+  };
 }
 
 // ---------- calendar ----------
@@ -1062,11 +1081,11 @@ function rCal() {
       cells += `<button class="cell ${d.getMonth() !== ref.getMonth() ? "out" : ""} ${st.k === tk ? "today" : ""} ${fill === 1 && st.l.length ? "full" : ""}" data-act="calday" data-k="${st.k}" aria-label="${fmtDate(d)}: ${tx("{done} of {total} done", { done: st.done, total: st.l.length })}">
         <span class="fill" style="height:${Math.round(fill * 100)}%"></span><b class="num">${d.getDate()}</b>
         <span class="pc">${st.l.length && !future ? `${st.done}/${st.l.length}` : ""}</span>
-        <span class="evs">${evs.slice(0, 3).map(t => `<span style="--c:${t.color}" title="${esc(t.name)}">${rems(t)[0] ? `<em>${esc(fmtTime(rems(t)[0]))}</em> ` : ""}${esc(t.name)}</span>`).join("")}${evs.length > 3 ? `<em>+${evs.length - 3}</em>` : ""}</span>
+        <span class="evs">${evs.slice(0, 3).map(t => `<span style="--c:${t.color}" title="${esc(t.name)}" data-act="calev" data-id="${t.id}" data-k="${st.k}">${rems(t)[0] ? `<em>${esc(fmtTime(rems(t)[0]))}</em> ` : ""}${esc(t.name)}</span>`).join("")}${evs.length > 3 ? `<em>+${evs.length - 3}</em>` : ""}</span>
         <span class="dots">${once.slice(0, 4).map(t => `<i style="--c:${t.color}" title="${esc(t.name)}"></i>`).join("")}</span></button>`;
     }
     body = `<div class="month">${dows.map(x => `<div class="dow">${x}</div>`).join("")}${cells}</div>
-      <p class="muted">${tx("Each day fills up as you finish things. Dots are one-time tasks. Tap a day to open it.")}</p>`;
+      <p class="muted">${tx("Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.")}</p>`;
   } else {
     const start = weekStart(ref, ws);
     title = `${fmtShort(start)} – ${fmtShort(addDays(start, 6))}`;
@@ -1074,7 +1093,7 @@ function rCal() {
       const d = addDays(start, i), st = dayStats(d);
       return `<div class="wday ${st.k === tk ? "today" : ""}"><button class="wh" data-act="calday" data-k="${st.k}">${esc(d.toLocaleDateString(LOC, { weekday: "long", month: "short", day: "numeric" }))}<span class="num">${st.l.length ? tx("{done}/{total} done", { done: st.done, total: st.l.length }) : tx("Nothing planned")}</span></button>
         <div class="chips">${st.l.map(t => { const on = doneOn(t, st.k); return `<button class="tchip ${on ? "on" : ""}" style="--c:${t.color}" data-act="calchip" data-id="${t.id}" data-k="${st.k}" aria-pressed="${on}"><span class="e">${on ? "✓" : esc(t.emoji)}</span>${esc(t.name)}${t.kind === "count" ? ` <span class="muted num">${cnt(t, st.k)}/${t.target}</span>` : ""}</button>` }).join("")}</div></div>`;
-    }).join("")}</div><p class="muted">${tx("Tap an item to check it off for that day. Amounts open the day so you can fill them in.")}</p>`;
+    }).join("")}</div><p class="muted">${tx("Tap an item to check it off. Tap a day's name to edit or delete things.")}</p>`;
   }
   view.innerHTML = `<header class="head"><div><div class="eyebrow">${tx("Calendar")}</div><h1>${ui.calMode === "month" ? tx("Your month") : tx("Your week")}</h1></div>
     <div class="seg"><button data-act="calmode" data-v="month" aria-pressed="${ui.calMode === "month"}">${tx("Month")}</button><button data-act="calmode" data-v="week" aria-pressed="${ui.calMode === "week"}">${tx("Week")}</button></div></header>
@@ -1082,7 +1101,7 @@ function rCal() {
   ${body}
   <div class="qspace"></div>
   <form class="qadd" id="qform" autocomplete="off"><div class="qprev" id="qprev" aria-live="polite">${ui.qtext ? quickPreview(ui.qtext) : ""}</div>
-    <div class="prompt"><input id="qin" type="text" placeholder="${tx("Add to your calendar: wed 15 CS341 midterm 2 12:30 pm")}" aria-label="${tx("Describe an event to add")}" value="${esc(ui.qtext || "")}"><button class="go" type="submit">${tx("Add")}</button></div></form>`;
+    <div class="prompt"><select id="qrep" aria-label="${tx("Repeat")}">${REPEATS.map(([v, l]) => `<option value="${v}" ${(ui.qrep || "once") === v ? "selected" : ""}>${tx(l)}</option>`).join("")}</select><input id="qin" type="text" placeholder="${tx("Add to your calendar: wed 15 CS341 midterm 2 12:30 pm")}" aria-label="${tx("Describe an event to add")}" value="${esc(ui.qtext || "")}"><button class="go" type="submit">${tx("Add")}</button></div></form>`;
 }
 
 // charts
@@ -1412,7 +1431,8 @@ document.addEventListener("click", async ev => {
     case "calmode": ui.calMode = b.dataset.v; render(); break;
     case "calnav": { const n = +b.dataset.n, r = fromKey(ui.calRef);
       ui.calRef = n === 0 ? keyOf(today()) : ui.calMode === "month" ? keyOf(new Date(r.getFullYear(), r.getMonth() + n, 1)) : keyOf(addDays(r, 7 * n)); render(); break }
-    case "calday": ui.day = b.dataset.k; goTab("today"); break;
+    case "calday": openDaySheet(b.dataset.k); break;
+    case "calev": openDaySheet(b.dataset.k, b.dataset.id); break;
     case "calchip": { const kk = b.dataset.k; if (t.kind === "count" || t.subtasks.length) { ui.day = kk; goTab("today"); break } setCount(t, kk, doneOn(t, kk) ? 0 : 1); render(); break }
     case "day": { const n = +b.dataset.n; ui.day = n === 0 ? keyOf(today()) : keyOf(addDays(fromKey(ui.day), n)); render(); break }
     case "try": ui.prompt = b.dataset.v; ui.draft = parsePrompt(b.dataset.v); render(); break;
@@ -1462,6 +1482,7 @@ document.addEventListener("input", ev => {
 
   else if (el.id === "dim") { L.dim = +el.value; save(); applyTheme() }
   else if (el.id === "acc-pick") { L.accent = el.value; save(); applyTheme() }
+  else if (el.id === "qrep") { ui.qrep = el.value; const q = $("#qin"); $("#qprev").innerHTML = q.value.trim() ? quickPreview(q.value) : "" }
   else if (el.id === "qin") { ui.qtext = el.value; $("#qprev").innerHTML = el.value.trim() ? quickPreview(el.value) : "" }
 
 });
