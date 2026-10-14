@@ -158,7 +158,7 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .sheet h2 { font-size: 22px; margin-bottom: 12px }
 .field { display: grid; gap: 5px; margin-bottom: 12px }
 .field > label, .field > .l { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted) }
-.field input[type=text], .field input[type=number], .field input[type=date], .field input[type=time], .field select, .field textarea {
+.field input[type=text], .field input[type=email], .field input[type=password], .field input[type=number], .field input[type=date], .field input[type=time], .field select, .field textarea {
   width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 9px 11px; font-size: 16px }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
 .days { display: flex; gap: 5px; flex-wrap: wrap }
@@ -217,6 +217,24 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .tpl .big { font-size: 26px }
 .tpl .items { font-size: 13px; color: var(--muted) }
 .tagt { color: var(--accent); font-weight: 600 }
+/* greeting + account */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px }
+.hello { display: flex; gap: 10px; align-items: center; min-width: 0 }
+.hello .txt { min-width: 0 }
+.hello b { display: block; font: 800 19px/1.2 var(--f-display); letter-spacing: -.01em; overflow-wrap: anywhere }
+.hello .txt span { display: block; font-size: 13px; color: var(--muted) }
+.avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font: 800 15px var(--f-display); flex: none }
+.avatar.big { width: 64px; height: 64px; font-size: 28px }
+.acct { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px 4px 4px; font-weight: 600; font-size: 14px; flex: none; box-shadow: var(--shadow) }
+.acct.out { padding: 7px 14px; background: var(--accent); color: var(--accent-ink); border-color: transparent }
+.acct svg { width: 16px; height: 16px }
+.has-top .head { padding-top: 10px }
+.authtabs { display: flex; margin-bottom: 14px }
+.pw { position: relative }
+.pw input { width: 100%; padding-right: 56px }
+.pw button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: none; color: var(--muted); font-size: 13px; font-weight: 600 }
+.err { color: var(--danger); font-size: 14px; margin: 4px 0 10px }
+.acc-head { display: flex; gap: 14px; align-items: center; margin-bottom: 14px }
 /* appearance options */
 #bgimg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-size: cover; background-position: center }
 #bgimg::after { content: ""; position: absolute; inset: 0; background: var(--bg); opacity: var(--bg-dim, .3) }
@@ -297,9 +315,9 @@ let S = store.get(KEY, null);
 const defaultLook = () => ({ preset: "pine", accent: "", custom: { bg: "#F3F5F1", surface: "#FFFFFF", fg: "#16201B", accent: "#2E6B57" }, bg: "none", dim: 0.4, glass: true, font: "modern", size: 1, radius: 14, density: "comfy", layout: "list", check: "circle", streaks: true, title: "Tally" });
 const defaults = () => ({ trackers: [], log: {}, fired: {}, examples: false, settings: { theme: "system", weekStart: 1, notify: false, showDone: true, look: defaultLook() } });
 function fixSettings() {
-  const st = fixSettings();
-  if (st.accent) { st.look.preset = { ocean: "ocean", plum: "lavender", rose: "sakura", amber: "sand", slate: "mono" }[st.accent] || st.look.preset; delete st.accent }
+  const st = S.settings = Object.assign(defaults().settings, S.settings || {});
   st.look = Object.assign(defaultLook(), st.look || {}); st.look.custom = Object.assign(defaultLook().custom, st.look.custom || {});
+  if (st.accent) { st.look.preset = { ocean: "ocean", plum: "lavender", rose: "sakura", amber: "sand", slate: "mono" }[st.accent] || st.look.preset; delete st.accent }
   // app name, corners and spacing are no longer offered, so they stay at their defaults
   const d = defaultLook(); ["radius", "density", "title"].forEach(k => st.look[k] = d[k]);
 }
@@ -554,6 +572,7 @@ const I = {
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg>',
   gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
   cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
   tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
   up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>',
   down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
@@ -674,7 +693,7 @@ function renderTabs() {
   const tabs = [["today", "Today"], ["calendar", "Calendar"], ["stats", "Progress"], ["manage", "Lists"], ["settings", "Settings"]];
   $("#tabs").innerHTML = tabs.map(([id, l]) => `<button data-tab="${id}" aria-current="${ui.tab === id}">${I[{ today: "today", calendar: "cal", stats: "stats", manage: "list", settings: "gear" }[id]]}<span>${l}</span></button>`).join("");
 }
-function render() { renderTabs(); renderView(); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth) }
+function render() { renderTabs(); document.body.classList.remove("has-top"); renderView(); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth) }
 function renderView() { ({ today: rToday, calendar: rCal, stats: rStats, manage: rManage, settings: rSettings })[ui.tab]() }
 
 function itemHTML(t, k) {
@@ -710,7 +729,7 @@ function rToday() {
   todo.forEach(t => (groups[t.category || ""] ||= []).push(t));
   const gKeys = Object.keys(groups).sort((a, b) => (a === "") - (b === "") || a.localeCompare(b));
   const draft = ui.draft;
-  view.innerHTML = `
+  document.body.classList.toggle("has-top", isToday); view.innerHTML = `${isToday ? topbarHTML(list, done.length) : ""}
   <header class="head">
     <div>
       <div class="eyebrow">${S.settings.look.title ? esc(S.settings.look.title) + " · " : ""}${isToday ? "Today" : diffDays(d, today()) === -1 ? "Yesterday" : diffDays(d, today()) === 1 ? "Tomorrow" : d > today() ? "Coming up" : "Looking back"}</div>
@@ -734,6 +753,105 @@ function rToday() {
   ${done.length ? `<section class="sec"><div class="sec-h"><h2>Done · ${done.length}</h2><button data-act="toggledone">${ui.doneOpen ? "Hide" : "Show"}</button></div>${ui.doneOpen ? `<div class="list">${done.map(t => itemHTML(t, k)).join("")}</div>` : ""}</section>` : ""}
   ${upcoming.length ? `<section class="sec"><div class="sec-h"><h2>Coming up</h2></div><div class="list">${upcoming.map(t => `<div class="item"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="open" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(fmtDate(fromKey(t.due)))}</span>${rems(t).length ? `<span>⏰ ${remText(t)}</span>` : ""}</div></div><span></span></div>`).join("")}</div></section>` : ""}
   `;
+}
+// ---------- greeting + account ----------
+const userName = () => { if (!syncUser) return ""; const m = syncUser.user_metadata || {}; return (m.name || (syncUser.email || "").split("@")[0] || "").trim() };
+const initial = n => (n || "?").trim().charAt(0).toUpperCase();
+let greetSeed = Math.floor(Math.random() * 1000);
+function greetWord() {
+  const h = new Date().getHours();
+  const timed = h < 5 ? "Up late" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : h < 22 ? "Good evening" : "Good night";
+  const opts = [timed, timed, "Hi", "Hello", "Hey", "Welcome back"];
+  return opts[greetSeed % opts.length];
+}
+function greetLine(list, nDone) {
+  const left = list.length - nDone;
+  const best = active().filter(t => t.freq !== "once").map(t => [t, streak(t).cur]).sort((a, b) => b[1] - a[1])[0];
+  if (!active().length) return "Let's set up your first tracker.";
+  if (!list.length) return "Nothing planned today. Enjoy it.";
+  if (!left) return "Everything's done today. Nice work! 🎉";
+  const bits = [`${left} thing${left > 1 ? "s" : ""} left today`];
+  if (best && best[1] >= 3) bits.push(`🔥 ${best[0].name} is on a ${best[1]}-${best[0].freq === "weekly" ? "week" : "day"} streak`);
+  else if (nDone) bits.push(`${nDone} done already`);
+  return bits.join(" · ");
+}
+function topbarHTML(list, nDone) {
+  const n = userName(), wave = ["👋", "🙂", "✨", "☀️"][greetSeed % 4];
+  return `<div class="topbar"><div class="hello">${syncUser ? `<span class="avatar" aria-hidden="true">${esc(initial(n))}</span>` : ""}<div class="txt"><b>${esc(greetWord())}${n ? ", " + esc(n) : ""} ${wave}</b><span>${esc(greetLine(list, nDone))}</span></div></div>
+    ${syncUser ? `<button class="acct" data-act="account" aria-label="Your account"><span class="avatar" style="width:26px;height:26px;font-size:12px">${esc(initial(n))}</span>Account</button>` : `<button class="acct out" data-act="account">${I.user}Sign in</button>`}</div>`;
+}
+function openAccount(mode) {
+  if (!syncReady()) {
+    layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ach"><h2 id="ach">Sign in</h2><p class="muted">Accounts work in the Tally app at quxngle.github.io/Tally, not in this preview.</p><div class="row-btns"><button class="btn" data-ac="close">Close</button></div></div></div>`;
+    layer.onclick = ev => { if (ev.target.closest("[data-ac]") || ev.target.dataset.act === "closebg") closeSheet() };
+    return;
+  }
+  const f = { mode: mode || "signin", name: "", email: "", pass: "", show: false, busy: false, err: "" };
+  const grab = () => ["name", "email", "pass"].forEach(k => { const el = document.getElementById("a-" + k); if (el) f[k] = el.value });
+  const input = (id, label, type, val, ac) => `<div class="field"><label for="a-${id}">${label}</label><input id="a-${id}" type="${type}" value="${esc(val)}" autocomplete="${ac}"></div>`;
+  const draw = () => {
+    if (syncUser) {
+      const n = userName(), ago = lastSync ? Math.round((Date.now() - lastSync) / 60000) : null;
+      layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ach">
+        <div class="acc-head"><span class="avatar big">${esc(initial(n))}</span><div><h2 id="ach" style="margin:0">${esc(n)}</h2><div class="muted">${esc(syncUser.email)}</div></div></div>
+        ${input("name", "Your name", "text", f.name || n, "name")}
+        <div class="row-btns" style="margin-bottom:16px"><button class="btn small" data-ac="savename">Save name</button></div>
+        <div class="card set" style="box-shadow:none;border:1px solid var(--line)"><div class="line"><span>${syncing ? "Syncing…" : ago == null ? "Not synced yet" : ago < 1 ? "Synced just now" : `Last synced ${ago} min ago`}</span><button class="btn small primary" data-ac="sync">Sync now</button></div>
+        <div class="muted">Your trackers, history and settings are the same on every device where you sign in.</div></div>
+        ${f.err || syncErr ? `<div class="err">${esc(f.err || syncErr)}</div>` : ""}
+        <div class="row-btns" style="margin-top:16px;justify-content:space-between"><button class="btn" data-ac="close">Close</button><button class="btn danger" data-ac="signout">Sign out</button></div></div></div>`;
+      return;
+    }
+    const up = f.mode === "signup";
+    layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ach">
+      <h2 id="ach">${up ? "Create your account" : "Welcome back"}</h2>
+      <div class="seg authtabs"><button data-ac="mode" data-v="signin" aria-pressed="${!up}">Sign in</button><button data-ac="mode" data-v="signup" aria-pressed="${up}">Create account</button></div>
+      <p class="muted" style="margin-top:0">${up ? "Make an account to keep your phone and computer in step. Everything already on this device comes with you." : "Sign in to sync your trackers across your devices."}</p>
+      ${up ? input("name", "Your name", "text", f.name, "name") : ""}
+      ${input("email", "Email", "email", f.email, "email")}
+      <div class="field"><label for="a-pass">Password</label><div class="pw"><input id="a-pass" type="${f.show ? "text" : "password"}" value="${esc(f.pass)}" autocomplete="${up ? "new-password" : "current-password"}" style="padding-right:64px"><button data-ac="show" type="button">${f.show ? "Hide" : "Show"}</button></div></div>
+      ${f.err ? `<div class="err" role="alert">${esc(f.err)}</div>` : ""}
+      <div class="row-btns"><button class="btn primary" data-ac="go" ${f.busy ? "disabled" : ""}>${f.busy ? "One moment…" : up ? "Create account" : "Sign in"}</button><button class="btn" data-ac="close">Not now</button></div>
+      <p class="muted">You can keep using Tally without an account. Your data then stays on this device.</p></div></div>`;
+    const first = document.getElementById(up ? "a-name" : "a-email"); if (first && !f[up ? "name" : "email"]) first.focus();
+  };
+  draw();
+  layer.onkeydown = ev => { if (ev.key === "Enter" && ev.target.tagName === "INPUT" && !syncUser) { ev.preventDefault(); layer.querySelector('[data-ac="go"]').click() } };
+  layer.onclick = async ev => {
+    const b = ev.target.closest("[data-ac]");
+    if (!b) { if (ev.target.dataset.act === "closebg") closeSheet(); return }
+    grab(); const a = b.dataset.ac;
+    if (a === "close") return closeSheet();
+    if (a === "mode") { f.mode = b.dataset.v; f.err = ""; return draw() }
+    if (a === "show") { f.show = !f.show; return draw() }
+    if (a === "sync") { syncing = false; await syncNow(true); return draw() }
+    if (a === "signout") { try { await sb.auth.signOut() } catch { } syncUser = null; closeSheet(); toast("Signed out. Your data stays on this device."); return }
+    if (a === "savename") {
+      const name = f.name.trim(); if (!name) return;
+      try { const r = await sb.auth.updateUser({ data: { name } }); if (r.error) throw r.error; syncUser = r.data.user; f.err = ""; toast(`Nice to meet you, ${name}!`) } catch (e) { f.err = e.message }
+      return draw();
+    }
+    if (a === "go") {
+      const email = f.email.trim(), password = f.pass, up = f.mode === "signup";
+      if (up && !f.name.trim()) { f.err = "Tell us what to call you."; return draw() }
+      if (!/^\S+@\S+\.\S+$/.test(email)) { f.err = "That email doesn't look right."; return draw() }
+      if (password.length < 6) { f.err = "Use a password with at least 6 characters."; return draw() }
+      f.busy = true; f.err = ""; draw();
+      try {
+        await loadSupabase();
+        const r = up ? await sb.auth.signUp({ email, password, options: { data: { name: f.name.trim() }, emailRedirectTo: location.origin + location.pathname } }) : await sb.auth.signInWithPassword({ email, password });
+        if (r.error) throw r.error;
+        if (up && !r.data.session) { f.busy = false; f.mode = "signin"; f.err = ""; draw(); toast("Check your email to confirm your account, then sign in here."); return }
+        syncUser = r.data.user; syncErr = ""; greetSeed = 5; closeSheet();
+        toast(up ? `Welcome to Tally, ${userName()}!` : `Welcome back, ${userName()}!`);
+        await syncNow(); render();
+      } catch (e) {
+        f.busy = false;
+        f.err = /invalid login/i.test(e.message) ? "That email and password don't match. Try again, or create an account." : /already registered/i.test(e.message) ? "There's already an account with that email. Sign in instead." : e.message;
+        draw();
+      }
+    }
+  };
 }
 function previewHTML(o) {
   const tags = [schedText(o)];
@@ -1053,7 +1171,7 @@ function openEditor(t, isNew) {
     draw();
   };
 }
-function closeSheet() { layer.innerHTML = ""; layer.onclick = null; render() }
+function closeSheet() { layer.innerHTML = ""; layer.onclick = null; layer.onkeydown = null; render() }
 function removeTracker(id) {
   const i = S.trackers.findIndex(x => x.id === id); if (i < 0) return;
   const t = S.trackers[i], l = S.log[id];
@@ -1122,6 +1240,7 @@ document.addEventListener("click", async ev => {
     case "unarchive": t.archived = false; save(); render(); break;
     case "mv": { const L = active(), i = L.indexOf(t), j = i + +b.dataset.n; if (j < 0 || j >= L.length) break; const A = S.trackers.indexOf(L[i]), B = S.trackers.indexOf(L[j]); [S.trackers[A], S.trackers[B]] = [S.trackers[B], S.trackers[A]]; save(); render(); break }
     case "copysteps": { const u = location.origin + location.pathname + "?steps="; try { await navigator.clipboard.writeText(u); toast("Link copied") } catch { toast(u) } break }
+    case "account": openAccount(); break;
     case "signin": case "signup": {
       const email = ($("#s-email") || {}).value?.trim(), password = ($("#s-pass") || {}).value || "";
       if (!email || password.length < 6) { toast("Enter your email and a password of at least 6 characters."); break }
@@ -1226,6 +1345,7 @@ function mergeState(A, B) {
 var sb = null, syncUser = null, syncTimer = null, syncing = false, lastSync = store.get("tally.lastsync", 0), syncErr = "";
 function loadSupabase() {
   if (sb) return Promise.resolve(sb);
+  if (window.supabase) { sb = window.supabase.createClient(SYNC_URL, SYNC_KEY); return Promise.resolve(sb) }
   return new Promise((res, rej) => {
     const sc = document.createElement("script");
     sc.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
@@ -1267,13 +1387,15 @@ function syncCard() {
   if (!syncReady()) return `<div class="card set"><h3>Sync across devices</h3><div class="muted">${SYNC_URL ? "Sync works in the installed app and on the website, not in this preview." : "Coming soon: sign in to keep your phone and computer in step."}</div></div>`;
   if (!syncUser) return `<div class="card set"><h3>Sync across devices</h3>
     <div class="muted">Sign in on each phone or computer with the same account, and your trackers, history and settings stay the same everywhere.</div>
+    <div class="row-btns"><button class="btn small primary" data-act="account">Sign in or create an account</button></div></div>`;
+  if (false) return `<div>
     <div class="field"><label for="s-email">Email</label><input id="s-email" type="email" autocomplete="email" style="width:100%;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:9px 11px;font-size:16px"></div>
     <div class="field"><label for="s-pass">Password</label><input id="s-pass" type="password" autocomplete="current-password" style="width:100%;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:9px 11px;font-size:16px"></div>
     <div class="row-btns"><button class="btn small primary" data-act="signin">Sign in</button><button class="btn small" data-act="signup">Create account</button></div>
     ${syncErr ? `<div class="muted" style="color:var(--danger)">${esc(syncErr)}</div>` : ""}</div>`;
   const ago = lastSync ? Math.round((Date.now() - lastSync) / 60000) : null;
   return `<div class="card set"><h3>Sync across devices</h3>
-    <div class="line"><span>Signed in as <b>${esc(syncUser.email)}</b></span><button class="btn small" data-act="signout">Sign out</button></div>
+    <div class="line"><span>Signed in as <b>${esc(userName())}</b> (${esc(syncUser.email)})</span><button class="btn small" data-act="account">Account</button></div>
     <div class="line"><span class="muted">${syncing ? "Syncing…" : ago == null ? "Not synced yet" : ago < 1 ? "Synced just now" : `Last synced ${ago} min ago`}${syncErr ? ` · <span style="color:var(--danger)">${esc(syncErr)}</span>` : ""}</span><button class="btn small primary" data-act="syncnow">Sync now</button></div></div>`;
 }
 
