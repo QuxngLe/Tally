@@ -1,0 +1,743 @@
+<title>Tally Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one centered column (max 640px); sticky date header, prompt bar, today list; tab bar fixed to the bottom on phones, top row on wide screens. */
+:root {
+  --bg: #F3F5F1; --surface: #FFFFFF; --surface-2: #E8EDE7; --line: #D5DCD4;
+  --fg: #16201B; --muted: #5C6962; --accent: var(--ua-l, #2E6B57); --accent-ink: #FFFFFF;
+  --flame: #C9701C; --danger: #B83A3A; --shadow: 0 1px 2px rgba(20,32,27,.06), 0 6px 20px rgba(20,32,27,.06);
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1311; --surface: #171E1B; --surface-2: #202925; --line: #2C3732;
+  --fg: #E6ECE8; --muted: #93A199; --accent: var(--ua-d, #72C3A5); --accent-ink: #0E1311;
+  --flame: #F0A24F; --danger: #F07A7A; --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1311; --surface: #171E1B; --surface-2: #202925; --line: #2C3732;
+  --fg: #E6ECE8; --muted: #93A199; --accent: var(--ua-d, #72C3A5); --accent-ink: #0E1311;
+  --flame: #F0A24F; --danger: #F07A7A; --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark }
+
+* { box-sizing: border-box }
+html, body { height: 100% }
+body { background: var(--bg); color: var(--fg); font: 15px/1.45 var(--f-body); -webkit-tap-highlight-color: transparent }
+button, input, select, textarea { font: inherit; color: inherit }
+button { cursor: pointer }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -.01em }
+.num { font-variant-numeric: tabular-nums }
+
+.wrap { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 112px }
+@media (min-width: 760px) { .wrap { padding-block: 0 48px } }
+
+/* tab bar */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; justify-content: center; gap: 4px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(12px); border-top: 1px solid var(--line);
+  padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)) }
+.tabs button { flex: 1; max-width: 140px; border: 0; background: none; padding: 6px 4px; border-radius: 10px; display: grid; justify-items: center; gap: 2px; font-size: 12px; font-weight: 600; color: var(--muted) }
+.tabs button svg { width: 22px; height: 22px }
+.tabs button[aria-current="true"] { color: var(--accent); background: var(--surface-2) }
+@media (min-width: 760px) {
+  .tabs { position: sticky; top: env(safe-area-inset-top, 0px); bottom: auto; border-top: 0; border-bottom: 1px solid var(--line); padding-top: 8px; padding-bottom: 8px }
+  .tabs button { grid-auto-flow: column; gap: 8px; font-size: 14px; padding: 8px 12px }
+  .tabs button svg { width: 18px; height: 18px }
+}
+
+/* header */
+.head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 20px 12px }
+.head .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600 }
+.head h1 { font-size: clamp(26px, 6vw, 34px); font-weight: 800; line-height: 1.05 }
+.daynav { display: flex; align-items: center; gap: 6px; margin-top: 6px }
+.daynav button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 2px 10px; font-size: 13px; color: var(--muted) }
+.ring { flex: none; position: relative; width: 72px; height: 72px }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg) }
+.ring .lbl { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; font-weight: 700; font-size: 15px; line-height: 1.1 }
+.ring .lbl small { display: block; font-weight: 500; font-size: 11px; color: var(--muted) }
+
+/* prompt bar */
+.prompt { display: flex; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 6px 6px 6px 14px; box-shadow: var(--shadow); align-items: center }
+.prompt input { flex: 1; min-width: 0; border: 0; background: none; outline: none; padding: 8px 0; font-size: 16px }
+.prompt .go { border: 0; background: var(--accent); color: var(--accent-ink); border-radius: 11px; padding: 9px 14px; font-weight: 700; white-space: nowrap }
+.hint { font-size: 13px; color: var(--muted); margin: 8px 2px 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 10px; font-size: 13px; color: var(--fg) }
+.preview { margin-top: 10px; background: var(--surface-2); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 10px }
+.preview .what { display: flex; gap: 10px; align-items: center; font-weight: 600 }
+.preview .tags { display: flex; flex-wrap: wrap; gap: 6px }
+.tag { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: var(--surface); color: var(--muted) }
+.row-btns { display: flex; gap: 8px; flex-wrap: wrap }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 14px; font-weight: 600 }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent }
+.btn.danger { color: var(--danger) }
+.btn.small { padding: 5px 10px; font-size: 13px }
+
+.banner { margin-top: 14px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px dashed var(--line); border-radius: var(--r); padding: 10px 12px; font-size: 13px; color: var(--muted) }
+
+/* list */
+.sec { margin-top: 22px }
+.sec-h { display: flex; justify-content: space-between; align-items: baseline; margin: 0 2px 8px }
+.sec-h h2 { font-size: 13px; font-family: var(--f-body); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700 }
+.sec-h button { border: 0; background: none; color: var(--muted); font-size: 13px }
+.list { display: grid; gap: 8px }
+.item { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; background: var(--surface); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--shadow); border: 1px solid transparent }
+.item.done { opacity: .62; box-shadow: none; border-color: var(--line); background: transparent }
+.item.done .name { text-decoration: line-through; text-decoration-color: var(--muted) }
+.check { width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid var(--c); background: transparent; display: grid; place-items: center; position: relative; padding: 0; color: #fff }
+.check svg { width: 20px; height: 20px; opacity: 0; transform: scale(.6); transition: .18s }
+.check.on { background: var(--c) }
+.check.on svg { opacity: 1; transform: none }
+.check .pie { position: absolute; inset: -2.5px; border-radius: 50%; background: conic-gradient(var(--c) calc(var(--p) * 1turn), transparent 0); -webkit-mask: radial-gradient(circle, transparent 13px, #000 14px); mask: radial-gradient(circle, transparent 13px, #000 14px) }
+.check .emo { font-size: 17px; line-height: 1 }
+.body { min-width: 0; cursor: pointer }
+.name { font-weight: 600; overflow-wrap: anywhere }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px; color: var(--muted); margin-top: 1px }
+.meta .fl { color: var(--flame); font-weight: 700 }
+.meta .late { color: var(--danger); font-weight: 600 }
+.counter { display: flex; align-items: center; gap: 2px }
+.counter button { width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-size: 18px; line-height: 1; font-weight: 600 }
+.counter .v { min-width: 54px; text-align: center; font-weight: 700; font-size: 14px; border: 0; background: none; border-radius: 6px; padding: 4px 2px }
+.counter .v small { display: block; font-weight: 500; font-size: 11px; color: var(--muted) }
+.empty { text-align: center; color: var(--muted); padding: 28px 12px; border: 1px dashed var(--line); border-radius: var(--r) }
+
+/* stats */
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 6px }
+@media (min-width: 560px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)) } }
+.tile { background: var(--surface); border-radius: var(--r); padding: 12px; box-shadow: var(--shadow) }
+.tile b { display: block; font: 800 26px/1.1 var(--f-display) }
+.tile span { font-size: 12px; color: var(--muted) }
+.card { background: var(--surface); border-radius: var(--r); padding: 14px; box-shadow: var(--shadow) }
+.card h3 { font-size: 17px }
+.chart { width: 100%; height: auto; display: block; margin-top: 8px }
+.chart text { fill: var(--muted); font: 11px var(--f-body) }
+.chart .grid { stroke: var(--line); stroke-width: 1 }
+.tstat { display: grid; gap: 10px }
+.tstat .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap }
+.tstat .nums { display: flex; gap: 14px; font-size: 13px; color: var(--muted) }
+.tstat .nums b { color: var(--fg) }
+.heat { overflow-x: auto }
+.heat svg { display: block }
+
+/* manage */
+.mrow { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; background: var(--surface); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--shadow) }
+.dot { width: 34px; height: 34px; border-radius: 10px; background: var(--c); display: grid; place-items: center; font-size: 17px }
+.mrow .acts { display: flex; gap: 4px }
+.icon-btn { width: 32px; height: 32px; border: 1px solid var(--line); background: var(--surface); border-radius: 9px; display: grid; place-items: center; padding: 0; color: var(--muted) }
+.icon-btn svg { width: 16px; height: 16px }
+
+/* settings */
+.set { display: grid; gap: 10px }
+.set .line { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap }
+.seg { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 2px }
+.seg button { border: 0; background: none; border-radius: 8px; padding: 5px 12px; font-weight: 600; font-size: 13px; color: var(--muted) }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow) }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap }
+.sw { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--line); background: var(--c); padding: 0 }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--fg) }
+textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); padding: 8px; font: 12px ui-monospace, Menlo, monospace }
+.muted { color: var(--muted); font-size: 13px }
+
+/* sheet */
+.scrim { position: fixed; inset: 0; z-index: 40; background: rgba(8,12,10,.45); display: flex; align-items: flex-end; justify-content: center }
+@media (min-width: 640px) { .scrim { align-items: center } }
+.sheet { background: var(--bg); width: 100%; max-width: 560px; max-height: 92%; overflow: auto; border-radius: 20px 20px 0 0;
+  padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)) }
+@media (min-width: 640px) { .sheet { border-radius: 20px } }
+.sheet h2 { font-size: 22px; margin-bottom: 12px }
+.field { display: grid; gap: 5px; margin-bottom: 12px }
+.field > label, .field > .l { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted) }
+.field input[type=text], .field input[type=number], .field input[type=date], .field input[type=time], .field select, .field textarea {
+  width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 9px 11px; font-size: 16px }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.days { display: flex; gap: 5px; flex-wrap: wrap }
+.days button { width: 40px; height: 36px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 13px }
+.days button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: transparent }
+.emopick { display: flex; gap: 4px; flex-wrap: wrap }
+.emopick button { width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-size: 18px; padding: 0 }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 60; background: var(--fg); color: var(--bg);
+  padding: 10px 14px; border-radius: 12px; font-weight: 600; font-size: 14px; display: flex; gap: 12px; align-items: center; max-width: calc(100% - 32px) }
+.toast button { border: 0; background: none; color: var(--bg); text-decoration: underline; font-weight: 700 }
+@media (min-width: 760px) { .toast { bottom: 24px } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
+</style>
+
+<nav class="tabs" id="tabs" aria-label="Sections"></nav>
+<main class="wrap" id="view"></main>
+<div id="layer"></div>
+
+<script>
+(() => {
+"use strict";
+// ---------- storage ----------
+const KEY = "tally.v1";
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d } catch { return d } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
+};
+const COLORS = ["#2E8B6F", "#3C7DD9", "#8A5CD6", "#D2557A", "#D9822B", "#B8931A", "#3E9EA0", "#6E8B2F", "#7D7D8C"];
+const ACCENTS = { pine: ["#2E6B57", "#72C3A5"], ocean: ["#245FA8", "#7EB0F0"], plum: ["#6D3FB0", "#B99AF0"], rose: ["#A83A5C", "#F08FAE"], amber: ["#9A5A12", "#F0B060"], slate: ["#3E4A57", "#AEB9C6"] };
+const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const uid = () => Math.random().toString(36).slice(2, 10);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// ---------- dates ----------
+const pad = n => String(n).padStart(2, "0");
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const fromKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d) };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x };
+const today = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d };
+const diffDays = (a, b) => Math.round((fromKey(keyOf(a)) - fromKey(keyOf(b))) / 864e5);
+const weekStart = (d, ws) => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() - ws + 7) % 7)); return x };
+const fmtTime = t => { if (!t) return ""; const [h, m] = t.split(":").map(Number); const am = h < 12; return `${((h + 11) % 12) + 1}:${pad(m)} ${am ? "AM" : "PM"}` };
+const fmtDate = d => d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+const fmtShort = d => d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+// ---------- state ----------
+let S = store.get(KEY, null);
+const defaults = () => ({ trackers: [], log: {}, fired: {}, examples: false, settings: { theme: "system", accent: "pine", weekStart: 1, notify: false, showDone: true } });
+if (!S) { S = defaults(); seedExamples(); }
+S.settings = Object.assign(defaults().settings, S.settings || {});
+S.fired = S.fired || {};
+const save = () => store.set(KEY, S);
+let ui = { tab: "today", day: keyOf(today()), draft: null, doneOpen: true };
+
+function seedExamples() {
+  const mk = (o) => Object.assign({ id: uid(), emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminder: null, category: "", notes: "", archived: false, example: true, created: keyOf(addDays(today(), -60)) }, o);
+  const t = [
+    mk({ name: "Drink water", emoji: "💧", color: COLORS[1], kind: "count", target: 8, unit: "glasses", reminder: "09:00", category: "Health" }),
+    mk({ name: "Read", emoji: "📖", color: COLORS[2], kind: "count", target: 20, unit: "pages", reminder: "21:30", category: "Mind" }),
+    mk({ name: "Gym", emoji: "🏋️", color: COLORS[4], freq: "weekly", perWeek: 3, category: "Health" }),
+    mk({ name: "Meditate", emoji: "🧘", color: COLORS[0], freq: "days", days: [1, 2, 3, 4, 5], reminder: "07:30", category: "Mind" }),
+    mk({ name: "Call mom", emoji: "📞", color: COLORS[3], freq: "once", due: keyOf(addDays(today(), 1)), category: "" })
+  ];
+  S.trackers = t; S.examples = true;
+  // plausible history so charts have something to show
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  for (let i = 1; i <= 56; i++) {
+    const d = addDays(today(), -i), k = keyOf(d);
+    t.forEach(tr => {
+      if (tr.freq === "once") return;
+      if (!isDue(tr, d)) return;
+      const p = tr.freq === "weekly" ? 0.45 : 0.8 - (i > 30 ? 0.15 : 0);
+      if (rnd() < p) (S.log[tr.id] ||= {})[k] = tr.target;
+      else if (tr.kind === "count" && rnd() < .6) (S.log[tr.id] ||= {})[k] = Math.floor(tr.target * rnd());
+    });
+  }
+  (S.log[t[0].id] ||= {})[keyOf(today())] = 3;
+}
+
+// ---------- tracker logic ----------
+const cnt = (t, k) => (S.log[t.id] && S.log[t.id][k]) || 0;
+const doneOn = (t, k) => cnt(t, k) >= t.target;
+function isDue(t, d) {
+  const k = keyOf(d);
+  if (t.created && k < t.created && t.freq !== "once") return false;
+  if (t.freq === "daily" || t.freq === "weekly") return true;
+  if (t.freq === "days") return t.days.includes(d.getDay());
+  if (t.freq === "once") {
+    if (!t.due) return k === keyOf(today());
+    const doneK = Object.keys(S.log[t.id] || {}).find(x => doneOn(t, x));
+    if (doneK) return k === doneK;
+    return k >= t.due && k <= keyOf(today()) ? k === keyOf(today()) || k === t.due : k === t.due;
+  }
+  return true;
+}
+function weekCount(t, d) {
+  const ws = weekStart(d, S.settings.weekStart); let n = 0;
+  for (let i = 0; i < 7; i++) if (doneOn(t, keyOf(addDays(ws, i)))) n++;
+  return n;
+}
+function streak(t) {
+  const now = today();
+  if (t.freq === "once") return { cur: 0, best: 0 };
+  if (t.freq === "weekly") {
+    const ws = weekStart(now, S.settings.weekStart);
+    const met = i => weekCount(t, addDays(ws, -7 * i)) >= t.perWeek;
+    let cur = 0, best = 0, run = 0;
+    for (let i = met(0) ? 0 : 1; i < 60 && met(i); i++) cur++;
+    for (let i = 0; i < 60; i++) { if (met(i)) { run++; best = Math.max(best, run) } else run = 0 }
+    return { cur, best: Math.max(best, cur) };
+  }
+  let cur = 0, best = 0, run = 0, counting = true;
+  for (let i = 0; i < 400; i++) {
+    const d = addDays(now, -i), k = keyOf(d);
+    if (t.created && k < t.created) break;
+    if (!isDue(t, d)) continue;
+    if (doneOn(t, k)) { run++; if (counting) cur = run }
+    else { if (i === 0) continue; counting = false; best = Math.max(best, run); run = 0 }
+  }
+  return { cur, best: Math.max(best, run, cur) };
+}
+function rate(t, days) {
+  let due = 0, done = 0;
+  for (let i = 0; i < days; i++) {
+    const d = addDays(today(), -i), k = keyOf(d);
+    if (!isDue(t, d) || t.freq === "weekly") continue;
+    due++; if (doneOn(t, k)) done++;
+  }
+  if (t.freq === "weekly") { let w = 0, m = 0; for (let i = 0; i < Math.ceil(days / 7); i++) { w++; if (weekCount(t, addDays(today(), -7 * i)) >= t.perWeek) m++ } return w ? m / w : 0 }
+  return due ? done / due : 0;
+}
+const active = () => S.trackers.filter(t => !t.archived);
+function dueList(d) {
+  const k = keyOf(d), isToday = k === keyOf(today());
+  return active().filter(t => {
+    if (t.freq === "once") {
+      if (!t.due) return isDue(t, d);
+      const doneK = Object.keys(S.log[t.id] || {}).find(x => doneOn(t, x));
+      if (doneK) return doneK === k;
+      return isToday ? t.due <= k : t.due === k;
+    }
+    return isDue(t, d);
+  });
+}
+function schedText(t) {
+  const amt = t.kind === "count" ? `${t.target}${t.unit ? " " + t.unit : "×"} ` : "";
+  if (t.freq === "daily") return amt + "every day";
+  if (t.freq === "weekly") return `${t.perWeek}× a week` + (t.kind === "count" ? ` · ${t.target} ${t.unit || ""} each` : "");
+  if (t.freq === "days") {
+    const s = [...t.days].sort().join("");
+    const label = s === "12345" ? "weekdays" : s === "06" ? "weekends" : t.days.slice().sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)).map(i => DOW[i]).join(", ");
+    return amt + label;
+  }
+  if (t.freq === "once") return amt + (t.due ? "on " + fmtShort(fromKey(t.due)) : "one time");
+  return "";
+}
+
+function setCount(t, k, v) {
+  v = Math.max(0, Math.min(v, t.kind === "count" ? 999999 : 1));
+  (S.log[t.id] ||= {});
+  if (v) S.log[t.id][k] = v; else delete S.log[t.id][k];
+  save();
+}
+
+// ---------- prompt parser ----------
+const NUMW = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, fifteen: 15, twenty: 20, thirty: 30 };
+const DAYRE = /\b(sun|mon|tue|wed|thu|fri|sat)(?:day|days|s|\.)?\b|\b(tues|thur|thurs)(?:day|days)?\b|\b(wednesday|wednesdays|saturday|saturdays|tuesday|tuesdays|thursday|thursdays)\b/g;
+const dayIdx = w => { w = w.slice(0, 3); return ["sun", "mon", "tue", "wed", "thu", "fri", "sat"].indexOf(w) };
+const UNITS = "pages?|glass(?:es)?|cups?|bottles?|minutes?|mins?|hours?|hrs?|km|kms|kilometers?|miles?|steps?|reps?|push-?ups?|sit-?ups?|squats?|pull-?ups?|words?|liters?|litres?|l|ml|chapters?|laps?|sets?|problems?|questions?|lessons?|calories|kcal|times?|x|servings?|pills?|tablets?|songs?|episodes?|articles?|cards?|flashcards?";
+const EMOJI = [[/water|drink|hydrat/, "💧"], [/read|book|chapter|pages/, "📖"], [/gym|lift|workout|weights|push-?up|squat|pull-?up/, "🏋️"], [/run|jog/, "🏃"], [/walk|steps/, "🚶"], [/bike|cycl/, "🚴"], [/swim/, "🏊"], [/yoga|stretch/, "🤸"], [/meditat|breath|mindful/, "🧘"],
+  [/sleep|bed/, "😴"], [/vitamin|pill|medic|tablet/, "💊"], [/call|phone/, "📞"], [/mom|dad|family|parent/, "👪"], [/clean|tidy|vacuum/, "🧹"], [/laundry/, "🧺"], [/dish/, "🍽️"], [/cook|meal|recipe/, "🍳"], [/fruit|veg|salad|eat/, "🥗"],
+  [/study|learn|lesson|course|homework/, "📚"], [/code|program/, "💻"], [/write|journal|diary/, "✍️"], [/guitar|piano|music|practice/, "🎸"], [/language|spanish|french|english|japanese|korean|duolingo/, "🗣️"],
+  [/pay|bill|rent|bank|money|budget|save/, "💸"], [/plant|garden/, "🪴"], [/dog|cat|pet/, "🐾"], [/teeth|floss|brush/, "🪥"], [/email|inbox/, "📧"], [/shop|grocer|buy/, "🛒"], [/no sugar|sugar|soda|smok|alcohol/, "🚫"], [/pray|church|mosque/, "🙏"]];
+function parsePrompt(raw) {
+  const recurring = /\b(every|each|daily|everyday|weekly|weekdays?|weekends?|a day|per day|a week|per week|times|twice|thrice|mornings?|evenings?|nights?|before bed)\b/i.test(raw);
+  let s = " " + raw.toLowerCase().replace(/[.!?]+$/, "").replace(/,/g, " , ") + " ";
+  const o = { kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminder: null };
+  const cut = (m) => { s = s.replace(m, " ") };
+  s = s.replace(/\b(once|twice|thrice)\b/g, w => ({ once: " 1 times ", twice: " 2 times ", thrice: " 3 times " }[w]));
+  s = s.replace(new RegExp(`\\b(${Object.keys(NUMW).join("|")})\\b`, "g"), w => NUMW[w]);
+  s = s.replace(/(\d+(?:\.\d+)?)\s*k\b(?!m)/g, (m, n) => String(Math.round(parseFloat(n) * 1000)));
+  s = s.replace(/(\d),(\d{3})/g, "$1$2");
+  cut(/^\s*(please\s+)?(remind me to|remind me|i want to|i wanna|i need to|i have to|i should|help me|make sure i|add|create|new|track|log|habit:|todo:|to do:|task:)\b/);
+  // reminder time
+  let m = s.match(/\s(?:at|@|around|by)\s*(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?(?=\s)/) || s.match(/\s(\d{1,2}):(\d{2})\s*(a\.?m\.?|p\.?m\.?)?(?=\s)/) || s.match(/\s(\d{1,2})()\s*(a\.?m\.?|p\.?m\.?)(?=\s)/);
+  if (m) {
+    let h = +m[1]; const mi = +(m[2] || 0); const ap = (m[3] || "").replace(/\./g, "");
+    if (ap === "pm" && h < 12) h += 12; if (ap === "am" && h === 12) h = 0;
+    if (h < 24 && mi < 60) { o.reminder = `${pad(h)}:${pad(mi)}`; cut(m[0]) }
+  } else {
+    const W = [[/\b(?:every|in the|each)\s+morning\b/, "08:00", true], [/\b(?:at|around)\s+noon\b|\bat lunch\b/, "12:00", true], [/\b(?:every|in the|each)\s+afternoon\b/, "15:00", true],
+      [/\b(?:every|in the|each)\s+evening\b|\btonight\b/, "19:00", true], [/\b(?:every|at|each)\s+night\b|\bbefore bed(?:time)?\b/, "21:30", true], [/\bmorning\b/, "08:00", false], [/\bevening\b/, "19:00", false]];
+    for (const [re, t, rm] of W) if (re.test(s)) { o.reminder = t; if (rm) cut(re); break }
+  }
+  // one-off dates
+  const iso = s.match(/\b(?:on|by|due)?\s*(\d{4})-(\d{1,2})-(\d{1,2})\b/);
+  if (iso) { o.freq = "once"; o.due = `${iso[1]}-${pad(+iso[2])}-${pad(+iso[3])}`; cut(iso[0]) }
+  else if (/\b(?:by |on |due )?tomorrow\b/.test(s)) { o.freq = "once"; o.due = keyOf(addDays(today(), 1)); cut(/\b(?:by |on |due )?tomorrow\b/) }
+  else if (/\b(?:by |due )?(?:later )?today\b/.test(s) && !/\bevery\b/.test(s)) { o.freq = "once"; o.due = keyOf(today()); cut(/\b(?:by |due )?(?:later )?today\b/) }
+  else if (/\b(?:by |on )?next week\b/.test(s)) { o.freq = "once"; o.due = keyOf(addDays(today(), 7)); cut(/\b(?:by |on )?next week\b/) }
+  // weekly count
+  m = s.match(/(\d+)\s*(?:x|times?)\s*(?:a|per|each|every|in a|this)\s*week\b/);
+  if (m && o.freq !== "once") { o.freq = "weekly"; o.perWeek = Math.min(7, +m[1]); cut(m[0]) }
+  else if (/\b(?:weekly|every week|each week|1 times a week)\b/.test(s) && o.freq !== "once") { o.freq = "weekly"; o.perWeek = 1; cut(/\b(?:weekly|every week|each week|1 times a week)\b/) }
+  // weekdays / weekends / named days
+  if (o.freq !== "once" && o.freq !== "weekly") {
+    if (/\b(?:on |every )?weekdays\b/.test(s)) { o.freq = "days"; o.days = [1, 2, 3, 4, 5]; cut(/\b(?:on |every )?weekdays\b/) }
+    else if (/\b(?:on |every |at )?(?:the )?weekends?\b/.test(s)) { o.freq = "days"; o.days = [0, 6]; cut(/\b(?:on |every |at )?(?:the )?weekends?\b/) }
+    else {
+      const hits = [...s.matchAll(DAYRE)];
+      if (hits.length) {
+        const words = hits.map(h => h[0]);
+        const days = [...new Set(words.map(dayIdx))].filter(i => i >= 0);
+        const recurring = /\bevery\b|\beach\b/.test(s) || words.some(w => /s$/.test(w) && !/tues$|thurs$/.test(w)) || days.length > 1;
+        if (recurring) { o.freq = "days"; o.days = days }
+        else { o.freq = "once"; const want = days[0]; let d = today(); for (let i = 0; i < 7; i++) { d = addDays(today(), i); if (d.getDay() === want) break } o.due = keyOf(d) }
+        s = s.replace(/\b(?:every|each|on|by|this|next)\s+(?=(?:sun|mon|tue|wed|thu|fri|sat))/g, " ");
+        s = s.replace(DAYRE, " ").replace(/\s(?:and|,|&)\s(?=\s*(?:,|and|&|\s)*$)/g, " ");
+      }
+    }
+  }
+  // amount per day
+  m = s.match(new RegExp(`(\\d+(?:\\.\\d+)?)\\s*(${UNITS})\\b(\\s+of)?`));
+  if (m) {
+    const n = parseFloat(m[1]); let unit = m[2];
+    if (/^(x|times?)$/.test(unit)) unit = "";
+    if (n > 1 || unit) { o.kind = "count"; o.target = n; o.unit = unit }
+    if (n === 1 && !unit) { o.kind = "check" }
+    cut(m[0]);
+    if (unit && !/^(pages?|glass(es)?|cups?|bottles?|minutes?|mins?|hours?|hrs?|km|kms|kilometers?|miles?|liters?|litres?|l|ml|times?|x|servings?|sets?|reps?)$/.test(unit)) o._keepUnit = unit;
+  }
+  cut(/\b(?:a|per|each|every)\s+day\b|\bdaily\b|\beveryday\b|\bevery single day\b|\ba week\b/g);
+  let name = s.replace(/\s*,\s*/g, " ").replace(/\s+/g, " ").trim();
+  name = name.replace(/^(?:to|and|on|at|by|every|for|i|do|go|have|get|take)\s+/, n => /^(take|go|do)\s/.test(n) && name.split(" ").length > 1 ? n : "").replace(/\s+(?:on|at|by|every|for|and|in|of|the|a)$/,"").trim();
+  name = name.replace(/^(?:do|have|get)\s+/, "").replace(/^(?:do|have|get|go|take)$/, "");
+  if (o._keepUnit) { name = name ? name + " " + o._keepUnit : o._keepUnit; o.unit = o._keepUnit.replace(/-/g, ""); delete o._keepUnit }
+  if (!name) name = raw.trim();
+  o.name = name.charAt(0).toUpperCase() + name.slice(1);
+  const hay = raw.toLowerCase(), nm = o.name.toLowerCase();
+  o.emoji = (EMOJI.find(([re]) => re.test(nm)) || EMOJI.find(([re]) => re.test(hay)) || [, "✅"])[1];
+  o.color = COLORS[Math.abs([...o.name].reduce((a, c) => a * 31 + c.charCodeAt(0), 7)) % COLORS.length];
+  if (o.freq === "days" && !o.days.length) o.freq = "daily";
+  if (o.freq === "daily" && !recurring && o.kind === "check" && /^(buy|pay|finish|submit|send|email|book|fix|return|pick up|cancel|renew|schedule|order|print|sign|reply|answer|mail|post|call|visit|bring|deliver|apply|register|prepare|pack|wash|repair|replace|get)\b/i.test(o.name)) { o.freq = "once"; o.due = keyOf(today()) }
+  return o;
+}
+window.parsePrompt = parsePrompt;
+
+// ---------- icons ----------
+const I = {
+  today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/></svg>',
+  stats: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>'
+};
+
+// ---------- rendering ----------
+const $ = s => document.querySelector(s);
+const view = $("#view"), layer = $("#layer");
+function applyTheme() {
+  const r = document.documentElement, st = S.settings;
+  if (st.theme === "system") { if (r.dataset.themeOwned) { delete r.dataset.theme; delete r.dataset.themeOwned } }
+  else { r.dataset.theme = st.theme; r.dataset.themeOwned = "1" }
+  const a = ACCENTS[st.accent] || ACCENTS.pine;
+  r.style.setProperty("--ua-l", a[0]); r.style.setProperty("--ua-d", a[1]);
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = a[0];
+}
+function renderTabs() {
+  const tabs = [["today", "Today"], ["stats", "Progress"], ["manage", "Trackers"], ["settings", "Settings"]];
+  $("#tabs").innerHTML = tabs.map(([id, l]) => `<button data-tab="${id}" aria-current="${ui.tab === id}">${I[{ today: "today", stats: "stats", manage: "list", settings: "gear" }[id]]}<span>${l}</span></button>`).join("");
+}
+function render() { renderTabs(); ({ today: rToday, stats: rStats, manage: rManage, settings: rSettings })[ui.tab](); }
+
+function itemHTML(t, k) {
+  const c = cnt(t, k), done = c >= t.target, st = streak(t);
+  const metas = [];
+  if (st.cur > 1 || (st.cur === 1 && done)) metas.push(`<span class="fl">🔥 ${st.cur}${t.freq === "weekly" ? " wk" : ""}</span>`);
+  if (t.freq === "weekly") metas.push(`<span class="num">${weekCount(t, fromKey(k))}/${t.perWeek} this week</span>`);
+  else metas.push(`<span>${esc(schedText(t))}</span>`);
+  if (t.freq === "once" && t.due && !done && t.due < k) { const n = diffDays(fromKey(k), fromKey(t.due)); metas.push(`<span class="late">${n} day${n > 1 ? "s" : ""} overdue</span>`) }
+  if (t.reminder) metas.push(`<span>⏰ ${fmtTime(t.reminder)}</span>`);
+  const p = t.kind === "count" ? Math.min(1, c / t.target) : 0;
+  const checkBtn = `<button class="check ${done ? "on" : ""}" style="--c:${t.color};--p:${p}" data-act="tap" data-id="${t.id}" aria-label="${done ? "Mark not done" : t.kind === "count" ? "Add one" : "Mark done"}: ${esc(t.name)}">
+      ${t.kind === "count" && !done ? `<span class="pie"></span><span class="emo">${esc(t.emoji)}</span>` : done ? I.tick : `<span class="emo">${esc(t.emoji)}</span>`}</button>`;
+  const right = t.kind === "count"
+    ? `<div class="counter"><button data-act="dec" data-id="${t.id}" aria-label="Minus one">−</button><button class="v num" data-act="setv" data-id="${t.id}" title="Type an amount">${c}<small>/ ${t.target}${t.unit ? " " + esc(t.unit) : ""}</small></button><button data-act="inc" data-id="${t.id}" aria-label="Plus one">+</button></div>`
+    : `<span></span>`;
+  return `<div class="item ${done ? "done" : ""}">${checkBtn}<div class="body" data-act="open" data-id="${t.id}"><div class="name">${t.kind === "check" ? "" : ""}${esc(t.name)}</div><div class="meta">${metas.join("")}</div></div>${right}</div>`;
+}
+
+function rToday() {
+  const d = fromKey(ui.day), k = ui.day, isToday = k === keyOf(today());
+  const list = dueList(d);
+  const done = list.filter(t => doneOn(t, k)), todo = list.filter(t => !doneOn(t, k));
+  const pct = list.length ? done.length / list.length : 0, C = 2 * Math.PI * 30;
+  const upcoming = isToday ? active().filter(t => t.freq === "once" && t.due && t.due > k && !Object.keys(S.log[t.id] || {}).some(x => doneOn(t, x))).sort((a, b) => a.due < b.due ? -1 : 1).slice(0, 6) : [];
+  const groups = {};
+  todo.forEach(t => (groups[t.category || ""] ||= []).push(t));
+  const gKeys = Object.keys(groups).sort((a, b) => (a === "") - (b === "") || a.localeCompare(b));
+  const draft = ui.draft;
+  view.innerHTML = `
+  <header class="head">
+    <div>
+      <div class="eyebrow">${isToday ? "Today" : diffDays(d, today()) === -1 ? "Yesterday" : "Looking back"}</div>
+      <h1>${esc(fmtDate(d))}</h1>
+      <div class="daynav"><button data-act="day" data-n="-1" aria-label="Previous day">‹ Prev</button>${isToday ? "" : `<button data-act="day" data-n="0">Back to today</button>`}${isToday ? "" : `<button data-act="day" data-n="1" aria-label="Next day">Next ›</button>`}</div>
+    </div>
+    <div class="ring" role="img" aria-label="${done.length} of ${list.length} done">
+      <svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="30" fill="none" stroke="var(--surface-2)" stroke-width="7"/><circle cx="36" cy="36" r="30" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}" style="transition:stroke-dashoffset .4s"/></svg>
+      <div class="lbl num">${done.length}/${list.length}<small>done</small></div>
+    </div>
+  </header>
+  <form class="prompt" id="pform" autocomplete="off">
+    <input id="pin" type="text" placeholder="Type anything you want to track…" aria-label="Describe something to track" value="${esc(ui.prompt || "")}">
+    <button class="go" type="submit">Add</button>
+  </form>
+  ${draft ? previewHTML(draft) : `<div class="hint">Try: ${["gym 3 times a week", "read 20 pages every night", "pay rent on 2026-11-01", "meditate weekdays at 7am", "call mom on sunday"].map(x => `<button class="chip" data-act="try" data-v="${esc(x)}">${esc(x)}</button>`).join("")}</div>`}
+  ${S.examples ? `<div class="banner"><span>The trackers below are examples so you can see how it works.</span><button class="btn small" data-act="clearex">Remove examples</button></div>` : ""}
+  ${!list.length ? `<div class="sec"><div class="empty">${active().length ? "Nothing scheduled for this day." : "Nothing to track yet. Type what you want to do in the box above and press Add."}</div></div>` : ""}
+  ${gKeys.map(g => `<section class="sec"><div class="sec-h"><h2>${esc(g || (gKeys.length > 1 ? "Other" : "To do"))}</h2><span class="muted num">${groups[g].length} left</span></div><div class="list">${groups[g].map(t => itemHTML(t, k)).join("")}</div></section>`).join("")}
+  ${list.length && !todo.length ? `<div class="sec"><div class="empty">🎉 Everything is done for ${isToday ? "today" : "this day"}.</div></div>` : ""}
+  ${done.length ? `<section class="sec"><div class="sec-h"><h2>Done · ${done.length}</h2><button data-act="toggledone">${ui.doneOpen ? "Hide" : "Show"}</button></div>${ui.doneOpen ? `<div class="list">${done.map(t => itemHTML(t, k)).join("")}</div>` : ""}</section>` : ""}
+  ${upcoming.length ? `<section class="sec"><div class="sec-h"><h2>Coming up</h2></div><div class="list">${upcoming.map(t => `<div class="item"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="open" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(fmtDate(fromKey(t.due)))}</span>${t.reminder ? `<span>⏰ ${fmtTime(t.reminder)}</span>` : ""}</div></div><span></span></div>`).join("")}</div></section>` : ""}
+  `;
+}
+function previewHTML(o) {
+  const tags = [schedText(o)];
+  if (o.reminder) tags.push("reminder " + fmtTime(o.reminder));
+  if (o.kind === "count") tags.push(`counts up to ${o.target}`);
+  return `<div class="preview" aria-live="polite"><div class="what"><span class="dot" style="--c:${o.color}">${esc(o.emoji)}</span><span>${esc(o.name)}</span></div>
+    <div class="tags">${tags.map(x => `<span class="tag">${esc(x)}</span>`).join("")}</div>
+    <div class="row-btns"><button class="btn primary" data-act="create">Create tracker</button><button class="btn" data-act="customize">Customize first</button><button class="btn" data-act="cancelp">Cancel</button></div></div>`;
+}
+
+// charts
+function barChart(vals, labels) {
+  const W = 360, H = 150, L = 34, B = 20, T = 8, n = vals.length, bw = (W - L - 4) / n;
+  const y = v => T + (H - T - B) * (1 - v);
+  let g = [0, .5, 1].map(v => `<line class="grid" x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v * 100}%</text>`).join("");
+  g += vals.map((v, i) => v == null ? "" : `<rect x="${L + i * bw + bw * .15}" y="${y(Math.max(v, .015))}" width="${bw * .7}" height="${(H - T - B) * Math.max(v, .015)}" rx="2" fill="var(--accent)" opacity="${i === n - 1 ? 1 : .55 + .35 * v}"><title>${labels[i]}: ${Math.round(v * 100)}%</title></rect>`).join("");
+  [0, Math.floor(n / 2), n - 1].forEach(i => g += `<text x="${L + i * bw + bw / 2}" y="${H - 5}" text-anchor="middle">${labels[i]}</text>`);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Daily completion, last ${n} days">${g}</svg>`;
+}
+function heatmap(t, weeks = 17) {
+  const cs = 13, gap = 3, ws = S.settings.weekStart, start = addDays(weekStart(today(), ws), -7 * (weeks - 1));
+  let g = "";
+  for (let w = 0; w < weeks; w++) for (let r = 0; r < 7; r++) {
+    const d = addDays(start, w * 7 + r); if (d > today()) continue;
+    const k = keyOf(d), c = cnt(t, k), due = isDue(t, d) && !(t.created && k < t.created);
+    const f = c >= t.target ? 1 : c / t.target;
+    g += `<rect x="${w * (cs + gap)}" y="${r * (cs + gap)}" width="${cs}" height="${cs}" rx="3" fill="${f > 0 ? t.color : "var(--surface-2)"}" opacity="${f > 0 ? .3 + .7 * f : due ? 1 : .45}"><title>${fmtShort(d)}: ${c}${t.kind === "count" ? "/" + t.target : c ? " done" : ""}</title></rect>`;
+  }
+  const W = weeks * (cs + gap), H = 7 * (cs + gap);
+  return `<div class="heat"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Last ${weeks} weeks for ${esc(t.name)}">${g}</svg></div>`;
+}
+function rStats() {
+  const ts = active().filter(t => t.freq !== "once");
+  const vals = [], labels = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = addDays(today(), -i), k = keyOf(d), l = dueList(d).filter(t => t.freq !== "weekly");
+    vals.push(l.length ? l.filter(t => doneOn(t, k)).length / l.length : null); labels.push(fmtShort(d));
+  }
+  const tl = dueList(today()), tdone = tl.filter(t => doneOn(t, keyOf(today()))).length;
+  const wk = vals.slice(-7).filter(v => v != null), wkAvg = wk.length ? wk.reduce((a, b) => a + b, 0) / wk.length : 0;
+  const streaks = ts.map(t => [t, streak(t)]);
+  const top = streaks.sort((a, b) => b[1].cur - a[1].cur)[0];
+  let checks = 0; for (let i = 0; i < 30; i++) { const k = keyOf(addDays(today(), -i)); active().forEach(t => { if (doneOn(t, k)) checks++ }) }
+  view.innerHTML = `<header class="head"><div><div class="eyebrow">Progress</div><h1>How it's going</h1></div></header>
+  <div class="tiles">
+    <div class="tile"><b class="num">${tl.length ? Math.round(tdone / tl.length * 100) : 0}%</b><span>done today</span></div>
+    <div class="tile"><b class="num">${Math.round(wkAvg * 100)}%</b><span>last 7 days</span></div>
+    <div class="tile"><b class="num" style="color:var(--flame)">${top ? top[1].cur : 0}</b><span>longest current streak${top && top[1].cur ? " · " + esc(top[0].name) : ""}</span></div>
+    <div class="tile"><b class="num">${checks}</b><span>things finished in 30 days</span></div>
+  </div>
+  <section class="sec card"><h3>Daily completion</h3><div class="muted">Share of each day's items you finished, last 30 days</div>${barChart(vals, labels)}</section>
+  <section class="sec"><div class="sec-h"><h2>Each tracker</h2></div><div class="list">
+  ${ts.length ? ts.map(t => { const s = streak(t); return `<div class="card tstat"><div class="top"><h3>${esc(t.emoji)} ${esc(t.name)}</h3><div class="nums num"><span>Streak <b style="color:var(--flame)">${s.cur}</b></span><span>Best <b>${s.best}</b></span><span>30-day <b>${Math.round(rate(t, 30) * 100)}%</b></span></div></div>${heatmap(t)}<div class="muted">${esc(schedText(t))}</div></div>` }).join("") : `<div class="empty">Add a repeating tracker to see streaks and history here.</div>`}
+  </div></section>`;
+}
+function rManage() {
+  const live = active(), arch = S.trackers.filter(t => t.archived);
+  const row = (t, i, n) => `<div class="mrow"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="edit" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(schedText(t))}</span>${t.category ? `<span>${esc(t.category)}</span>` : ""}${t.reminder ? `<span>⏰ ${fmtTime(t.reminder)}</span>` : ""}</div></div>
+    <div class="acts">${t.archived ? `<button class="btn small" data-act="unarchive" data-id="${t.id}">Restore</button>` : `<button class="icon-btn" data-act="mv" data-n="-1" data-id="${t.id}" aria-label="Move up" ${i === 0 ? "disabled" : ""}>${I.up}</button><button class="icon-btn" data-act="mv" data-n="1" data-id="${t.id}" aria-label="Move down" ${i === n - 1 ? "disabled" : ""}>${I.down}</button>`}<button class="icon-btn" data-act="edit" data-id="${t.id}" aria-label="Edit">${I.edit}</button></div></div>`;
+  view.innerHTML = `<header class="head"><div><div class="eyebrow">Trackers</div><h1>Everything you track</h1></div><button class="btn primary" data-act="new">New</button></header>
+  <div class="list">${live.length ? live.map((t, i) => row(t, i, live.length)).join("") : `<div class="empty">No trackers yet. Tap New, or type one on the Today tab.</div>`}</div>
+  ${arch.length ? `<section class="sec"><div class="sec-h"><h2>Archived</h2></div><div class="list">${arch.map((t, i) => row(t, i, arch.length)).join("")}</div></section>` : ""}`;
+}
+let deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; if (ui.tab === "settings") render() });
+function rSettings() {
+  const st = S.settings;
+  const seg = (key, opts) => `<div class="seg">${opts.map(([v, l]) => `<button data-act="set" data-k="${key}" data-v="${v}" aria-pressed="${String(st[key]) === String(v)}">${l}</button>`).join("")}</div>`;
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  const notifOK = "Notification" in window;
+  view.innerHTML = `<header class="head"><div><div class="eyebrow">Settings</div><h1>Make it yours</h1></div></header>
+  <div class="list">
+  <div class="card set"><h3>Look</h3>
+    <div class="line"><span>Theme</span>${seg("theme", [["system", "Auto"], ["light", "Light"], ["dark", "Dark"]])}</div>
+    <div class="line"><span>Accent color</span><div class="swatches">${Object.entries(ACCENTS).map(([k, v]) => `<button class="sw" style="--c:${v[0]}" data-act="set" data-k="accent" data-v="${k}" aria-label="${k}" aria-pressed="${st.accent === k}"></button>`).join("")}</div></div>
+    <div class="line"><span>Week starts on</span>${seg("weekStart", [[1, "Monday"], [0, "Sunday"]])}</div>
+  </div>
+  <div class="card set"><h3>Reminders</h3>
+    <div class="muted">Reminders pop up at the time you set on each tracker while the app is open or running in the background on your device. If something is already done, it stays quiet.</div>
+    <div class="line"><span>Notifications ${st.notify && notifOK && Notification.permission === "granted" ? "are on" : "are off"}</span>${notifOK ? `<button class="btn small" data-act="notify">${st.notify && Notification.permission === "granted" ? "Turn off" : "Turn on"}</button>` : `<span class="muted">This browser can't show notifications</span>`}</div>
+  </div>
+  <div class="card set"><h3>Install on this device</h3>
+    ${standalone ? `<div class="muted">You're using the installed app.</div>` : deferredInstall ? `<div class="line"><span>Add Tally to your home screen or desktop.</span><button class="btn small primary" data-act="install">Install</button></div>`
+      : `<div class="muted">On iPhone: Share → Add to Home Screen. On Android Chrome: menu → Install app. On a PC or Mac in Chrome or Edge: the install icon at the right of the address bar.</div>`}
+  </div>
+  <div class="card set"><h3>Your data</h3>
+    <div class="muted">Everything is saved on this device only. Copy a backup to move it to another phone or computer, then paste it there.</div>
+    <div class="row-btns"><button class="btn small" data-act="export">Copy backup</button>${window.top === window.self ? `<button class="btn small" data-act="download">Save backup file</button>` : ""}<button class="btn small" data-act="importbox">Restore from backup</button></div>
+    <div id="dataio"></div>
+    <div class="row-btns">${S.examples ? `<button class="btn small" data-act="clearex">Remove example trackers</button>` : ""}<button class="btn small danger" data-act="reset">Erase everything</button></div>
+  </div>
+  </div>`;
+}
+
+// ---------- editor sheet ----------
+const EMOJIS = ["✅", "💧", "📖", "🏋️", "🏃", "🧘", "😴", "💊", "🍎", "📚", "✍️", "💻", "🎸", "🧹", "💸", "📞", "🪴", "🐾", "🪥", "🙏", "🚫", "⭐"];
+function openEditor(t, isNew) {
+  const e = JSON.parse(JSON.stringify(t));
+  const cats = [...new Set(S.trackers.map(x => x.category).filter(Boolean))];
+  const draw = () => {
+    layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="edh">
+    <h2 id="edh">${isNew ? "New tracker" : "Edit tracker"}</h2>
+    <div class="field"><label for="f-name">Name</label><input id="f-name" type="text" value="${esc(e.name)}" placeholder="e.g. Drink water"></div>
+    <div class="field"><span class="l">Icon</span><div class="emopick">${EMOJIS.map(x => `<button data-ed="emoji" data-v="${x}" aria-pressed="${e.emoji === x}" style="${e.emoji === x ? "outline:2px solid var(--accent)" : ""}">${x}</button>`).join("")}<input id="f-emoji" type="text" value="${esc(e.emoji)}" aria-label="Or type any emoji" style="width:56px;text-align:center;border:1px solid var(--line);border-radius:9px;background:var(--surface)"></div></div>
+    <div class="field"><span class="l">Color</span><div class="swatches">${COLORS.map(c => `<button class="sw" style="--c:${c}" data-ed="color" data-v="${c}" aria-label="Color ${c}" aria-pressed="${e.color === c}"></button>`).join("")}</div></div>
+    <div class="field"><span class="l">How do you finish it?</span><div class="seg"><button data-ed="kind" data-v="check" aria-pressed="${e.kind === "check"}">Check it off</button><button data-ed="kind" data-v="count" aria-pressed="${e.kind === "count"}">Reach an amount</button></div></div>
+    ${e.kind === "count" ? `<div class="two"><div class="field"><label for="f-target">Amount</label><input id="f-target" type="number" min="1" value="${e.target}"></div><div class="field"><label for="f-unit">Unit</label><input id="f-unit" type="text" value="${esc(e.unit)}" placeholder="glasses, pages, km…"></div></div>` : ""}
+    <div class="field"><span class="l">When</span><div class="seg" style="flex-wrap:wrap">${[["daily", "Every day"], ["days", "Some days"], ["weekly", "Times a week"], ["once", "One time"]].map(([v, l]) => `<button data-ed="freq" data-v="${v}" aria-pressed="${e.freq === v}">${l}</button>`).join("")}</div></div>
+    ${e.freq === "days" ? `<div class="field"><span class="l">Which days</span><div class="days">${[1, 2, 3, 4, 5, 6, 0].map(i => `<button data-ed="day" data-v="${i}" aria-pressed="${e.days.includes(i)}">${DOW[i]}</button>`).join("")}</div></div>` : ""}
+    ${e.freq === "weekly" ? `<div class="field"><label for="f-pw">Times per week</label><input id="f-pw" type="number" min="1" max="7" value="${e.perWeek}"></div>` : ""}
+    ${e.freq === "once" ? `<div class="field"><label for="f-due">Date</label><input id="f-due" type="date" value="${e.due || keyOf(today())}"></div>` : ""}
+    <div class="two"><div class="field"><label for="f-rem">Reminder</label><input id="f-rem" type="time" value="${e.reminder || ""}"></div>
+    <div class="field"><label for="f-cat">Group</label><input id="f-cat" type="text" list="cats" value="${esc(e.category)}" placeholder="Health, Work…"><datalist id="cats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist></div></div>
+    <div class="field"><label for="f-notes">Notes</label><textarea id="f-notes" rows="2">${esc(e.notes)}</textarea></div>
+    <div class="row-btns" style="justify-content:space-between"><div class="row-btns"><button class="btn primary" data-ed="save">Save</button><button class="btn" data-ed="cancel">Cancel</button></div>
+    ${isNew ? "" : `<div class="row-btns"><button class="btn" data-ed="archive">${e.archived ? "Restore" : "Archive"}</button><button class="btn danger" data-ed="delete">Delete</button></div>`}</div>
+    <div id="confirm"></div>
+    </div></div>`;
+  };
+  const grab = () => {
+    const v = id => { const el = document.getElementById(id); return el ? el.value : null };
+    e.name = v("f-name") ?? e.name; e.emoji = (v("f-emoji") || e.emoji).trim() || "✅";
+    if (v("f-target") != null) e.target = Math.max(1, parseFloat(v("f-target")) || 1);
+    if (v("f-unit") != null) e.unit = v("f-unit").trim();
+    if (v("f-pw") != null) e.perWeek = Math.min(7, Math.max(1, parseInt(v("f-pw")) || 1));
+    if (v("f-due") != null) e.due = v("f-due") || null;
+    e.reminder = v("f-rem") || null; e.category = (v("f-cat") || "").trim(); e.notes = v("f-notes") || "";
+  };
+  draw();
+  layer.onclick = ev => {
+    const b = ev.target.closest("[data-ed]");
+    if (!b) { if (ev.target.dataset.act === "closebg") closeSheet(); return }
+    grab();
+    const a = b.dataset.ed, val = b.dataset.v;
+    if (a === "emoji") e.emoji = val;
+    else if (a === "color") e.color = val;
+    else if (a === "kind") { e.kind = val; if (val === "check") e.target = 1; else if (e.target < 2) e.target = 8 }
+    else if (a === "freq") { e.freq = val; if (val === "days" && !e.days.length) e.days = [1, 2, 3, 4, 5]; if (val === "once" && !e.due) e.due = keyOf(today()) }
+    else if (a === "day") { const i = +val; e.days = e.days.includes(i) ? e.days.filter(x => x !== i) : [...e.days, i] }
+    else if (a === "cancel") return closeSheet();
+    else if (a === "save") {
+      if (!e.name.trim()) { document.getElementById("f-name").focus(); return }
+      if (e.freq === "days" && !e.days.length) e.freq = "daily";
+      e.name = e.name.trim();
+      const i = S.trackers.findIndex(x => x.id === e.id);
+      if (e.example && i >= 0) { const o = S.trackers[i]; if (o.name !== e.name) e.example = false }
+      if (i >= 0) S.trackers[i] = e; else S.trackers.push(e);
+      save(); closeSheet(); toast(isNew ? `Added “${e.name}”` : "Saved"); return;
+    }
+    else if (a === "archive") { e.archived = !e.archived; const i = S.trackers.findIndex(x => x.id === e.id); S.trackers[i] = e; save(); closeSheet(); toast(e.archived ? "Archived" : "Restored"); return }
+    else if (a === "delete") { document.getElementById("confirm").innerHTML = `<div class="banner"><span>Delete “${esc(e.name)}” and its history?</span><span class="row-btns"><button class="btn small danger" data-ed="delete2">Delete</button><button class="btn small" data-ed="nodel">Keep</button></span></div>`; return }
+    else if (a === "nodel") { document.getElementById("confirm").innerHTML = ""; return }
+    else if (a === "delete2") { removeTracker(e.id); closeSheet(); return }
+    draw();
+  };
+}
+function closeSheet() { layer.innerHTML = ""; layer.onclick = null; render() }
+function removeTracker(id) {
+  const i = S.trackers.findIndex(x => x.id === id); if (i < 0) return;
+  const t = S.trackers[i], l = S.log[id];
+  S.trackers.splice(i, 1); delete S.log[id]; save(); render();
+  toast(`Deleted “${t.name}”`, "Undo", () => { S.trackers.splice(i, 0, t); if (l) S.log[id] = l; save(); render() });
+}
+function openDetail(t) {
+  const s = streak(t);
+  layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dth">
+   <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div><h2 id="dth" style="margin:0">${esc(t.name)}</h2><div class="muted">${esc(schedText(t))}${t.reminder ? " · ⏰ " + fmtTime(t.reminder) : ""}</div></div></div>
+   ${t.freq !== "once" ? `<div class="tiles" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="tile"><b class="num" style="color:var(--flame)">${s.cur}</b><span>current streak</span></div><div class="tile"><b class="num">${s.best}</b><span>best streak</span></div><div class="tile"><b class="num">${Math.round(rate(t, 30) * 100)}%</b><span>last 30 days</span></div></div><div class="sec">${heatmap(t)}</div>` : ""}
+   ${t.notes ? `<p>${esc(t.notes)}</p>` : ""}
+   <div class="row-btns" style="margin-top:16px"><button class="btn primary" data-dt="edit">Edit</button><button class="btn" data-dt="close">Close</button></div></div></div>`;
+  layer.onclick = ev => {
+    const b = ev.target.closest("[data-dt]");
+    if (!b) { if (ev.target.dataset.act === "closebg") closeSheet(); return }
+    if (b.dataset.dt === "edit") openEditor(t, false); else closeSheet();
+  };
+}
+function blankTracker(o = {}) { return Object.assign({ id: uid(), name: "", emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminder: null, category: "", notes: "", archived: false, created: keyOf(today()) }, o) }
+
+// ---------- toast ----------
+let toastTimer;
+function toast(msg, label, fn) {
+  clearTimeout(toastTimer);
+  let el = document.getElementById("toast"); if (!el) { el = document.createElement("div"); el.id = "toast"; el.className = "toast"; el.setAttribute("role", "status"); document.body.appendChild(el) }
+  el.innerHTML = `<span>${esc(msg)}</span>${label ? `<button>${esc(label)}</button>` : ""}`;
+  if (label) el.querySelector("button").onclick = () => { fn(); el.remove() };
+  toastTimer = setTimeout(() => el.remove(), label ? 6000 : 2600);
+}
+
+// ---------- events ----------
+document.addEventListener("click", async ev => {
+  const tab = ev.target.closest("[data-tab]");
+  if (tab) { ui.tab = tab.dataset.tab; ui.draft = null; render(); window.scrollTo(0, 0); return }
+  const b = ev.target.closest("[data-act]"); if (!b || layer.contains(b)) return;
+  const a = b.dataset.act, t = S.trackers.find(x => x.id === b.dataset.id), k = ui.day;
+  switch (a) {
+    case "tap": if (t.kind === "count") setCount(t, k, cnt(t, k) >= t.target ? 0 : cnt(t, k) + 1); else setCount(t, k, doneOn(t, k) ? 0 : 1); render(); break;
+    case "inc": setCount(t, k, cnt(t, k) + 1); render(); break;
+    case "dec": setCount(t, k, cnt(t, k) - 1); render(); break;
+    case "setv": { const holder = b; holder.outerHTML = `<input class="v num" id="qv" type="number" min="0" value="${cnt(t, k)}" style="width:64px;border:1px solid var(--line);background:var(--surface)" aria-label="Amount">`;
+      const inp = document.getElementById("qv"); inp.focus(); inp.select();
+      const commit = () => { setCount(t, k, parseFloat(inp.value) || 0); render() };
+      inp.addEventListener("blur", commit); inp.addEventListener("keydown", e => { if (e.key === "Enter") inp.blur() }); break }
+    case "open": openDetail(t); break;
+    case "day": { const n = +b.dataset.n; ui.day = n === 0 ? keyOf(today()) : keyOf(addDays(fromKey(ui.day), n)); if (ui.day > keyOf(today())) ui.day = keyOf(today()); render(); break }
+    case "try": ui.prompt = b.dataset.v; ui.draft = parsePrompt(b.dataset.v); render(); break;
+    case "create": { const n = blankTracker(ui.draft); S.trackers.push(n); save(); ui.draft = null; ui.prompt = ""; render(); toast(`Added “${n.name}”`, "Edit", () => openEditor(n, false)); break }
+    case "customize": { const n = blankTracker(ui.draft); ui.draft = null; ui.prompt = ""; openEditor(n, true); break }
+    case "cancelp": ui.draft = null; ui.prompt = ""; render(); break;
+    case "clearex": S.trackers.filter(x => x.example).forEach(x => delete S.log[x.id]); S.trackers = S.trackers.filter(x => !x.example); S.examples = false; save(); render(); toast("Examples removed"); break;
+    case "toggledone": ui.doneOpen = !ui.doneOpen; render(); break;
+    case "edit": openEditor(t, false); break;
+    case "new": openEditor(blankTracker(), true); break;
+    case "unarchive": t.archived = false; save(); render(); break;
+    case "mv": { const L = active(), i = L.indexOf(t), j = i + +b.dataset.n; if (j < 0 || j >= L.length) break; const A = S.trackers.indexOf(L[i]), B = S.trackers.indexOf(L[j]); [S.trackers[A], S.trackers[B]] = [S.trackers[B], S.trackers[A]]; save(); render(); break }
+    case "set": { let v = b.dataset.v; if (b.dataset.k === "weekStart") v = +v; S.settings[b.dataset.k] = v; save(); applyTheme(); render(); break }
+    case "notify": {
+      if (S.settings.notify && Notification.permission === "granted") { S.settings.notify = false; save(); render(); break }
+      try { const p = await Notification.requestPermission(); S.settings.notify = p === "granted"; save(); render(); toast(p === "granted" ? "Reminders are on" : "Your browser blocked notifications. You'll still see reminders inside the app.") }
+      catch { toast("Notifications aren't available here. You'll still see reminders inside the app.") }
+      break }
+    case "install": if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice.catch(() => { }); deferredInstall = null; render() } break;
+    case "export": { const txt = JSON.stringify(S); $("#dataio").innerHTML = `<textarea class="data" id="exp" readonly>${esc(txt)}</textarea>`; const ta = $("#exp");
+      try { await navigator.clipboard.writeText(txt); toast("Backup copied") } catch { ta.focus(); ta.select(); toast("Select all and copy the text above") } break }
+    case "download": { try { const blob = new Blob([JSON.stringify(S, null, 1)], { type: "application/json" }); const u = URL.createObjectURL(blob); const l = document.createElement("a"); l.href = u; l.download = `tally-backup-${keyOf(today())}.json`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); toast("Backup file saved") } catch { toast("Saving files isn't allowed here. Use Copy backup instead.") } break }
+    case "importbox": $("#dataio").innerHTML = `<textarea class="data" id="imp" placeholder="Paste a backup here, or pick a file below"></textarea><div class="row-btns" style="margin-top:8px"><button class="btn small primary" data-act="doimport">Restore</button><label class="btn small" style="display:inline-block">Choose file<input id="impf" type="file" accept=".json,application/json" hidden></label></div>`;
+      $("#impf").onchange = async e => { const f = e.target.files[0]; if (f) $("#imp").value = await f.text() }; break;
+    case "doimport": try { const d = JSON.parse($("#imp").value); if (!Array.isArray(d.trackers) || typeof d.log !== "object") throw 0; S = Object.assign(defaults(), d); S.settings = Object.assign(defaults().settings, d.settings || {}); save(); applyTheme(); render(); toast("Backup restored") } catch { toast("That text isn't a Tally backup. Copy the whole backup and try again.") } break;
+    case "reset": $("#dataio").innerHTML = `<div class="banner"><span>Erase all trackers and history on this device?</span><span class="row-btns"><button class="btn small danger" data-act="reset2">Erase</button><button class="btn small" data-act="noreset">Keep</button></span></div>`; break;
+    case "noreset": $("#dataio").innerHTML = ""; break;
+    case "reset2": S = defaults(); save(); applyTheme(); render(); toast("Everything erased"); break;
+  }
+});
+document.addEventListener("submit", ev => {
+  if (ev.target.id !== "pform") return; ev.preventDefault();
+  const v = $("#pin").value.trim(); if (!v) return;
+  ui.prompt = v; ui.draft = parsePrompt(v); render();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && layer.innerHTML) closeSheet() });
+
+// ---------- reminders ----------
+function checkReminders() {
+  const now = new Date(), k = keyOf(now), hm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  dueList(today()).forEach(t => {
+    if (!t.reminder || t.reminder > hm || S.fired[t.id] === k || doneOn(t, k)) return;
+    S.fired[t.id] = k; save();
+    const body = t.kind === "count" ? `${cnt(t, k)} of ${t.target} ${t.unit} so far` : "Tap to check it off";
+    let shown = false;
+    if (S.settings.notify && "Notification" in window && Notification.permission === "granted") {
+      try {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(`${t.emoji} ${t.name}`, { body, tag: t.id, icon: "icon-192.png" }));
+        else new Notification(`${t.emoji} ${t.name}`, { body, tag: t.id });
+        shown = true;
+      } catch { }
+    }
+    if (!shown || document.visibilityState === "visible") toast(`⏰ ${t.emoji} ${t.name}`);
+  });
+}
+setInterval(checkReminders, 20000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { checkReminders(); if (ui.day !== keyOf(today()) && ui.tab === "today" && !layer.innerHTML) { } render() } });
+
+// ---------- boot ----------
+applyTheme(); render(); setTimeout(checkReminders, 1500);
+try { if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && window.top === window.self) navigator.serviceWorker.register("sw.js").catch(() => { }) } catch { }
+})();
+</script>
