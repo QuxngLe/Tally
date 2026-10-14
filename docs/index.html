@@ -306,7 +306,30 @@ function fixSettings() {
 if (!S) { S = defaults(); seedExamples(); }
 S.settings = Object.assign(defaults().settings, S.settings || {});
 S.fired = S.fired || {};
-const save = () => store.set(KEY, S);
+// ---------- change tracking (for sync) ----------
+// Every save compares the data with the last saved copy and stamps what changed (S.mt) and what was
+// deleted (S.deleted), so two devices can be merged piece by piece instead of one overwriting the other.
+var snap = null;
+function pieces(D) {
+  const m = {};
+  (D.trackers || []).forEach(t => m["t|" + t.id] = JSON.stringify(t));
+  Object.entries(D.log || {}).forEach(([id, days]) => Object.entries(days || {}).forEach(([k, v]) => m["log|" + id + "|" + k] = JSON.stringify(v)));
+  Object.entries(D.subs || {}).forEach(([id, days]) => Object.entries(days || {}).forEach(([k, v]) => m["sub|" + id + "|" + k] = JSON.stringify(v)));
+  m["order"] = JSON.stringify((D.trackers || []).map(t => t.id));
+  m["settings"] = JSON.stringify(D.settings || {});
+  m["examples"] = JSON.stringify(!!D.examples);
+  return m;
+}
+function stampChanges() {
+  const cur = pieces(S), now = Date.now();
+  S.mt = S.mt || {}; S.deleted = S.deleted || {};
+  if (snap) {
+    for (const k in cur) if (cur[k] !== snap[k]) S.mt[k] = now;
+    for (const k in snap) if (!(k in cur)) { S.mt[k] = now; if (k.startsWith("t|")) S.deleted[k.slice(2)] = now }
+  }
+  snap = cur;
+}
+function save() { stampChanges(); store.set(KEY, S); if (typeof scheduleSync === "function") scheduleSync() }
 // Older saves had one reminder per tracker; now each has a list, plus subtasks and tags.
 function fixTrackers() {
   S.subs = S.subs || {}; S.snooze = S.snooze || {};
@@ -317,7 +340,7 @@ function fixTrackers() {
     if (!Array.isArray(t.tags)) t.tags = [];
   });
 }
-fixTrackers(); save();
+snap = pieces(S); fixTrackers(); save();
 let ui = { calMode: "month", calRef: keyOf(today()), range: 30, list: "all", adv: false, tab: "today", day: keyOf(today()), draft: null, doneOpen: true };
 
 function seedExamples() {
@@ -948,6 +971,7 @@ function rSettings() {
     ${standalone ? `<div class="muted">You're using the installed app.</div>` : deferredInstall ? `<div class="line"><span>Add Tally to your home screen or desktop.</span><button class="btn small primary" data-act="install">Install</button></div>`
       : `<div class="muted">On iPhone: Share → Add to Home Screen. On Android Chrome: menu → Install app. On a PC or Mac in Chrome or Edge: the install icon at the right of the address bar.</div>`}
   </div>
+  ${syncCard()}
   <div class="card set"><h3>Your data</h3>
     <div class="muted">Everything is saved on this device only. Copy a backup to move it to another phone or computer, then paste it there.</div>
     <div class="row-btns"><button class="btn small" data-act="export">Copy backup</button>${window.top === window.self ? `<button class="btn small" data-act="download">Save backup file</button>` : ""}<button class="btn small" data-act="importbox">Restore from backup</button></div>
@@ -1098,6 +1122,19 @@ document.addEventListener("click", async ev => {
     case "unarchive": t.archived = false; save(); render(); break;
     case "mv": { const L = active(), i = L.indexOf(t), j = i + +b.dataset.n; if (j < 0 || j >= L.length) break; const A = S.trackers.indexOf(L[i]), B = S.trackers.indexOf(L[j]); [S.trackers[A], S.trackers[B]] = [S.trackers[B], S.trackers[A]]; save(); render(); break }
     case "copysteps": { const u = location.origin + location.pathname + "?steps="; try { await navigator.clipboard.writeText(u); toast("Link copied") } catch { toast(u) } break }
+    case "signin": case "signup": {
+      const email = ($("#s-email") || {}).value?.trim(), password = ($("#s-pass") || {}).value || "";
+      if (!email || password.length < 6) { toast("Enter your email and a password of at least 6 characters."); break }
+      try {
+        await loadSupabase();
+        const r = a === "signup" ? await sb.auth.signUp({ email, password }) : await sb.auth.signInWithPassword({ email, password });
+        if (r.error) throw r.error;
+        if (a === "signup" && !r.data.session) { toast("Check your email to confirm the account, then sign in here."); break }
+        syncUser = r.data.user; syncErr = ""; toast("Signed in. Syncing…"); await syncNow(); render();
+      } catch (e) { syncErr = e.message; render() }
+      break }
+    case "signout": try { await sb.auth.signOut() } catch { } syncUser = null; render(); toast("Signed out. Your data stays on this device."); break;
+    case "syncnow": syncing = false; await syncNow(true); render(); break;
     case "adv": ui.adv = !ui.adv; try { sessionStorage.setItem("tally.adv", ui.adv ? "1" : "") } catch { } render(); break;
     case "look": { let v = b.dataset.v; const k2 = b.dataset.k;
       if (["size", "radius"].includes(k2)) v = +v; if (["glass", "streaks"].includes(k2)) v = v === "true";
@@ -1143,6 +1180,103 @@ document.addEventListener("submit", ev => {
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && layer.innerHTML) closeSheet() });
 
+// ---------- sync ----------
+// Fill these in from Supabase (Project Settings → API). The anon key is public by design; row level
+// security keeps each person's row private.
+const SYNC_URL = "", SYNC_KEY = "";
+const syncReady = () => !!(SYNC_URL && SYNC_KEY) && /^https?:$/.test(location.protocol) && window.top === window.self;
+function mergeState(A, B) {
+  const mtA = A.mt || {}, mtB = B.mt || {}, pick = k => (mtB[k] || 0) > (mtA[k] || 0) ? "B" : "A";
+  const out = Object.assign({}, A, { mt: {}, deleted: {} });
+  for (const k of new Set([...Object.keys(mtA), ...Object.keys(mtB)])) out.mt[k] = Math.max(mtA[k] || 0, mtB[k] || 0);
+  const dA = A.deleted || {}, dB = B.deleted || {};
+  for (const id of new Set([...Object.keys(dA), ...Object.keys(dB)])) out.deleted[id] = Math.max(dA[id] || 0, dB[id] || 0);
+  // trackers
+  const byA = Object.fromEntries((A.trackers || []).map(t => [t.id, t])), byB = Object.fromEntries((B.trackers || []).map(t => [t.id, t]));
+  const ids = [...new Set([...Object.keys(byA), ...Object.keys(byB)])];
+  const keep = {};
+  ids.forEach(id => {
+    const k = "t|" + id, ta = byA[id], tb = byB[id];
+    let t = ta && tb ? (pick(k) === "B" ? tb : ta) : (ta || tb);
+    if ((out.deleted[id] || 0) >= (out.mt[k] || 0) && out.deleted[id]) t = null;
+    if (t) keep[id] = t;
+  });
+  const order = JSON.parse((pick("order") === "B" ? JSON.stringify((B.trackers || []).map(t => t.id)) : JSON.stringify((A.trackers || []).map(t => t.id))));
+  out.trackers = [...order.filter(id => keep[id]), ...ids.filter(id => keep[id] && !order.includes(id))].map(id => keep[id]);
+  // day-by-day entries
+  const mergeDays = (name, a, b) => {
+    const res = {};
+    const keys = new Set();
+    [a, b].forEach(src => Object.entries(src || {}).forEach(([id, days]) => Object.keys(days || {}).forEach(k => keys.add(id + "|" + k))));
+    Object.keys(out.mt).filter(k => k.startsWith(name + "|")).forEach(k => keys.add(k.slice(name.length + 1)));
+    keys.forEach(ik => {
+      const [id, k] = [ik.slice(0, ik.indexOf("|")), ik.slice(ik.indexOf("|") + 1)];
+      if (!keep[id]) return;
+      const src = pick(name + "|" + ik) === "B" ? b : a, v = src && src[id] && src[id][k];
+      if (v !== undefined && v !== null) (res[id] ||= {})[k] = v;
+    });
+    return res;
+  };
+  out.log = mergeDays("log", A.log, B.log);
+  out.subs = mergeDays("sub", A.subs, B.subs);
+  out.settings = pick("settings") === "B" ? B.settings : A.settings;
+  out.examples = pick("examples") === "B" ? B.examples : A.examples;
+  return out;
+}
+var sb = null, syncUser = null, syncTimer = null, syncing = false, lastSync = store.get("tally.lastsync", 0), syncErr = "";
+function loadSupabase() {
+  if (sb) return Promise.resolve(sb);
+  return new Promise((res, rej) => {
+    const sc = document.createElement("script");
+    sc.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
+    sc.onload = () => { sb = window.supabase.createClient(SYNC_URL, SYNC_KEY); res(sb) };
+    sc.onerror = () => rej(new Error("Couldn't load the sync service. Check your internet connection."));
+    document.head.appendChild(sc);
+  });
+}
+async function initSync() {
+  if (!syncReady()) return;
+  try {
+    await loadSupabase();
+    const { data } = await sb.auth.getSession(); syncUser = data.session ? data.session.user : null;
+    sb.auth.onAuthStateChange((_e, session) => { syncUser = session ? session.user : null; if (ui.tab === "settings" && !layer.innerHTML) render() });
+    if (syncUser) syncNow();
+  } catch (e) { syncErr = e.message }
+}
+function scheduleSync() { if (!syncUser) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 1500) }
+async function syncNow(manual) {
+  if (!sb || !syncUser || syncing) return; syncing = true;
+  try {
+    const { data, error } = await sb.from("tally_state").select("data").eq("user_id", syncUser.id).maybeSingle();
+    if (error) throw error;
+    const local = Object.assign({}, S);
+    const merged = data && data.data ? mergeState(local, data.data) : local;
+    const keepLocal = { fired: S.fired, snooze: S.snooze };
+    S = Object.assign(merged, keepLocal); fixSettings(); fixTrackers();
+    snap = pieces(S); store.set(KEY, S);
+    const up = Object.assign({}, S); delete up.fired; delete up.snooze;
+    const { error: e2 } = await sb.from("tally_state").upsert({ user_id: syncUser.id, data: up, updated_at: new Date().toISOString() });
+    if (e2) throw e2;
+    lastSync = Date.now(); store.set("tally.lastsync", lastSync); syncErr = "";
+    if (!layer.innerHTML) { applyTheme(); render() }
+    if (manual) toast("Synced");
+  } catch (e) { syncErr = (e && e.message) || "Sync failed"; if (manual) toast("Sync didn't work: " + syncErr) }
+  syncing = false;
+}
+function syncCard() {
+  if (!syncReady()) return `<div class="card set"><h3>Sync across devices</h3><div class="muted">${SYNC_URL ? "Sync works in the installed app and on the website, not in this preview." : "Coming soon: sign in to keep your phone and computer in step."}</div></div>`;
+  if (!syncUser) return `<div class="card set"><h3>Sync across devices</h3>
+    <div class="muted">Sign in on each phone or computer with the same account, and your trackers, history and settings stay the same everywhere.</div>
+    <div class="field"><label for="s-email">Email</label><input id="s-email" type="email" autocomplete="email" style="width:100%;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:9px 11px;font-size:16px"></div>
+    <div class="field"><label for="s-pass">Password</label><input id="s-pass" type="password" autocomplete="current-password" style="width:100%;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:9px 11px;font-size:16px"></div>
+    <div class="row-btns"><button class="btn small primary" data-act="signin">Sign in</button><button class="btn small" data-act="signup">Create account</button></div>
+    ${syncErr ? `<div class="muted" style="color:var(--danger)">${esc(syncErr)}</div>` : ""}</div>`;
+  const ago = lastSync ? Math.round((Date.now() - lastSync) / 60000) : null;
+  return `<div class="card set"><h3>Sync across devices</h3>
+    <div class="line"><span>Signed in as <b>${esc(syncUser.email)}</b></span><button class="btn small" data-act="signout">Sign out</button></div>
+    <div class="line"><span class="muted">${syncing ? "Syncing…" : ago == null ? "Not synced yet" : ago < 1 ? "Synced just now" : `Last synced ${ago} min ago`}${syncErr ? ` · <span style="color:var(--danger)">${esc(syncErr)}</span>` : ""}</span><button class="btn small primary" data-act="syncnow">Sync now</button></div></div>`;
+}
+
 // ---------- reminders ----------
 const SNOOZE_MIN = 10;
 function snooze(id) { S.snooze[id] = Date.now() + SNOOZE_MIN * 60e3; save(); toast(`Snoozed for ${SNOOZE_MIN} minutes`) }
@@ -1177,7 +1311,7 @@ function checkReminders() {
 }
 try { navigator.serviceWorker && navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.type === "remind") remindAction(e.data.action, e.data.id) }) } catch { }
 setInterval(checkReminders, 20000);
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { checkReminders(); if (ui.day !== keyOf(today()) && ui.tab === "today" && !layer.innerHTML) { } render() } });
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { if (syncUser) syncNow(); checkReminders(); if (ui.day !== keyOf(today()) && ui.tab === "today" && !layer.innerHTML) { } render() } });
 
 // ---------- boot ----------
 // Fitness import: opening ...?steps=8421&calories=512 (optionally &date=2026-10-14) sets that day's
@@ -1219,7 +1353,7 @@ window.addEventListener("hashchange", () => goTab(location.hash.slice(1)));
 { let start = ui.tab !== "today" ? "" : location.hash.slice(1);  if (!TABS.includes(start)) { try { start = sessionStorage.getItem("tally.tab") || "" } catch { } }
   if (TABS.includes(start)) ui.tab = start;
   try { ui.adv = sessionStorage.getItem("tally.adv") === "1" } catch { } }
-applyTheme(); render(); setTimeout(checkReminders, 1500);
+applyTheme(); render(); setTimeout(checkReminders, 1500); initSync();
 try { if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && window.top === window.self) navigator.serviceWorker.register("sw.js").catch(() => { }) } catch { }
 })();
 </script>
