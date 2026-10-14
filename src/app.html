@@ -213,6 +213,7 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .cell { aspect-ratio: 1 / 1.05; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 4px; display: grid; grid-template-rows: auto 1fr auto; text-align: left; font-size: 12px; min-width: 0; position: relative; overflow: hidden }
 .cell .fill { position: absolute; inset: auto 0 0 0; background: var(--accent); opacity: .22 }
 .cell b { font-weight: 700; position: relative }
+.cell b sup { font-size: .62em; font-weight: 600; margin-inline-start: 1px; vertical-align: super; line-height: 0 }
 .cell.out { opacity: .4 }
 .cell.today { border: 2px solid var(--accent) }
 .cell .pc { position: relative; font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums }
@@ -1073,6 +1074,9 @@ function dayStats(d) {
   const k = keyOf(d), l = dueList(d), done = l.filter(t => doneOn(t, k)).length;
   return { l, k, done, pct: l.length ? done / l.length : 0 };
 }
+// English ordinal ending as a small raised suffix (1st, 2nd, 3rd); other languages just show the number.
+const ORD = LANG => LANG === "en" ? new Intl.PluralRules("en", { type: "ordinal" }) : null;
+function ordSuf(n) { const r = ORD(LANG); return r ? `<sup>${{ one: "st", two: "nd", few: "rd" }[r.select(n)] || "th"}</sup>` : "" }
 function rCal() {
   const ref = fromKey(ui.calRef), ws = S.settings.weekStart, tk = keyOf(today());
   const dows = [0, 1, 2, 3, 4, 5, 6].map(i => DOW[(i + ws) % 7]);
@@ -1086,7 +1090,7 @@ function rCal() {
       const st = dayStats(d), future = st.k > tk, once = st.l.filter(t => t.freq === "once"), evs = st.l.filter(t => t.freq === "once" || t.cal).sort((a, b) => (rems(a)[0] || "99") < (rems(b)[0] || "99") ? -1 : 1);
       const fill = future ? 0 : st.pct;
       cells += `<button class="cell ${d.getMonth() !== ref.getMonth() ? "out" : ""} ${st.k === tk ? "today" : ""} ${fill === 1 && st.l.length ? "full" : ""}" data-act="calday" data-k="${st.k}" aria-label="${fmtDate(d)}: ${tx("{done} of {total} done", { done: st.done, total: st.l.length })}">
-        <span class="fill" style="height:${Math.round(fill * 100)}%"></span><b class="num">${d.getDate()}</b>
+        <span class="fill" style="height:${Math.round(fill * 100)}%"></span><b class="num">${d.getDate()}${ordSuf(d.getDate())}</b>
         <span class="pc">${st.l.length && !future ? `${st.done}/${st.l.length}` : ""}</span>
         <span class="evs">${evs.slice(0, 3).map(t => `<span style="--c:${t.color}" title="${esc(t.name)}" data-act="calev" data-id="${t.id}" data-k="${st.k}">${rems(t)[0] ? `<em>${esc(fmtTime(rems(t)[0]))}</em> ` : ""}${esc(t.name)}</span>`).join("")}${evs.length > 3 ? `<em>+${evs.length - 3}</em>` : ""}</span>
         <span class="dots">${once.slice(0, 4).map(t => `<i style="--c:${t.color}" title="${esc(t.name)}"></i>`).join("")}</span></button>`;
