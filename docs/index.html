@@ -176,8 +176,10 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 #bgimg::after { content: ""; position: absolute; inset: 0; background: var(--bg); opacity: var(--bg-dim, .3) }
 .wrap { position: relative; z-index: 1; zoom: var(--zoom, 1) }
 .tabs { zoom: var(--zoom, 1) }
-body.glass .item:not(.done), body.glass .tile, body.glass .card, body.glass .mrow, body.glass .prompt, body.glass .banner, body.glass .empty { background: color-mix(in srgb, var(--surface) 80%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px) }
-body.glass .item.done { background: color-mix(in srgb, var(--surface) 45%, transparent) }
+body.glass .item:not(.done), body.glass .tile, body.glass .card, body.glass .mrow, body.glass .prompt, body.glass .banner, body.glass .empty, body.glass .tabs { background: color-mix(in srgb, var(--surface) 58%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px) }
+body.glass .item.done { background: color-mix(in srgb, var(--surface) 35%, transparent) }
+.crop { position: relative; overflow: hidden; margin: 0 auto; border-radius: 14px; background: var(--surface-2); touch-action: none; cursor: grab; max-width: 100% }
+.crop img { position: absolute; max-width: none; user-select: none; -webkit-user-drag: none; pointer-events: none }
 body.compact .list { gap: 5px }
 body.compact .item, body.compact .mrow { padding: 6px 10px }
 body.compact .check { width: 34px; height: 34px }
@@ -251,6 +253,9 @@ function fixSettings() {
   const st = fixSettings();
   if (st.accent) { st.look.preset = { ocean: "ocean", plum: "lavender", rose: "sakura", amber: "sand", slate: "mono" }[st.accent] || st.look.preset; delete st.accent }
   st.look = Object.assign(defaultLook(), st.look || {}); st.look.custom = Object.assign(defaultLook().custom, st.look.custom || {});
+  // only theme, light/dark, background and fade are user-facing now; everything else stays at its default
+  const d = defaultLook(); ["accent", "glass", "font", "size", "radius", "density", "layout", "check", "streaks", "title"].forEach(k => st.look[k] = d[k]);
+  if (st.look.preset === "custom") st.look.preset = "pine";
 }
 if (!S) { S = defaults(); seedExamples(); }
 S.settings = Object.assign(defaults().settings, S.settings || {});
@@ -517,7 +522,7 @@ function applyTheme() {
   const b = document.body, img = $("#bgimg");
   b.classList.toggle("compact", L.density === "compact"); b.classList.toggle("square", L.check === "square"); b.classList.toggle("no-streak", !L.streaks);
   const hasBg = L.bg !== "none" && (L.bg !== "image" || bgImage);
-  b.classList.toggle("glass", hasBg && L.glass);
+  b.classList.toggle("glass", hasBg);
   img.hidden = !hasBg;
   if (hasBg) img.style.background = L.bg === "image" ? `center/cover no-repeat url("${bgImage}")` : (GRADS[L.bg.slice(2)] || GRADS.dawn)[dark ? 1 : 0];
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = bg;
@@ -526,14 +531,52 @@ try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () =
 try { new MutationObserver(() => { if (!document.documentElement.dataset.themeOwned) applyTheme() }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] }) } catch { }
 function loadPhoto(file) {
   const rd = new FileReader();
-  rd.onload = () => { const im = new Image(); im.onload = () => {
-    const k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement("canvas");
-    c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+  rd.onload = () => { const im = new Image(); im.onload = () => openCropper(im); im.onerror = () => toast("That file isn't a picture this browser can open."); im.src = rd.result };
+  rd.readAsDataURL(file);
+}
+// Zoom-and-drag cropper: the frame has this screen's shape, and the saved picture is cut to it.
+function openCropper(im) {
+  const ar = innerWidth / innerHeight;
+  layer.innerHTML = `<div class="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="crh">
+    <h2 id="crh">Fit your photo</h2>
+    <div class="muted" style="margin-bottom:10px">Drag to move it. Zoom with the slider, two fingers, or the mouse wheel. The frame is the shape of your screen.</div>
+    <div class="crop" id="crop"><img id="crop-img" alt="" src="${im.src}"></div>
+    <div class="line" style="display:flex;gap:10px;align-items:center;margin:12px 0"><span>Zoom</span><input type="range" id="crop-z" min="1" max="4" step="0.01" value="1" style="flex:1"></div>
+    <div class="row-btns"><button class="btn primary" data-cr="use">Use photo</button><button class="btn" data-cr="fit">Center</button><button class="btn" data-cr="cancel">Cancel</button></div>
+  </div></div>`;
+  const fr = $("#crop"), img = $("#crop-img"), zr = $("#crop-z");
+  const fh = Math.min(innerHeight * .55, 520), fw = Math.min(fh * ar, fr.parentElement.clientWidth);
+  const H = fw / ar; fr.style.width = fw + "px"; fr.style.height = H + "px";
+  const base = Math.max(fw / im.width, H / im.height);
+  let z = 1, x = 0, y = 0;
+  const clamp = () => { const w = im.width * base * z, h = im.height * base * z; x = Math.min(0, Math.max(fw - w, x)); y = Math.min(0, Math.max(H - h, y)) };
+  const draw = () => { clamp(); img.style.width = im.width * base * z + "px"; img.style.left = x + "px"; img.style.top = y + "px"; zr.value = z };
+  const zoomTo = (nz, cx = fw / 2, cy = H / 2) => { nz = Math.min(4, Math.max(1, nz)); x = cx - (cx - x) * nz / z; y = cy - (cy - y) * nz / z; z = nz; draw() };
+  const center = () => { z = 1; x = (fw - im.width * base) / 2; y = (H - im.height * base) / 2; draw() };
+  center();
+  const pts = new Map(); let pinch = 0;
+  fr.addEventListener("pointerdown", e => { fr.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]) });
+  fr.addEventListener("pointermove", e => {
+    if (!pts.has(e.pointerId)) return;
+    const prev = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pts.size === 1) { x += e.clientX - prev[0]; y += e.clientY - prev[1]; draw() }
+    else { const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) { const r = fr.getBoundingClientRect(); zoomTo(z * d / pinch, (a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top) } pinch = d }
+  });
+  const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = 0 };
+  fr.addEventListener("pointerup", up); fr.addEventListener("pointercancel", up);
+  fr.addEventListener("wheel", e => { e.preventDefault(); const r = fr.getBoundingClientRect(); zoomTo(z * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX - r.left, e.clientY - r.top) }, { passive: false });
+  zr.addEventListener("input", () => zoomTo(+zr.value));
+  layer.onclick = ev => {
+    const b = ev.target.closest("[data-cr]"); if (!b) return;
+    if (b.dataset.cr === "cancel") return closeSheet();
+    if (b.dataset.cr === "fit") return center();
+    const outH = Math.min(1800, Math.round(innerHeight * (devicePixelRatio || 1))), outW = Math.round(outH * ar), k = base * z;
+    const c = document.createElement("canvas"); c.width = outW; c.height = outH;
+    c.getContext("2d").drawImage(im, -x / k, -y / k, fw / k, H / k, 0, 0, outW, outH);
     let url = c.toDataURL("image/jpeg", .82);
     try { localStorage.setItem("tally.bgimg", JSON.stringify(url)) } catch { url = c.toDataURL("image/jpeg", .6); try { localStorage.setItem("tally.bgimg", JSON.stringify(url)) } catch { toast("That photo is too big to save. It will show until you close the app.") } }
-    bgImage = url; S.settings.look.bg = "image"; save(); applyTheme(); render(); toast("Background photo set");
-  }; im.onerror = () => toast("That file isn't a picture this browser can open."); im.src = rd.result };
-  rd.readAsDataURL(file);
+    bgImage = url; S.settings.look.bg = "image"; save(); closeSheet(); applyTheme(); toast("Background photo set");
+  };
 }
 function renderTabs() {
   const tabs = [["today", "Today"], ["stats", "Progress"], ["manage", "Trackers"], ["settings", "Settings"]];
@@ -663,36 +706,21 @@ function rSettings() {
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   const notifOK = "Notification" in window;
   const L = st.look, mode = curMode();
-  const lseg = (key, opts) => `<div class="seg">${opts.map(([v, l]) => `<button data-act="look" data-k="${key}" data-v="${v}" aria-pressed="${String(L[key]) === String(v)}">${l}</button>`).join("")}</div>`;
-  const pal = palette(), accNow = L.accent || pal[3];
-  const ACC = ["#2E6B57", "#245FA8", "#6D3FB0", "#B23A62", "#C2410C", "#9A5A12", "#0E8C8C", "#111111", "#72C3A5", "#7EB0F0", "#F08FAE", "#F0B060"];
   view.innerHTML = `<header class="head"><div><div class="eyebrow">Settings</div><h1>Make it yours</h1></div></header>
   <div class="list">
   <div class="card set"><h3>Theme</h3>
-    <div class="themes">${Object.entries(PRESETS).map(([k, p]) => { const c = p[mode]; return `<button class="theme" style="--tb:${c[0]};--ts:${c[1]};--tf:${c[2]};--ta:${c[3]}" data-act="look" data-k="preset" data-v="${k}" aria-pressed="${L.preset === k}"><span class="tv"><i></i><i></i><i></i></span><b>${p.name}</b></button>` }).join("")}
-      <button class="theme" style="--tb:${L.custom.bg};--ts:${L.custom.surface};--tf:${L.custom.fg};--ta:${L.custom.accent}" data-act="look" data-k="preset" data-v="custom" aria-pressed="${L.preset === "custom"}"><span class="tv"><i></i><i></i><i></i></span><b>Your colors</b></button></div>
-    ${L.preset === "custom" ? `<div class="colors">${[["bg", "Background"], ["surface", "Cards"], ["fg", "Text"], ["accent", "Accent"]].map(([k, l]) => `<label><input type="color" data-custom="${k}" value="${L.custom[k]}">${l}</label>`).join("")}</div>`
-      : `<div class="line"><span>Light or dark</span>${seg("theme", [["system", "Auto"], ["light", "Light"], ["dark", "Dark"]])}</div>`}
-    <div class="line"><span>Accent color</span><div class="swatches">${ACC.map(c => `<button class="sw" style="--c:${c}" data-act="look" data-k="accent" data-v="${c}" aria-label="Accent ${c}" aria-pressed="${L.accent === c}"></button>`).join("")}<input type="color" id="acc-pick" value="${accNow}" aria-label="Pick any accent color">${L.accent ? `<button class="btn small" data-act="look" data-k="accent" data-v="">Theme default</button>` : ""}</div></div>
+    <div class="themes">${Object.entries(PRESETS).map(([k, p]) => { const c = p[mode]; return `<button class="theme" style="--tb:${c[0]};--ts:${c[1]};--tf:${c[2]};--ta:${c[3]}" data-act="look" data-k="preset" data-v="${k}" aria-pressed="${L.preset === k}"><span class="tv"><i></i><i></i><i></i></span><b>${p.name}</b></button>` }).join("")}</div>
+    <div class="line"><span>Light or dark</span>${seg("theme", [["system", "Auto"], ["light", "Light"], ["dark", "Dark"]])}</div>
   </div>
   <div class="card set"><h3>Background</h3>
     <div class="bgs"><button style="--g:var(--bg)" data-act="look" data-k="bg" data-v="none" aria-pressed="${L.bg === "none"}">Plain</button>${Object.entries(GRADS).map(([k, g]) => `<button style="background:${g[mode === "dark" ? 1 : 0]};background-color:var(--bg)" data-act="look" data-k="bg" data-v="g:${k}" aria-label="${k} background" aria-pressed="${L.bg === "g:" + k}"></button>`).join("")}
-      <label style="${bgImage ? `background:center/cover url('${bgImage}')` : ""}" aria-pressed="${L.bg === "image"}">${bgImage ? "" : "Photo"}<input type="file" id="bg-file" accept="image/*" hidden></label></div>
-    <div class="row-btns">${bgImage ? `<label class="btn small">Change photo<input type="file" id="bg-file2" accept="image/*" hidden></label><button class="btn small" data-act="rmphoto">Remove photo</button>` : `<span class="muted">Tap Photo to use a picture from your device.</span>`}</div>
-    ${L.bg !== "none" ? `<div class="line"><label for="dim">Fade the background</label><input type="range" id="dim" min="0" max="0.85" step="0.05" value="${L.dim}"></div>
-    <div class="line"><span>See-through cards</span>${lseg("glass", [[true, "On"], [false, "Off"]])}</div>` : ""}
+      ${bgImage ? `<button style="background:center/cover url('${bgImage}')" data-act="look" data-k="bg" data-v="image" aria-label="Your photo" aria-pressed="${L.bg === "image"}"></button>` : ""}<label>${bgImage ? "New photo" : "Photo"}<input type="file" id="bg-file" accept="image/*" hidden></label></div>
+    <div class="muted">Pick any photo. You'll be able to zoom and drag it to fit your screen (${Math.round(innerWidth * (devicePixelRatio || 1))} × ${Math.round(innerHeight * (devicePixelRatio || 1))} pixels on this device).</div>
+    ${bgImage ? `<div class="row-btns"><button class="btn small" data-act="rmphoto">Remove photo</button></div>` : ""}
+    ${L.bg !== "none" ? `<div class="line"><label for="dim">Fade the background</label><input type="range" id="dim" min="0" max="0.85" step="0.05" value="${L.dim}"></div>` : ""}
   </div>
-  <div class="card set"><h3>Text and layout</h3>
-    <div class="line"><label for="title-in">App name</label><input type="text" id="title-in" value="${esc(L.title)}" maxlength="30" placeholder="Tally"></div>
-    <div class="line"><span>Font</span><div class="seg" style="flex-wrap:wrap">${Object.entries(FONTS).map(([k, f]) => `<button data-act="look" data-k="font" data-v="${k}" aria-pressed="${L.font === k}" style="font-family:${esc(f.b)},system-ui">${f.name}</button>`).join("")}</div></div>
-    <div class="line"><span>Size</span>${lseg("size", [[0.9, "Small"], [1, "Normal"], [1.1, "Large"], [1.22, "Huge"]])}</div>
-    <div class="line"><span>Corners</span>${lseg("radius", [[4, "Sharp"], [14, "Soft"], [24, "Round"]])}</div>
-    <div class="line"><span>Spacing</span>${lseg("density", [["comfy", "Roomy"], ["compact", "Compact"]])}</div>
-    <div class="line"><span>Today layout</span>${lseg("layout", [["list", "List"], ["grid", "Grid"]])}</div>
-    <div class="line"><span>Check buttons</span>${lseg("check", [["circle", "Circle"], ["square", "Square"]])}</div>
-    <div class="line"><span>Show streaks</span>${lseg("streaks", [[true, "On"], [false, "Off"]])}</div>
+  <div class="card set"><h3>Week</h3>
     <div class="line"><span>Week starts on</span>${seg("weekStart", [[1, "Monday"], [0, "Sunday"]])}</div>
-    <div class="row-btns"><button class="btn small" data-act="resetlook">Reset the look</button></div>
   </div>
   <div class="card set"><h3>Reminders</h3>
     <div class="muted">Reminders pop up at the time you set on each tracker while the app is open or running in the background on your device. If something is already done, it stays quiet.</div>
@@ -858,14 +886,14 @@ document.addEventListener("click", async ev => {
 document.addEventListener("input", ev => {
   const el = ev.target, L = S.settings.look;
   if (el.dataset.custom) { L.custom[el.dataset.custom] = el.value; L.preset = "custom"; if (el.dataset.custom === "accent") L.accent = ""; save(); applyTheme() }
-  else if (el.id === "acc-pick") { L.accent = el.value; save(); applyTheme() }
+
   else if (el.id === "dim") { L.dim = +el.value; save(); applyTheme() }
-  else if (el.id === "title-in") { L.title = el.value.trim(); save() }
+
 });
 document.addEventListener("change", ev => {
   const el = ev.target;
-  if ((el.id === "bg-file" || el.id === "bg-file2") && el.files[0]) loadPhoto(el.files[0]);
-  else if (el.dataset.custom || el.id === "acc-pick") render();
+  if (el.id === "bg-file" && el.files[0]) { loadPhoto(el.files[0]); el.value = "" }
+  else if (el.dataset.custom) render();
 });
 document.addEventListener("submit", ev => {
   if (ev.target.id !== "pform") return; ev.preventDefault();
