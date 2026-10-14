@@ -365,5 +365,18 @@
  "Pick next week's top 3": "Chọn 3 việc chính tuần sau",
  "Check your budget": "Kiểm tra ngân sách",
  "Call mom": "Gọi cho mẹ",
- "Mind": "Tinh thần"
+ "Mind": "Tinh thần",
+ "Press Enter and the AI will add it to your calendar": "Nhấn Enter và AI sẽ thêm vào lịch của bạn",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "Nhập một sự kiện, ví dụ: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "Thêm tên cho sự kiện",
+ "add a date, like fri or Oct 20": "thêm ngày, ví dụ fri hoặc Oct 20",
+ "check the day": "kiểm tra lại thứ",
+ "Added {name} on {date}": "Đã thêm {name} vào {date}",
+ "Added {n} events": "Đã thêm {n} sự kiện",
+ "Reading that…": "Đang đọc…",
+ "I couldn't find anything to add in that.": "Mình không tìm thấy gì để thêm từ nội dung đó.",
+ "The AI isn't available right now, so Tally read it by itself.": "AI hiện không khả dụng, nên Tally đã tự đọc.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "Thêm vào lịch: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "Mô tả một sự kiện để thêm",
+ "You've used today's AI adds, so Tally read it by itself.": "Bạn đã dùng hết lượt AI hôm nay, nên Tally tự đọc."
 }

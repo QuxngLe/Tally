@@ -365,5 +365,18 @@
  "Pick next week's top 3": "来週のトップ3を決める",
  "Check your budget": "家計をチェック",
  "Call mom": "母に電話する",
- "Mind": "こころ"
+ "Mind": "こころ",
+ "Press Enter and the AI will add it to your calendar": "Enter を押すと AI がカレンダーに追加します",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "予定を入力（例：wed 15 CS341 midterm 2 12:30 pm）",
+ "Add a name for the event": "予定の名前を追加してください",
+ "add a date, like fri or Oct 20": "日付を追加してください（例：fri、Oct 20）",
+ "check the day": "曜日を確認してください",
+ "Added {name} on {date}": "{date} に {name} を追加しました",
+ "Added {n} events": "{n} 件の予定を追加しました",
+ "Reading that…": "読み取り中…",
+ "I couldn't find anything to add in that.": "追加できるものが見つかりませんでした。",
+ "The AI isn't available right now, so Tally read it by itself.": "AI が現在利用できないため、Tally が自分で読み取りました。",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "カレンダーに追加：wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "追加する予定を入力",
+ "You've used today's AI adds, so Tally read it by itself.": "今日のAI追加の上限に達したため、Tallyが自分で読み取りました。"
 }

@@ -365,5 +365,18 @@
  "Look back at the week": "ทบทวนสัปดาห์ที่ผ่านมา",
  "Clear your inbox": "เคลียร์กล่องจดหมาย",
  "Pick next week's top 3": "เลือก 3 เรื่องสำคัญของสัปดาห์หน้า",
- "Check your budget": "เช็กงบประมาณ"
+ "Check your budget": "เช็กงบประมาณ",
+ "Press Enter and the AI will add it to your calendar": "กด Enter แล้ว AI จะเพิ่มลงในปฏิทินของคุณ",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "พิมพ์กิจกรรม เช่น: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "ใส่ชื่อกิจกรรม",
+ "add a date, like fri or Oct 20": "ใส่วันที่ เช่น fri หรือ Oct 20",
+ "check the day": "ตรวจสอบวันอีกครั้ง",
+ "Added {name} on {date}": "เพิ่ม {name} ในวันที่ {date} แล้ว",
+ "Added {n} events": "เพิ่ม {n} กิจกรรมแล้ว",
+ "Reading that…": "กำลังอ่าน…",
+ "I couldn't find anything to add in that.": "ไม่พบสิ่งที่จะเพิ่มจากข้อความนั้น",
+ "The AI isn't available right now, so Tally read it by itself.": "AI ใช้งานไม่ได้ในขณะนี้ Tally จึงอ่านเอง",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "เพิ่มลงในปฏิทิน: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "อธิบายกิจกรรมที่จะเพิ่ม",
+ "You've used today's AI adds, so Tally read it by itself.": "คุณใช้สิทธิ์เพิ่มด้วย AI ของวันนี้หมดแล้ว Tally จึงอ่านเอง"
 }

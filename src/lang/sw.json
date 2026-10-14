@@ -365,5 +365,18 @@
  "Look back at the week": "Tafakari wiki iliyopita",
  "Clear your inbox": "Safisha kikasha cha barua",
  "Pick next week's top 3": "Chagua mambo 3 makuu ya wiki ijayo",
- "Check your budget": "Kagua bajeti yako"
+ "Check your budget": "Kagua bajeti yako",
+ "Press Enter and the AI will add it to your calendar": "Bonyeza Enter na AI itaiongeza kwenye kalenda yako",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "Andika tukio, kama: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "Ongeza jina la tukio",
+ "add a date, like fri or Oct 20": "ongeza tarehe, kama fri au Oct 20",
+ "check the day": "angalia siku",
+ "Added {name} on {date}": "{name} imeongezwa tarehe {date}",
+ "Added {n} events": "Matukio {n} yameongezwa",
+ "Reading that…": "Inasoma…",
+ "I couldn't find anything to add in that.": "Sikupata chochote cha kuongeza hapo.",
+ "The AI isn't available right now, so Tally read it by itself.": "AI haipatikani sasa, kwa hiyo Tally imesoma yenyewe.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "Ongeza kwenye kalenda yako: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "Eleza tukio la kuongeza",
+ "You've used today's AI adds, so Tally read it by itself.": "Umetumia nyongeza za AI za leo, kwa hivyo Tally imeisoma yenyewe."
 }

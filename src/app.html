@@ -220,6 +220,26 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .cell .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c) }
 .cell.full .fill { opacity: .45 }
 .weekv { display: grid; gap: 8px }
+.cell .evs { display: none }
+.qadd, .qspace { display: none }
+@media (min-width: 760px) {
+  .wrap.wide { max-width: 1040px }
+  body.has-q .toast { bottom: 140px }
+  .cell { aspect-ratio: auto; min-height: 108px }
+  .cell .evs { display: grid; gap: 2px; position: relative; align-self: start; margin-top: 3px; min-width: 0 }
+  .cell .evs span { display: block; font-size: 10.5px; line-height: 1.25; padding: 1px 4px; border-radius: 4px; background: color-mix(in srgb, var(--c) 16%, transparent); border-inline-start: 2px solid var(--c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+  .cell .evs em { font-style: normal; font-size: 10px; color: var(--muted) }
+  .cell .dots { display: none }
+  .qspace { display: block; height: 120px }
+  .qadd { display: grid; gap: 6px; position: fixed; z-index: 15; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(640px, calc(100% - 32px)) }
+  .qadd .prompt { box-shadow: 0 10px 30px rgba(0,0,0,.14) }
+  .qprev { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center }
+  .qprev:empty { display: none }
+  .qprev .qi { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font-size: 13px; box-shadow: var(--shadow) }
+  .qprev .qi b { font-weight: 700 }
+  .qprev .qi.bad { color: var(--muted) }
+  .qprev .qi .w { color: var(--flame) }
+}
 .wday { background: var(--surface); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--shadow) }
 .wday.today { outline: 2px solid var(--accent) }
 .wday .wh { display: flex; justify-content: space-between; align-items: baseline; border: 0; background: none; padding: 0; width: 100%; font-weight: 700; margin-bottom: 6px }
@@ -752,7 +772,7 @@ function meBtnHTML() {
   const n = userName(), first = n.split(/\s+/)[0];
   return `<button class="me" data-act="menu" aria-haspopup="menu" aria-label="${tx("Your account")}"><i class="avatar">${esc(initial(n))}</i><span>${tx("Hi, {name}", { name: esc(first) })}</span></button>`;
 }
-function render() { renderTabs(); renderView(); view.insertAdjacentHTML("afterbegin", `<div class="toprow">${meBtnHTML()}</div>`); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth) }
+function render() { renderTabs(); view.classList.toggle("wide", ui.tab === "calendar"); document.body.classList.toggle("has-q", ui.tab === "calendar"); renderView(); view.insertAdjacentHTML("afterbegin", `<div class="toprow">${meBtnHTML()}</div>`); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth) }
 function openMenu() {
   const cur = (LANGS.find(l => l[0] === LANG) || LANGS[0])[1], n = userName();
   layer.innerHTML = `<div class="scrim clear" data-act="closebg"><div class="menu" role="menu">
@@ -930,6 +950,98 @@ function previewHTML(o) {
     <div class="row-btns"><button class="btn primary" data-act="create">${tx("Create tracker")}</button><button class="btn" data-act="customize">${tx("Customize first")}</button><button class="btn" data-act="cancelp">${tx("Cancel")}</button></div></div>`;
 }
 
+// ---------- calendar quick add ----------
+// Reads lines like "wed 15 CS341 midterm 2 12:30 pm" or "Oct 20 dentist 3pm" into one-time events.
+// It runs in the app (no AI service), so it works offline and costs nothing.
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const WDRE = "(sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tues?|wed|thu(?:rs?)?|fri|sat)\\.?";
+const EVENT_EMOJI = [[/exam|midterm|final|quiz|\btest\b/i, "📝"], [/class|lecture|\blab\b|seminar|tutorial/i, "🏫"], [/assignment|homework|\bhw\b|project|essay|report|\bdue\b|deadline/i, "📌"], [/meeting|interview|\bcall\b/i, "👥"], [/dentist|doctor|appointment|clinic|hospital/i, "🩺"], [/birthday|bday/i, "🎂"], [/flight|trip|travel/i, "✈️"], [/party|dinner|lunch|brunch/i, "🍽️"]];
+function nextDay(base, day) { for (let i = 0; i < 400; i++) { const d = addDays(base, i); if (d.getDate() === day) return d } return null }
+function parseEvent(raw, base = today()) {
+  let s = " " + raw.replace(/\s+/g, " ").trim() + " ";
+  const cut = re => { const m = s.match(re); if (m) s = s.slice(0, m.index) + " " + s.slice(m.index + m[0].length); return m };
+  let time = null, due = null, wantWd = -1, m;
+  if ((m = cut(/\s(?:at\s+|@\s*)?(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)(?=[\s,.]|$)/i))) { let h = +m[1] % 12; if (/p/i.test(m[3])) h += 12; time = [h, +(m[2] || 0)] }
+  else if ((m = cut(/\s(?:at\s+|@\s*)?([01]?\d|2[0-3])[:h]([0-5]\d)(?=[\s,.]|$)/i))) time = [+m[1], +m[2]];
+  else if ((m = cut(/\s(?:at\s+)?noon(?=\s)/i))) time = [12, 0];
+  else if ((m = cut(/\s(?:at\s+)?midnight(?=\s)/i))) time = [0, 0];
+  if (time && (time[0] > 23 || time[1] > 59)) time = null;
+  const mk = (y, mo, d) => { const x = new Date(y, mo, d); return x.getMonth() === mo ? x : null };
+  const yearFor = (mo, d, y) => { if (y) return +(String(y).length === 2 ? "20" + y : y); const x = mk(base.getFullYear(), mo, d); return x && x < base ? base.getFullYear() + 1 : base.getFullYear() };
+  if ((m = cut(/\s(?:on\s+|due\s+|by\s+)?(\d{4})-(\d{1,2})-(\d{1,2})(?=\s)/))) due = mk(+m[1], +m[2] - 1, +m[3]);
+  else if ((m = cut(/\s(?:on\s+|due\s+|by\s+)?(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?=[\s,.])/))) due = mk(yearFor(+m[1] - 1, +m[2], m[3]), +m[1] - 1, +m[2]);
+  else if ((m = cut(new RegExp("\\s(?:on\\s+|due\\s+|by\\s+)?(?:" + WDRE + ",?\\s+)?(" + MONTHS.join("|") + ")[a-z]*\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{4}))?(?=[\\s,.])", "i")))) { const mo = MONTHS.indexOf(m[2].slice(0, 3).toLowerCase()); due = mk(yearFor(mo, +m[3], m[4]), mo, +m[3]) }
+  else if ((m = cut(new RegExp("\\s(?:on\\s+|due\\s+|by\\s+)?(?:the\\s+)?(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?(" + MONTHS.join("|") + ")[a-z]*\\.?(?:,?\\s+(\\d{4}))?(?=[\\s,.])", "i")))) { const mo = MONTHS.indexOf(m[2].slice(0, 3).toLowerCase()); due = mk(yearFor(mo, +m[1], m[3]), mo, +m[1]) }
+  else if ((m = cut(/\s(?:due\s+|by\s+)?(today|tonight|tomorrow|tmrw?|tmr)(?=[\s,.])/i))) due = addDays(base, /^to(day|night)$/i.test(m[1]) ? 0 : 1);
+  else if ((m = cut(/\sin\s+(\d{1,3})\s+(days?|weeks?)(?=[\s,.])/i))) due = addDays(base, +m[1] * (/^w/i.test(m[2]) ? 7 : 1));
+  else if ((m = cut(new RegExp("\\s(?:on\\s+|due\\s+|by\\s+)?(next\\s+|this\\s+)?" + WDRE + "(?:\\s+(?:the\\s+)?(\\d{1,2})(?:st|nd|rd|th)?)?(?=[\\s,.])", "i")))) {
+    wantWd = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"].indexOf(m[2].slice(0, 3).toLowerCase());
+    if (m[3] && +m[3] >= 1 && +m[3] <= 31) due = nextDay(base, +m[3]);
+    else { let n = (wantWd - base.getDay() + 7) % 7; if (/next/i.test(m[1] || "")) n += 7; due = addDays(base, n) }
+  }
+  else if ((m = cut(/\s(?:on\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)(?=[\s,.])/i))) due = nextDay(base, +m[1]);
+  if (!due && time) due = base;
+  let name = s.replace(/\s+/g, " ").trim().replace(/^(?:[-–,:]|on|at|by|due|for)\s+/i, "").replace(/\s+(?:[-–,:]|on|at|by|due|for)$/i, "").replace(/^[-–,:]+|[-–,:]+$/g, "").trim();
+  const hm = time ? `${pad(time[0])}:${pad(time[1])}` : null;
+  const emoji = (EVENT_EMOJI.find(([re]) => re.test(name)) || EMOJI.find(([re]) => re.test(name.toLowerCase())) || [, "📅"])[1];
+  return { name, due: due ? keyOf(due) : null, time: hm, emoji, mismatch: due && wantWd >= 0 && due.getDay() !== wantWd };
+}
+window.parseEvent = parseEvent;
+const quickLines = v => v.split(/\n|;/).map(x => x.trim()).filter(Boolean).map(x => parseEvent(x));
+function quickPreview(v) {
+  const ev = quickLines(v || "");
+  if (aiOn()) return `<span class="qi">✨ ${tx("Press Enter and the AI will add it to your calendar")}</span>`;
+  if (!ev.length) return `<span class="qi bad">${tx("Type an event, like: wed 15 CS341 midterm 2 12:30 pm")}</span>`;
+  return ev.map(e => !e.name ? `<span class="qi bad">${tx("Add a name for the event")}</span>` : !e.due ? `<span class="qi bad">${esc(e.name)} · ${tx("add a date, like fri or Oct 20")}</span>`
+    : `<span class="qi">${esc(e.emoji)} <b>${esc(e.name)}</b> · ${esc(fmtDate(fromKey(e.due)))}${e.time ? " · " + fmtTime(e.time) : ""}${e.mismatch ? ` <span class="w">⚠ ${tx("check the day")}</span>` : ""}</span>`).join("");
+}
+// Signed-in people get Claude (through the "schedule-ai" Supabase function) to read what they meant;
+// everyone else, or anyone offline, gets the built-in reader above.
+function aiOn() { return !!(sb && syncUser && sb.functions) }
+async function aiEvents(text) {
+  const n = new Date();
+  const { data, error } = await sb.functions.invoke("schedule-ai", { body: { text, today: keyOf(n), weekday: n.toLocaleDateString("en", { weekday: "long" }), now: `${pad(n.getHours())}:${pad(n.getMinutes())}`, lang: LANG } });
+  if (error && error.context && error.context.json) { const b = await error.context.json().catch(() => null); if (b && b.limit) return { evs: [], note: b.error || "", limit: true } }
+  if (error || !data || data.error) throw new Error((data && data.error) || (error && error.message) || "AI unavailable");
+  const ok = d => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
+  const evs = (data.events || []).filter(e => e && e.title && (e.repeat === "daily" || (e.repeat === "days" && (e.days || []).length) || (e.repeat === "once" && ok(e.date))))
+    .map(e => ({ name: String(e.title).slice(0, 120), emoji: e.emoji || "📅", repeat: e.repeat, due: e.date, days: e.days || [], time: /^\d{2}:\d{2}$/.test(e.time || "") ? e.time : null }));
+  return { evs, note: data.note || "" };
+}
+function addEvents(evs, note) {
+  const made = evs.map(e => blankTracker({ name: e.name, emoji: e.emoji, color: COLORS[Math.abs([...e.name].reduce((a, c) => a * 31 + c.charCodeAt(0), 7)) % COLORS.length], freq: e.repeat === "daily" ? "daily" : e.repeat === "days" ? "days" : "once", due: e.repeat === "once" || !e.repeat ? e.due : null, days: e.repeat === "days" ? e.days : [], reminders: e.time ? [e.time] : [], cal: true }));
+  S.trackers.push(...made); save();
+  const firstOnce = made.find(t => t.due);
+  if (firstOnce) ui.calRef = firstOnce.due;
+  ui.qtext = ""; render(); const q = $("#qin"); if (q) q.focus();
+  const m0 = made[0], when = m0.due ? fmtDate(fromKey(m0.due)) : schedText(m0);
+  const msg = made.length === 1 ? tx("Added {name} on {date}", { name: m0.name, date: when }) : tx("Added {n} events", { n: made.length });
+  toast(note ? msg + " · " + note : msg, tx("Undo"), () => { const ids = made.map(t => t.id); S.trackers = S.trackers.filter(t => !ids.includes(t.id)); save(); render() });
+}
+let qBusy = false;
+async function quickSubmit(v) {
+  if (!v.trim() || qBusy) return;
+  const prev = $("#qprev"), inp = $("#qin");
+  // The built-in reader handles the easy, clear ones for free; Claude only gets what it can't read cleanly.
+  const mine = quickLines(v), clear = mine.length && mine.every(e => e.name && e.due && !e.mismatch) && !/\b(every|each|daily|weekly|weekdays?|weekends?|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays|sundays|until|except|other|and|then)\b/i.test(v) && (v.match(/\b(mon|tue|wed|thu|fri|sat|sun)[a-z]*\b/gi) || []).length < 2;
+  if (clear) return addEvents(mine.map(e => ({ name: e.name, emoji: e.emoji, repeat: "once", due: e.due, time: e.time })));
+  let limNote = "";
+  if (aiOn()) {
+    qBusy = true; if (inp) inp.disabled = true; prev.innerHTML = `<span class="qi">✨ ${tx("Reading that…")}</span>`;
+    try {
+      const r = await aiEvents(v); qBusy = false;
+      if (r.evs.length) return addEvents(r.evs, r.note);
+      if (r.limit) { if (inp) inp.disabled = false; limNote = r.note || tx("You've used today's AI adds, so Tally read it by itself.") }
+      else {
+      if (inp) { inp.disabled = false; inp.focus() }
+      prev.innerHTML = `<span class="qi bad">${esc(r.note || tx("I couldn't find anything to add in that."))}</span>`; return; }
+    } catch (e) { qBusy = false; if (inp) { inp.disabled = false } toast(tx("The AI isn't available right now, so Tally read it by itself.")) }
+  }
+  const ok = quickLines(v).filter(e => e.name && e.due);
+  if (!ok.length) { prev.innerHTML = quickPreview(v); if (inp) inp.focus(); if (limNote) toast(limNote); return }
+  addEvents(ok.map(e => ({ name: e.name, emoji: e.emoji, repeat: "once", due: e.due, time: e.time })), limNote);
+}
+
 // ---------- calendar ----------
 function dayStats(d) {
   const k = keyOf(d), l = dueList(d), done = l.filter(t => doneOn(t, k)).length;
@@ -945,11 +1057,12 @@ function rCal() {
     let cells = "";
     for (let i = 0; i < 42; i++) {
       const d = addDays(start, i); if (i >= 35 && d.getMonth() !== ref.getMonth()) break;
-      const st = dayStats(d), future = st.k > tk, once = st.l.filter(t => t.freq === "once");
+      const st = dayStats(d), future = st.k > tk, once = st.l.filter(t => t.freq === "once"), evs = st.l.filter(t => t.freq === "once" || t.cal).sort((a, b) => (rems(a)[0] || "99") < (rems(b)[0] || "99") ? -1 : 1);
       const fill = future ? 0 : st.pct;
       cells += `<button class="cell ${d.getMonth() !== ref.getMonth() ? "out" : ""} ${st.k === tk ? "today" : ""} ${fill === 1 && st.l.length ? "full" : ""}" data-act="calday" data-k="${st.k}" aria-label="${fmtDate(d)}: ${tx("{done} of {total} done", { done: st.done, total: st.l.length })}">
         <span class="fill" style="height:${Math.round(fill * 100)}%"></span><b class="num">${d.getDate()}</b>
         <span class="pc">${st.l.length && !future ? `${st.done}/${st.l.length}` : ""}</span>
+        <span class="evs">${evs.slice(0, 3).map(t => `<span style="--c:${t.color}" title="${esc(t.name)}">${rems(t)[0] ? `<em>${esc(fmtTime(rems(t)[0]))}</em> ` : ""}${esc(t.name)}</span>`).join("")}${evs.length > 3 ? `<em>+${evs.length - 3}</em>` : ""}</span>
         <span class="dots">${once.slice(0, 4).map(t => `<i style="--c:${t.color}" title="${esc(t.name)}"></i>`).join("")}</span></button>`;
     }
     body = `<div class="month">${dows.map(x => `<div class="dow">${x}</div>`).join("")}${cells}</div>
@@ -966,7 +1079,10 @@ function rCal() {
   view.innerHTML = `<header class="head"><div><div class="eyebrow">${tx("Calendar")}</div><h1>${ui.calMode === "month" ? tx("Your month") : tx("Your week")}</h1></div>
     <div class="seg"><button data-act="calmode" data-v="month" aria-pressed="${ui.calMode === "month"}">${tx("Month")}</button><button data-act="calmode" data-v="week" aria-pressed="${ui.calMode === "week"}">${tx("Week")}</button></div></header>
   <div class="calbar"><h2>${esc(title)}</h2><div class="nav"><button class="icon-btn" data-act="calnav" data-n="-1" aria-label="${tx("Previous")}">‹</button><button class="btn small" data-act="calnav" data-n="0">${tx("Today")}</button><button class="icon-btn" data-act="calnav" data-n="1" aria-label="${tx("Next")}">›</button></div></div>
-  ${body}`;
+  ${body}
+  <div class="qspace"></div>
+  <form class="qadd" id="qform" autocomplete="off"><div class="qprev" id="qprev" aria-live="polite">${ui.qtext ? quickPreview(ui.qtext) : ""}</div>
+    <div class="prompt"><input id="qin" type="text" placeholder="${tx("Add to your calendar: wed 15 CS341 midterm 2 12:30 pm")}" aria-label="${tx("Describe an event to add")}" value="${esc(ui.qtext || "")}"><button class="go" type="submit">${tx("Add")}</button></div></form>`;
 }
 
 // charts
@@ -1346,6 +1462,7 @@ document.addEventListener("input", ev => {
 
   else if (el.id === "dim") { L.dim = +el.value; save(); applyTheme() }
   else if (el.id === "acc-pick") { L.accent = el.value; save(); applyTheme() }
+  else if (el.id === "qin") { ui.qtext = el.value; $("#qprev").innerHTML = el.value.trim() ? quickPreview(el.value) : "" }
 
 });
 document.addEventListener("change", ev => {
@@ -1354,6 +1471,7 @@ document.addEventListener("change", ev => {
   else if (el.dataset.custom || el.id === "acc-pick") render();
 });
 document.addEventListener("submit", ev => {
+  if (ev.target.id === "qform") { ev.preventDefault(); quickSubmit($("#qin").value); return }
   if (ev.target.id !== "pform") return; ev.preventDefault();
   const v = $("#pin").value.trim(); if (!v) return;
   ui.prompt = v; ui.draft = parsePrompt(v); render();

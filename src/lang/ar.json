@@ -365,5 +365,18 @@
  "Look back at the week": "مراجعة الأسبوع الماضي",
  "Clear your inbox": "تفريغ صندوق الوارد",
  "Pick next week's top 3": "اختيار أهم 3 أولويات للأسبوع القادم",
- "Check your budget": "مراجعة الميزانية"
+ "Check your budget": "مراجعة الميزانية",
+ "Press Enter and the AI will add it to your calendar": "اضغط Enter وسيضيفه الذكاء الاصطناعي إلى تقويمك",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "اكتب حدثًا، مثل: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "أضف اسمًا للحدث",
+ "add a date, like fri or Oct 20": "أضف تاريخًا، مثل fri أو Oct 20",
+ "check the day": "تحقق من اليوم",
+ "Added {name} on {date}": "تمت إضافة {name} في {date}",
+ "Added {n} events": "تمت إضافة {n} أحداث",
+ "Reading that…": "جارٍ القراءة…",
+ "I couldn't find anything to add in that.": "لم أجد شيئًا لإضافته.",
+ "The AI isn't available right now, so Tally read it by itself.": "الذكاء الاصطناعي غير متاح الآن، لذا قرأه Tally بنفسه.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "أضف إلى تقويمك: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "صف حدثًا لإضافته",
+ "You've used today's AI adds, so Tally read it by itself.": "لقد استخدمت إضافات الذكاء الاصطناعي لهذا اليوم، لذا قرأها Tally بنفسه."
 }

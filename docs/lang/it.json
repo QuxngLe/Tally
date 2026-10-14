@@ -365,5 +365,18 @@
  "Pick next week's top 3": "Scegliere le 3 priorità della prossima settimana",
  "Check your budget": "Controllare il budget",
  "Call mom": "Chiamare la mamma",
- "Mind": "Mente"
+ "Mind": "Mente",
+ "Press Enter and the AI will add it to your calendar": "Premi Invio e l’IA lo aggiungerà al tuo calendario",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "Scrivi un evento, ad es.: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "Aggiungi un nome all’evento",
+ "add a date, like fri or Oct 20": "aggiungi una data, ad es. fri o Oct 20",
+ "check the day": "controlla il giorno",
+ "Added {name} on {date}": "{name} aggiunto il {date}",
+ "Added {n} events": "{n} eventi aggiunti",
+ "Reading that…": "Lettura in corso…",
+ "I couldn't find anything to add in that.": "Non ho trovato nulla da aggiungere.",
+ "The AI isn't available right now, so Tally read it by itself.": "L’IA non è disponibile al momento, quindi Tally l’ha letto da solo.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "Aggiungi al calendario: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "Descrivi un evento da aggiungere",
+ "You've used today's AI adds, so Tally read it by itself.": "Hai esaurito le aggiunte con IA di oggi, quindi Tally l’ha letto da solo."
 }

@@ -365,5 +365,18 @@
  "Look back at the week": "Haftaya dönüp bak",
  "Clear your inbox": "Gelen kutusunu temizle",
  "Pick next week's top 3": "Gelecek haftanın ilk 3 önceliğini seç",
- "Check your budget": "Bütçeni kontrol et"
+ "Check your budget": "Bütçeni kontrol et",
+ "Press Enter and the AI will add it to your calendar": "Enter’a bas, yapay zekâ bunu takvimine eklesin",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "Bir etkinlik yaz, örneğin: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "Etkinliğe bir ad ekle",
+ "add a date, like fri or Oct 20": "bir tarih ekle, örneğin fri veya Oct 20",
+ "check the day": "günü kontrol et",
+ "Added {name} on {date}": "{name}, {date} tarihine eklendi",
+ "Added {n} events": "{n} etkinlik eklendi",
+ "Reading that…": "Okunuyor…",
+ "I couldn't find anything to add in that.": "Bunda eklenecek bir şey bulamadım.",
+ "The AI isn't available right now, so Tally read it by itself.": "Yapay zekâ şu anda kullanılamıyor, bu yüzden Tally kendisi okudu.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "Takvimine ekle: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "Eklenecek bir etkinliği tarif et",
+ "You've used today's AI adds, so Tally read it by itself.": "Bugünkü yapay zekâ eklemelerini kullandın, bu yüzden Tally kendisi okudu."
 }

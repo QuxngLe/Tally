@@ -365,5 +365,18 @@
  "Pick next week's top 3": "Choisir ses 3 priorités de la semaine prochaine",
  "Check your budget": "Vérifier son budget",
  "Call mom": "Appeler maman",
- "Mind": "Esprit"
+ "Mind": "Esprit",
+ "Press Enter and the AI will add it to your calendar": "Appuyez sur Entrée et l’IA l’ajoutera à votre calendrier",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "Saisissez un événement, par ex. : wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "Ajoutez un nom à l’événement",
+ "add a date, like fri or Oct 20": "ajoutez une date, par ex. fri ou Oct 20",
+ "check the day": "vérifiez le jour",
+ "Added {name} on {date}": "{name} ajouté le {date}",
+ "Added {n} events": "{n} événements ajoutés",
+ "Reading that…": "Lecture…",
+ "I couldn't find anything to add in that.": "Je n’ai rien trouvé à ajouter.",
+ "The AI isn't available right now, so Tally read it by itself.": "L’IA n’est pas disponible pour le moment, Tally l’a donc lu tout seul.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "Ajouter au calendrier : wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "Décrivez un événement à ajouter",
+ "You've used today's AI adds, so Tally read it by itself.": "Vous avez utilisé vos ajouts IA du jour, Tally l’a donc lu lui-même."
 }

@@ -365,5 +365,18 @@
  "Pick next week's top 3": "다음 주 핵심 3가지 정하기",
  "Check your budget": "예산 확인하기",
  "Call mom": "엄마에게 전화하기",
- "Mind": "마음"
+ "Mind": "마음",
+ "Press Enter and the AI will add it to your calendar": "Enter를 누르면 AI가 캘린더에 추가해요",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "일정을 입력하세요. 예: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "일정 이름을 추가하세요",
+ "add a date, like fri or Oct 20": "날짜를 추가하세요. 예: fri 또는 Oct 20",
+ "check the day": "요일을 확인하세요",
+ "Added {name} on {date}": "{date}에 {name} 추가됨",
+ "Added {n} events": "일정 {n}개 추가됨",
+ "Reading that…": "읽는 중…",
+ "I couldn't find anything to add in that.": "추가할 내용을 찾지 못했어요.",
+ "The AI isn't available right now, so Tally read it by itself.": "지금은 AI를 사용할 수 없어서 Tally가 직접 읽었어요.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "캘린더에 추가: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "추가할 일정을 설명하세요",
+ "You've used today's AI adds, so Tally read it by itself.": "오늘 AI 추가 횟수를 모두 사용해 Tally가 직접 읽었어요."
 }

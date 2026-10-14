@@ -365,5 +365,18 @@
  "Look back at the week": "ہفتے پر نظر ڈالیں",
  "Clear your inbox": "ان باکس خالی کریں",
  "Pick next week's top 3": "اگلے ہفتے کی 3 اہم ترجیحات چنیں",
- "Check your budget": "اپنا بجٹ چیک کریں"
+ "Check your budget": "اپنا بجٹ چیک کریں",
+ "Press Enter and the AI will add it to your calendar": "Enter دبائیں اور AI اسے آپ کے کیلنڈر میں شامل کر دے گا",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "کوئی ایونٹ لکھیں، جیسے: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "ایونٹ کا نام شامل کریں",
+ "add a date, like fri or Oct 20": "تاریخ شامل کریں، جیسے fri یا Oct 20",
+ "check the day": "دن چیک کریں",
+ "Added {name} on {date}": "{date} کو {name} شامل کر دیا گیا",
+ "Added {n} events": "{n} ایونٹس شامل کر دیے گئے",
+ "Reading that…": "پڑھا جا رہا ہے…",
+ "I couldn't find anything to add in that.": "اس میں شامل کرنے کے لیے کچھ نہیں ملا۔",
+ "The AI isn't available right now, so Tally read it by itself.": "AI ابھی دستیاب نہیں، اس لیے Tally نے اسے خود پڑھا۔",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "اپنے کیلنڈر میں شامل کریں: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "شامل کرنے کے لیے کوئی ایونٹ بیان کریں",
+ "You've used today's AI adds, so Tally read it by itself.": "آپ آج کے AI اضافے استعمال کر چکے ہیں، اس لیے Tally نے اسے خود پڑھا۔"
 }

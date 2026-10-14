@@ -365,5 +365,18 @@
  "Look back at the week": "आठवड्याकडे मागे वळून पाहा",
  "Clear your inbox": "इनबॉक्स रिकामा करा",
  "Pick next week's top 3": "पुढच्या आठवड्यातील मुख्य 3 कामे निवडा",
- "Check your budget": "तुमचे बजेट तपासा"
+ "Check your budget": "तुमचे बजेट तपासा",
+ "Press Enter and the AI will add it to your calendar": "Enter दाबा आणि AI ते तुमच्या कॅलेंडरमध्ये जोडेल",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "एखादा इव्हेंट लिहा, जसे: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "इव्हेंटला नाव द्या",
+ "add a date, like fri or Oct 20": "तारीख जोडा, जसे fri किंवा Oct 20",
+ "check the day": "वार तपासा",
+ "Added {name} on {date}": "{date} रोजी {name} जोडले",
+ "Added {n} events": "{n} इव्हेंट जोडले",
+ "Reading that…": "वाचत आहे…",
+ "I couldn't find anything to add in that.": "यात जोडण्यासारखे काही सापडले नाही.",
+ "The AI isn't available right now, so Tally read it by itself.": "AI सध्या उपलब्ध नाही, म्हणून Tally ने ते स्वतः वाचले.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "तुमच्या कॅलेंडरमध्ये जोडा: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "जोडण्यासाठी इव्हेंटचे वर्णन करा",
+ "You've used today's AI adds, so Tally read it by itself.": "आजचे AI जोडणे संपले आहेत, म्हणून Tally ने हे स्वतः वाचले."
 }

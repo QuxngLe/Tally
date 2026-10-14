@@ -365,5 +365,18 @@
  "Look back at the week": "Podsumuj tydzień",
  "Clear your inbox": "Wyczyść skrzynkę odbiorczą",
  "Pick next week's top 3": "Wybierz 3 najważniejsze sprawy na przyszły tydzień",
- "Check your budget": "Sprawdź budżet"
+ "Check your budget": "Sprawdź budżet",
+ "Press Enter and the AI will add it to your calendar": "Naciśnij Enter, a AI doda to do Twojego kalendarza",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "Wpisz wydarzenie, np.: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "Dodaj nazwę wydarzenia",
+ "add a date, like fri or Oct 20": "dodaj datę, np. fri lub Oct 20",
+ "check the day": "sprawdź dzień tygodnia",
+ "Added {name} on {date}": "Dodano {name} na {date}",
+ "Added {n} events": "Dodane wydarzenia: {n}",
+ "Reading that…": "Czytam…",
+ "I couldn't find anything to add in that.": "Nie znalazłem w tym nic do dodania.",
+ "The AI isn't available right now, so Tally read it by itself.": "AI jest teraz niedostępna, więc Tally odczytało to samo.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "Dodaj do kalendarza: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "Opisz wydarzenie do dodania",
+ "You've used today's AI adds, so Tally read it by itself.": "Wykorzystano dzisiejsze dodawania z AI, więc Tally odczytał to sam."
 }

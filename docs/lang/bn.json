@@ -365,5 +365,18 @@
  "Look back at the week": "সপ্তাহটা ফিরে দেখুন",
  "Clear your inbox": "ইনবক্স খালি করুন",
  "Pick next week's top 3": "আগামী সপ্তাহের সেরা ৩টি কাজ বাছুন",
- "Check your budget": "বাজেট দেখে নিন"
+ "Check your budget": "বাজেট দেখে নিন",
+ "Press Enter and the AI will add it to your calendar": "Enter চাপুন, AI এটি আপনার ক্যালেন্ডারে যোগ করবে",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "একটি ইভেন্ট লিখুন, যেমন: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "ইভেন্টের একটি নাম দিন",
+ "add a date, like fri or Oct 20": "একটি তারিখ দিন, যেমন fri বা Oct 20",
+ "check the day": "দিনটি মিলিয়ে দেখুন",
+ "Added {name} on {date}": "{date} তারিখে {name} যোগ হয়েছে",
+ "Added {n} events": "{n}টি ইভেন্ট যোগ হয়েছে",
+ "Reading that…": "পড়া হচ্ছে…",
+ "I couldn't find anything to add in that.": "এতে যোগ করার মতো কিছু পাওয়া যায়নি।",
+ "The AI isn't available right now, so Tally read it by itself.": "AI এখন পাওয়া যাচ্ছে না, তাই Tally নিজেই এটি পড়েছে।",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "আপনার ক্যালেন্ডারে যোগ করুন: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "যোগ করার জন্য একটি ইভেন্ট লিখুন",
+ "You've used today's AI adds, so Tally read it by itself.": "আজকের AI যোগ করার সীমা শেষ, তাই Tally নিজেই এটি পড়েছে।"
 }

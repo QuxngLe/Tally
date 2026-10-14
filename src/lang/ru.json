@@ -365,5 +365,18 @@
  "Look back at the week": "Оглянуться на неделю",
  "Clear your inbox": "Разобрать почту",
  "Pick next week's top 3": "Выбрать 3 главных дела на следующую неделю",
- "Check your budget": "Проверить бюджет"
+ "Check your budget": "Проверить бюджет",
+ "Press Enter and the AI will add it to your calendar": "Нажмите Enter, и ИИ добавит это в ваш календарь",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "Введите событие, например: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "Добавьте название события",
+ "add a date, like fri or Oct 20": "добавьте дату, например fri или Oct 20",
+ "check the day": "проверьте день недели",
+ "Added {name} on {date}": "{name} добавлено на {date}",
+ "Added {n} events": "Добавлено событий: {n}",
+ "Reading that…": "Читаю…",
+ "I couldn't find anything to add in that.": "Не нашлось ничего, что можно добавить.",
+ "The AI isn't available right now, so Tally read it by itself.": "ИИ сейчас недоступен, поэтому Tally прочитал это сам.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "Добавить в календарь: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "Опишите событие, которое нужно добавить",
+ "You've used today's AI adds, so Tally read it by itself.": "Лимит добавлений с ИИ на сегодня исчерпан, поэтому Tally прочитал это сам."
 }

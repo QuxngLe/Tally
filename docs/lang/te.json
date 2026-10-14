@@ -365,5 +365,18 @@
  "Look back at the week": "వారాన్ని ఒకసారి సమీక్షించండి",
  "Clear your inbox": "మీ ఇన్‌బాక్స్ ఖాళీ చేయండి",
  "Pick next week's top 3": "వచ్చే వారం టాప్ 3 ఎంచుకోండి",
- "Check your budget": "మీ బడ్జెట్ చూసుకోండి"
+ "Check your budget": "మీ బడ్జెట్ చూసుకోండి",
+ "Press Enter and the AI will add it to your calendar": "Enter నొక్కండి, AI దీన్ని మీ క్యాలెండర్‌కు జోడిస్తుంది",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "ఒక ఈవెంట్ టైప్ చేయండి, ఉదా: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "ఈవెంట్‌కు పేరు జోడించండి",
+ "add a date, like fri or Oct 20": "తేదీ జోడించండి, ఉదా fri లేదా Oct 20",
+ "check the day": "రోజును సరిచూడండి",
+ "Added {name} on {date}": "{date}న {name} జోడించబడింది",
+ "Added {n} events": "{n} ఈవెంట్‌లు జోడించబడ్డాయి",
+ "Reading that…": "చదువుతోంది…",
+ "I couldn't find anything to add in that.": "ఇందులో జోడించడానికి ఏమీ కనిపించలేదు.",
+ "The AI isn't available right now, so Tally read it by itself.": "AI ప్రస్తుతం అందుబాటులో లేదు, కాబట్టి Tally దీన్ని స్వయంగా చదివింది.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "మీ క్యాలెండర్‌కు జోడించండి: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "జోడించడానికి ఒక ఈవెంట్‌ను వివరించండి",
+ "You've used today's AI adds, so Tally read it by itself.": "ఈ రోజు AI జోడింపులు అయిపోయాయి, కాబట్టి Tally దీన్ని స్వయంగా చదివింది."
 }

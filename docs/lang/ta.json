@@ -365,5 +365,18 @@
  "Look back at the week": "வாரத்தைத் திரும்பிப் பார்",
  "Clear your inbox": "இன்பாக்ஸைக் காலி செய்",
  "Pick next week's top 3": "அடுத்த வாரத்தின் முக்கிய 3-ஐத் தேர்ந்தெடு",
- "Check your budget": "உங்கள் பட்ஜெட்டைச் சரிபார்"
+ "Check your budget": "உங்கள் பட்ஜெட்டைச் சரிபார்",
+ "Press Enter and the AI will add it to your calendar": "Enter அழுத்தினால் AI இதை உங்கள் காலெண்டரில் சேர்க்கும்",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "ஒரு நிகழ்வை உள்ளிடவும், எ.கா: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "நிகழ்வுக்கு ஒரு பெயர் சேர்க்கவும்",
+ "add a date, like fri or Oct 20": "தேதியைச் சேர்க்கவும், எ.கா fri அல்லது Oct 20",
+ "check the day": "நாளைச் சரிபார்க்கவும்",
+ "Added {name} on {date}": "{date} அன்று {name} சேர்க்கப்பட்டது",
+ "Added {n} events": "{n} நிகழ்வுகள் சேர்க்கப்பட்டன",
+ "Reading that…": "படிக்கிறது…",
+ "I couldn't find anything to add in that.": "இதில் சேர்க்க எதுவும் கிடைக்கவில்லை.",
+ "The AI isn't available right now, so Tally read it by itself.": "AI இப்போது கிடைக்கவில்லை, எனவே Tally தானே இதைப் படித்தது.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "உங்கள் காலெண்டரில் சேர்: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "சேர்க்க ஒரு நிகழ்வை விவரிக்கவும்",
+ "You've used today's AI adds, so Tally read it by itself.": "இன்றைய AI சேர்ப்புகள் தீர்ந்துவிட்டன, எனவே Tally இதைத் தானே படித்தது."
 }

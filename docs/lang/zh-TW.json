@@ -365,5 +365,18 @@
  "Pick next week's top 3": "選出下週三件要事",
  "Check your budget": "檢查預算",
  "Call mom": "打電話給媽媽",
- "Mind": "心靈"
+ "Mind": "心靈",
+ "Press Enter and the AI will add it to your calendar": "按 Enter，AI 會把它加入你的行事曆",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "輸入一個活動，例如：wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "為活動加上名稱",
+ "add a date, like fri or Oct 20": "加上日期，例如 fri 或 Oct 20",
+ "check the day": "請核對星期",
+ "Added {name} on {date}": "已在 {date} 加入 {name}",
+ "Added {n} events": "已加入 {n} 個活動",
+ "Reading that…": "正在讀取…",
+ "I couldn't find anything to add in that.": "找不到可以加入的內容。",
+ "The AI isn't available right now, so Tally read it by itself.": "AI 目前無法使用，所以 Tally 自行讀取了它。",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "加入行事曆：wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "描述要加入的活動",
+ "You've used today's AI adds, so Tally read it by itself.": "今天的 AI 次數已用完，Tally 已自行讀取。"
 }

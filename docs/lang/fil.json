@@ -365,5 +365,18 @@
  "Look back at the week": "Balikan ang linggo",
  "Clear your inbox": "Linisin ang inbox",
  "Pick next week's top 3": "Piliin ang top 3 sa susunod na linggo",
- "Check your budget": "Tingnan ang budget mo"
+ "Check your budget": "Tingnan ang budget mo",
+ "Press Enter and the AI will add it to your calendar": "Pindutin ang Enter at idadagdag ito ng AI sa iyong kalendaryo",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "Mag-type ng event, gaya ng: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "Lagyan ng pangalan ang event",
+ "add a date, like fri or Oct 20": "maglagay ng petsa, gaya ng fri o Oct 20",
+ "check the day": "tingnan ang araw",
+ "Added {name} on {date}": "Naidagdag ang {name} sa {date}",
+ "Added {n} events": "Naidagdag ang {n} event",
+ "Reading that…": "Binabasa…",
+ "I couldn't find anything to add in that.": "Wala akong nakitang maidadagdag diyan.",
+ "The AI isn't available right now, so Tally read it by itself.": "Hindi available ang AI ngayon, kaya si Tally na mismo ang bumasa.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "Idagdag sa iyong kalendaryo: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "Ilarawan ang event na idadagdag",
+ "You've used today's AI adds, so Tally read it by itself.": "Naubos mo na ang AI adds ngayong araw, kaya si Tally na mismo ang bumasa nito."
 }

@@ -365,5 +365,18 @@
  "Look back at the week": "Tinjau kembali minggu ini",
  "Clear your inbox": "Kosongkan kotak masuk",
  "Pick next week's top 3": "Pilih 3 prioritas minggu depan",
- "Check your budget": "Cek anggaranmu"
+ "Check your budget": "Cek anggaranmu",
+ "Press Enter and the AI will add it to your calendar": "Tekan Enter dan AI akan menambahkannya ke kalender Anda",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "Ketik acara, misalnya: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "Tambahkan nama acara",
+ "add a date, like fri or Oct 20": "tambahkan tanggal, misalnya fri atau Oct 20",
+ "check the day": "periksa harinya",
+ "Added {name} on {date}": "{name} ditambahkan pada {date}",
+ "Added {n} events": "{n} acara ditambahkan",
+ "Reading that…": "Membaca…",
+ "I couldn't find anything to add in that.": "Tidak ada yang bisa ditambahkan dari itu.",
+ "The AI isn't available right now, so Tally read it by itself.": "AI sedang tidak tersedia, jadi Tally membacanya sendiri.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "Tambahkan ke kalender: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "Jelaskan acara yang ingin ditambahkan",
+ "You've used today's AI adds, so Tally read it by itself.": "Jatah tambah dengan AI hari ini sudah habis, jadi Tally membacanya sendiri."
 }

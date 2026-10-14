@@ -365,5 +365,18 @@
  "Look back at the week": "نگاهی به هفتهٔ گذشته",
  "Clear your inbox": "خالی کردن صندوق ورودی",
  "Pick next week's top 3": "انتخاب ۳ اولویت هفتهٔ بعد",
- "Check your budget": "بررسی بودجه"
+ "Check your budget": "بررسی بودجه",
+ "Press Enter and the AI will add it to your calendar": "Enter را بزنید تا هوش مصنوعی آن را به تقویم شما اضافه کند",
+ "Type an event, like: wed 15 CS341 midterm 2 12:30 pm": "یک رویداد بنویسید، مثلاً: wed 15 CS341 midterm 2 12:30 pm",
+ "Add a name for the event": "برای رویداد یک نام اضافه کنید",
+ "add a date, like fri or Oct 20": "یک تاریخ اضافه کنید، مثلاً fri یا Oct 20",
+ "check the day": "روز هفته را بررسی کنید",
+ "Added {name} on {date}": "{name} در {date} اضافه شد",
+ "Added {n} events": "{n} رویداد اضافه شد",
+ "Reading that…": "در حال خواندن…",
+ "I couldn't find anything to add in that.": "چیزی برای اضافه کردن پیدا نکردم.",
+ "The AI isn't available right now, so Tally read it by itself.": "هوش مصنوعی الان در دسترس نیست، برای همین Tally خودش آن را خواند.",
+ "Add to your calendar: wed 15 CS341 midterm 2 12:30 pm": "افزودن به تقویم: wed 15 CS341 midterm 2 12:30 pm",
+ "Describe an event to add": "رویدادی را برای افزودن توصیف کنید",
+ "You've used today's AI adds, so Tally read it by itself.": "سهمیه افزودن با هوش مصنوعی امروز تمام شد، پس Tally خودش آن را خواند."
 }
