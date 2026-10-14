@@ -238,15 +238,14 @@ function fixSettings() {
   const st = fixSettings();
   if (st.accent) { st.look.preset = { ocean: "ocean", plum: "lavender", rose: "sakura", amber: "sand", slate: "mono" }[st.accent] || st.look.preset; delete st.accent }
   st.look = Object.assign(defaultLook(), st.look || {}); st.look.custom = Object.assign(defaultLook().custom, st.look.custom || {});
-  // only theme, light/dark, background and fade are user-facing now; everything else stays at its default
-  const d = defaultLook(); ["accent", "glass", "font", "size", "radius", "density", "layout", "check", "streaks", "title"].forEach(k => st.look[k] = d[k]);
-  if (st.look.preset === "custom") st.look.preset = "pine";
+  // app name, corners and spacing are no longer offered, so they stay at their defaults
+  const d = defaultLook(); ["radius", "density", "title"].forEach(k => st.look[k] = d[k]);
 }
 if (!S) { S = defaults(); seedExamples(); }
 S.settings = Object.assign(defaults().settings, S.settings || {});
 S.fired = S.fired || {};
 const save = () => store.set(KEY, S);
-let ui = { tab: "today", day: keyOf(today()), draft: null, doneOpen: true };
+let ui = { adv: false, tab: "today", day: keyOf(today()), draft: null, doneOpen: true };
 
 function seedExamples() {
   const mk = (o) => Object.assign({ id: uid(), emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminder: null, category: "", notes: "", archived: false, example: true, created: keyOf(addDays(today(), -60)) }, o);
@@ -507,7 +506,7 @@ function applyTheme() {
   const b = document.body, img = $("#bgimg");
   b.classList.toggle("compact", L.density === "compact"); b.classList.toggle("square", L.check === "square"); b.classList.toggle("no-streak", !L.streaks);
   const hasBg = L.bg !== "none" && (L.bg !== "image" || bgImage);
-  b.classList.toggle("glass", hasBg);
+  b.classList.toggle("glass", hasBg && L.glass);
   img.hidden = !hasBg;
   if (hasBg) img.style.background = L.bg === "image" ? `center/cover no-repeat url("${bgImage}")` : (GRADS[L.bg.slice(2)] || GRADS.dawn)[dark ? 1 : 0];
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = bg;
@@ -691,6 +690,9 @@ function rSettings() {
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   const notifOK = "Notification" in window;
   const L = st.look, mode = curMode();
+  const lseg = (key, opts) => `<div class="seg" style="flex-wrap:wrap">${opts.map(([v, l]) => `<button data-act="look" data-k="${key}" data-v="${v}" aria-pressed="${String(L[key]) === String(v)}">${l}</button>`).join("")}</div>`;
+  const ACC = ["#2E6B57", "#245FA8", "#6D3FB0", "#B23A62", "#C2410C", "#9A5A12", "#0E8C8C", "#111111", "#72C3A5", "#7EB0F0", "#F08FAE", "#F0B060"];
+  const accNow = L.accent || palette()[3];
   view.innerHTML = `<header class="head"><div><div class="eyebrow">Settings</div><h1>Make it yours</h1></div></header>
   <div class="list">
   <div class="card set"><h3>Theme</h3>
@@ -703,6 +705,23 @@ function rSettings() {
     <div class="muted">Pick any photo. You'll be able to zoom and drag it to fit your screen (${Math.round(innerWidth * (devicePixelRatio || 1))} × ${Math.round(innerHeight * (devicePixelRatio || 1))} pixels on this device).</div>
     ${bgImage ? `<div class="row-btns"><button class="btn small" data-act="rmphoto">Remove photo</button></div>` : ""}
     ${L.bg !== "none" ? `<div class="line"><label for="dim">Fade the background</label><input type="range" id="dim" min="0" max="0.85" step="0.05" value="${L.dim}"></div>` : ""}
+  </div>
+  <div class="card set"><div class="line"><h3>Advanced customizing</h3><button class="btn small" data-act="adv" aria-expanded="${ui.adv}">${ui.adv ? "Hide" : "Show"}</button></div>
+    ${ui.adv ? `
+    <div class="sub">Your own colors</div>
+    <div class="line"><span>${L.preset === "custom" ? "Using your colors" : "Pick your own background, card, text and accent colors"}</span><button class="btn small" data-act="look" data-k="preset" data-v="${L.preset === "custom" ? "pine" : "custom"}">${L.preset === "custom" ? "Back to a theme" : "Use my colors"}</button></div>
+    ${L.preset === "custom" ? `<div class="colors">${[["bg", "Background"], ["surface", "Cards"], ["fg", "Text"], ["accent", "Accent"]].map(([k, l]) => `<label><input type="color" data-custom="${k}" value="${L.custom[k]}">${l}</label>`).join("")}</div>` : ""}
+    <div class="sub">Accent color</div>
+    <div class="swatches">${ACC.map(c => `<button class="sw" style="--c:${c}" data-act="look" data-k="accent" data-v="${c}" aria-label="Accent ${c}" aria-pressed="${L.accent === c}"></button>`).join("")}<input type="color" id="acc-pick" value="${accNow}" aria-label="Pick any accent color">${L.accent ? `<button class="btn small" data-act="look" data-k="accent" data-v="">Theme default</button>` : ""}</div>
+    <div class="sub">Text and layout</div>
+    <div class="line"><span>Font</span>${`<div class="seg" style="flex-wrap:wrap">${Object.entries(FONTS).map(([k, f]) => `<button data-act="look" data-k="font" data-v="${k}" aria-pressed="${L.font === k}" style="font-family:${esc(f.b)},system-ui">${f.name}</button>`).join("")}</div>`}</div>
+    <div class="line"><span>Text size</span>${lseg("size", [[0.9, "Small"], [1, "Normal"], [1.1, "Large"], [1.22, "Huge"]])}</div>
+    <div class="line"><span>Today layout</span>${lseg("layout", [["list", "List"], ["grid", "Grid"]])}</div>
+    <div class="line"><span>Check buttons</span>${lseg("check", [["circle", "Circle"], ["square", "Square"]])}</div>
+    <div class="line"><span>Show streaks</span>${lseg("streaks", [[true, "On"], [false, "Off"]])}</div>
+    ${L.bg !== "none" ? `<div class="line"><span>See-through cards</span>${lseg("glass", [[true, "On"], [false, "Off"]])}</div>` : ""}
+    <div class="row-btns"><button class="btn small" data-act="resetlook">Reset the look</button></div>`
+    : `<div class="muted">Your own colors, accent color, font, text size, layout, check buttons and streaks.</div>`}
   </div>
   <div class="card set"><h3>Week</h3>
     <div class="line"><span>Week starts on</span>${seg("weekStart", [[1, "Monday"], [0, "Sunday"]])}</div>
@@ -844,6 +863,7 @@ document.addEventListener("click", async ev => {
     case "new": openEditor(blankTracker(), true); break;
     case "unarchive": t.archived = false; save(); render(); break;
     case "mv": { const L = active(), i = L.indexOf(t), j = i + +b.dataset.n; if (j < 0 || j >= L.length) break; const A = S.trackers.indexOf(L[i]), B = S.trackers.indexOf(L[j]); [S.trackers[A], S.trackers[B]] = [S.trackers[B], S.trackers[A]]; save(); render(); break }
+    case "adv": ui.adv = !ui.adv; render(); break;
     case "look": { let v = b.dataset.v; const k2 = b.dataset.k;
       if (["size", "radius"].includes(k2)) v = +v; if (["glass", "streaks"].includes(k2)) v = v === "true";
       if (k2 === "preset" && v === "custom" && S.settings.look.preset !== "custom") { const p = palette(); S.settings.look.custom = { bg: p[0], surface: p[1], fg: p[2], accent: S.settings.look.accent || p[3] } }
@@ -873,12 +893,13 @@ document.addEventListener("input", ev => {
   if (el.dataset.custom) { L.custom[el.dataset.custom] = el.value; L.preset = "custom"; if (el.dataset.custom === "accent") L.accent = ""; save(); applyTheme() }
 
   else if (el.id === "dim") { L.dim = +el.value; save(); applyTheme() }
+  else if (el.id === "acc-pick") { L.accent = el.value; save(); applyTheme() }
 
 });
 document.addEventListener("change", ev => {
   const el = ev.target;
   if (el.id === "bg-file" && el.files[0]) { loadPhoto(el.files[0]); el.value = "" }
-  else if (el.dataset.custom) render();
+  else if (el.dataset.custom || el.id === "acc-pick") render();
 });
 document.addEventListener("submit", ev => {
   if (ev.target.id !== "pform") return; ev.preventDefault();
