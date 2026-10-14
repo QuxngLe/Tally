@@ -238,8 +238,6 @@
  "Edit tracker": "Sửa mục theo dõi",
  "Name": "Tên",
  "e.g. Drink water": "VD: Uống nước",
- "Icon": "Biểu tượng",
- "Or type any emoji": "Hoặc nhập emoji bất kỳ",
  "Color": "Màu",
  "How do you finish it?": "Hoàn thành bằng cách nào?",
  "Check it off": "Đánh dấu xong",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Mỗi ngày sẽ đầy dần khi bạn làm xong việc. Chấm là việc làm một lần. Chạm vào một ngày để sửa hoặc xóa những gì trong đó.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Chạm vào một mục để đánh dấu xong. Chạm vào tên ngày để sửa hoặc xóa.",
  "Repeat": "Lặp lại",
- "✓ Check": "✓ Dấu tích",
  "Strike out": "Gạch ngang",
  "Fade": "Làm mờ",
  "Slash": "Gạch chéo",
  "Fill in": "Tô màu",
- "Finished events": "Việc đã xong"
+ "Finished events": "Việc đã xong",
+ "Check": "Dấu tích"
 }

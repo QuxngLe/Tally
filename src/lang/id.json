@@ -240,8 +240,6 @@
  "Edit tracker": "Edit pelacak",
  "Name": "Nama",
  "e.g. Drink water": "mis. Minum air",
- "Icon": "Ikon",
- "Or type any emoji": "Atau ketik emoji apa saja",
  "Color": "Warna",
  "How do you finish it?": "Bagaimana cara menyelesaikannya?",
  "Check it off": "Cukup dicentang",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Setiap hari terisi saat kamu menyelesaikan sesuatu. Titik adalah tugas sekali saja. Ketuk sebuah hari untuk mengedit atau menghapus isinya.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Ketuk item untuk mencentangnya. Ketuk nama hari untuk mengedit atau menghapus.",
  "Repeat": "Ulangi",
- "✓ Check": "✓ Centang",
  "Strike out": "Coret",
  "Fade": "Pudarkan",
  "Slash": "Garis miring",
  "Fill in": "Isi warna",
- "Finished events": "Acara selesai"
+ "Finished events": "Acara selesai",
+ "Check": "Centang"
 }

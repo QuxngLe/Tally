@@ -238,8 +238,6 @@
  "Edit tracker": "트래커 편집",
  "Name": "이름",
  "e.g. Drink water": "예: 물 마시기",
- "Icon": "아이콘",
- "Or type any emoji": "또는 이모지 입력",
  "Color": "색상",
  "How do you finish it?": "어떻게 완료하나요?",
  "Check it off": "체크하기",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "할 일을 마칠수록 하루가 채워져요. 점은 한 번만 하는 할 일이에요. 날짜를 탭하면 그날 항목을 편집하거나 삭제할 수 있어요.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "항목을 탭해서 체크하세요. 요일 이름을 탭하면 편집하거나 삭제할 수 있어요.",
  "Repeat": "반복",
- "✓ Check": "✓ 체크",
  "Strike out": "취소선",
  "Fade": "흐리게",
  "Slash": "사선",
  "Fill in": "채우기",
- "Finished events": "완료한 일정"
+ "Finished events": "완료한 일정",
+ "Check": "체크"
 }

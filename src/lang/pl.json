@@ -240,8 +240,6 @@
  "Edit tracker": "Edytuj tracker",
  "Name": "Nazwa",
  "e.g. Drink water": "np. Pij wodę",
- "Icon": "Ikona",
- "Or type any emoji": "Lub wpisz dowolne emoji",
  "Color": "Kolor",
  "How do you finish it?": "Jak to zaliczasz?",
  "Check it off": "Odhacz",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Każdy dzień wypełnia się, gdy kończysz zadania. Kropki to zadania jednorazowe. Dotknij dnia, aby edytować lub usunąć to, co w nim jest.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Dotknij pozycji, aby ją odhaczyć. Dotknij nazwy dnia, aby edytować lub usuwać.",
  "Repeat": "Powtarzanie",
- "✓ Check": "✓ Ptaszek",
  "Strike out": "Przekreśl",
  "Fade": "Przyciemnij",
  "Slash": "Ukośnik",
  "Fill in": "Wypełnij",
- "Finished events": "Ukończone wydarzenia"
+ "Finished events": "Ukończone wydarzenia",
+ "Check": "Ptaszek"
 }

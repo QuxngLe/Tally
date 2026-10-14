@@ -238,8 +238,6 @@
  "Edit tracker": "编辑追踪项",
  "Name": "名称",
  "e.g. Drink water": "例如：喝水",
- "Icon": "图标",
- "Or type any emoji": "或输入任意表情",
  "Color": "颜色",
  "How do you finish it?": "如何算完成？",
  "Check it off": "打勾完成",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "完成事项后，每天会逐渐填满。圆点是一次性任务。点按某一天即可编辑或删除其中的内容。",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "点按某项即可打勾。点按日期名称即可编辑或删除。",
  "Repeat": "重复",
- "✓ Check": "✓ 打勾",
  "Strike out": "划掉",
  "Fade": "变淡",
  "Slash": "斜线",
  "Fill in": "填色",
- "Finished events": "已完成的事项"
+ "Finished events": "已完成的事项",
+ "Check": "打勾"
 }

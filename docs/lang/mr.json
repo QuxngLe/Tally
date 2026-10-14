@@ -240,8 +240,6 @@
  "Edit tracker": "ट्रॅकर बदला",
  "Name": "नाव",
  "e.g. Drink water": "उदा. पाणी प्या",
- "Icon": "आयकन",
- "Or type any emoji": "किंवा कोणताही इमोजी लिहा",
  "Color": "रंग",
  "How do you finish it?": "हे पूर्ण कसे करणार?",
  "Check it off": "खूण करा",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "कामे पूर्ण करताच प्रत्येक दिवस भरत जातो. ठिपके म्हणजे एकदाच करायची कामे. दिवसावर टॅप करून त्यातील गोष्टी बदला किंवा हटवा.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "खूण करण्यासाठी आयटमवर टॅप करा. बदलण्यासाठी किंवा हटवण्यासाठी दिवसाच्या नावावर टॅप करा.",
  "Repeat": "पुन्हा करा",
- "✓ Check": "✓ खूण",
  "Strike out": "खोडा",
  "Fade": "फिकट",
  "Slash": "तिरकी रेषा",
  "Fill in": "रंग भरा",
- "Finished events": "पूर्ण झालेले इव्हेंट"
+ "Finished events": "पूर्ण झालेले इव्हेंट",
+ "Check": "खूण"
 }

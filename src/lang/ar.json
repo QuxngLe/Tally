@@ -240,8 +240,6 @@
  "Edit tracker": "تعديل المتتبّع",
  "Name": "الاسم",
  "e.g. Drink water": "مثلًا: شرب الماء",
- "Icon": "الأيقونة",
- "Or type any emoji": "أو اكتب أي إيموجي",
  "Color": "اللون",
  "How do you finish it?": "كيف تنجزه؟",
  "Check it off": "بالتأشير عليه",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "يمتلئ كل يوم كلما أنجزت أشياء. النقاط مهام لمرة واحدة. اضغط على يوم لتعديل ما فيه أو حذفه.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "اضغط على عنصر للتأشير عليه. اضغط على اسم اليوم للتعديل أو الحذف.",
  "Repeat": "التكرار",
- "✓ Check": "✓ علامة صح",
  "Strike out": "شطب",
  "Fade": "تخفيت",
  "Slash": "خط مائل",
  "Fill in": "تعبئة",
- "Finished events": "الأحداث المنتهية"
+ "Finished events": "الأحداث المنتهية",
+ "Check": "علامة صح"
 }

@@ -240,8 +240,6 @@
  "Edit tracker": "I-edit ang tracker",
  "Name": "Pangalan",
  "e.g. Drink water": "hal. Uminom ng tubig",
- "Icon": "Icon",
- "Or type any emoji": "O mag-type ng kahit anong emoji",
  "Color": "Kulay",
  "How do you finish it?": "Paano mo ito matatapos?",
  "Check it off": "I-check ito",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Napupuno ang bawat araw habang may natatapos ka. Ang mga tuldok ay isang beses na gawain. I-tap ang isang araw para i-edit o burahin ang laman nito.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "I-tap ang isang item para i-check. I-tap ang pangalan ng araw para mag-edit o magbura.",
  "Repeat": "Ulitin",
- "✓ Check": "✓ Tsek",
  "Strike out": "Ekis-guhit",
  "Fade": "Palabuin",
  "Slash": "Slash",
  "Fill in": "Kulayan",
- "Finished events": "Mga tapos na event"
+ "Finished events": "Mga tapos na event",
+ "Check": "Tsek"
 }

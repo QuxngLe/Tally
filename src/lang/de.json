@@ -238,8 +238,6 @@
  "Edit tracker": "Tracker bearbeiten",
  "Name": "Name",
  "e.g. Drink water": "z. B. Wasser trinken",
- "Icon": "Symbol",
- "Or type any emoji": "Oder gib ein beliebiges Emoji ein",
  "Color": "Farbe",
  "How do you finish it?": "Wie wird es erledigt?",
  "Check it off": "Abhaken",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Jeder Tag füllt sich, während du Dinge erledigst. Punkte sind einmalige Aufgaben. Tippe auf einen Tag, um seine Einträge zu bearbeiten oder zu löschen.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Tippe auf einen Eintrag, um ihn abzuhaken. Tippe auf den Namen eines Tages, um Einträge zu bearbeiten oder zu löschen.",
  "Repeat": "Wiederholen",
- "✓ Check": "✓ Haken",
  "Strike out": "Durchstreichen",
  "Fade": "Verblassen",
  "Slash": "Schrägstrich",
  "Fill in": "Ausfüllen",
- "Finished events": "Erledigte Termine"
+ "Finished events": "Erledigte Termine",
+ "Check": "Haken"
 }

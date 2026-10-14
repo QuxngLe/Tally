@@ -130,11 +130,13 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 .check.on { background: var(--c) }
 .check.on svg { opacity: 1; transform: none }
 .check .pie { position: absolute; inset: -2.5px; border-radius: 50%; background: conic-gradient(var(--c) calc(var(--p) * 1turn), transparent 0); -webkit-mask: radial-gradient(circle, transparent 13px, #000 14px); mask: radial-gradient(circle, transparent 13px, #000 14px) }
-.check .emo { font-size: 17px; line-height: 1 }
+.check .emo { font-size: 16px; line-height: 1; font-weight: 800; color: var(--c); font-family: var(--f-display) }
 .body { min-width: 0; cursor: pointer }
 .name { font-weight: 600; overflow-wrap: anywhere }
 .meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px; color: var(--muted); margin-top: 1px }
 .meta .fl { color: var(--flame); font-weight: 700 }
+.meta .fl, .meta .ic { display: inline-flex; align-items: center; gap: 3px }
+.meta .fl svg, .meta .ic svg { width: 13px; height: 13px; flex: none }
 .meta .late { color: var(--danger); font-weight: 600 }
 .counter { display: flex; align-items: center; gap: 2px }
 .counter button { width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-size: 18px; line-height: 1; font-weight: 600 }
@@ -162,7 +164,7 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 
 /* manage */
 .mrow { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; background: var(--surface); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--shadow) }
-.dot { width: 34px; height: 34px; border-radius: 10px; background: var(--c); display: grid; place-items: center; font-size: 17px }
+.dot { width: 34px; height: 34px; border-radius: 10px; background: var(--c); display: grid; place-items: center; font-size: 16px; font-weight: 800; color: #fff; font-family: var(--f-display); line-height: 1 }
 .mrow .acts { display: flex; gap: 4px }
 .icon-btn { width: 32px; height: 32px; border: 1px solid var(--line); background: var(--surface); border-radius: 9px; display: grid; place-items: center; padding: 0; color: var(--muted) }
 .icon-btn svg { width: 16px; height: 16px }
@@ -194,8 +196,6 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .days { display: flex; gap: 5px; flex-wrap: wrap }
 .days button { width: 40px; height: 36px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 13px }
 .days button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: transparent }
-.emopick { display: flex; gap: 4px; flex-wrap: wrap }
-.emopick button { width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-size: 18px; padding: 0 }
 
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 60; background: var(--fg); color: var(--bg);
   padding: 10px 14px; border-radius: 12px; font-weight: 600; font-size: 14px; display: flex; gap: 12px; align-items: center; max-width: calc(100% - 32px) }
@@ -275,7 +275,7 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .drow .body { flex: 1; min-width: 0 }
 .drow .name { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .drow .meta { font-size: 13px }
-.dchk { width: 38px; height: 38px; flex: none; border-radius: 50%; border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); font-size: 17px; display: grid; place-items: center; color: var(--accent-ink) }
+.dchk { width: 38px; height: 38px; flex: none; border-radius: 50%; border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); font-size: 15px; font-weight: 800; display: grid; place-items: center; color: var(--c) }
 .dchk.on { background: var(--c); color: #fff; font-weight: 800 }
 .wday { background: var(--surface); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--shadow) }
 .wday.today { outline: 2px solid var(--accent) }
@@ -284,13 +284,13 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .chips { display: flex; gap: 6px; flex-wrap: wrap }
 .tchip { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 10px 4px 6px; font-size: 13px }
 .tchip.on { background: color-mix(in srgb, var(--c) 22%, var(--surface)); border-color: var(--c); text-decoration: line-through; text-decoration-color: var(--muted) }
-.tchip .e { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--c) 25%, transparent); font-size: 12px }
+.tchip .e { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--c) 25%, transparent); font-size: 11px; font-weight: 800 }
 /* lists, templates */
 .filters { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; scrollbar-width: none }
 .filters button { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--muted) }
 .filters button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: transparent }
 .tpl { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; background: var(--surface); border-radius: var(--r); padding: 12px; box-shadow: var(--shadow) }
-.tpl .big { font-size: 26px }
+.tpl .dot.big { width: 42px; height: 42px; font-size: 19px; flex: none }
 .tpl .items { font-size: 13px; color: var(--muted) }
 .tagt { color: var(--accent); font-weight: 600 }
 /* greeting + account */
@@ -693,10 +693,15 @@ const I = {
   globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9s1.3-6.3 3.8-9z"/></svg>',
   out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
+  flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1-3.6 2.2-4.8.3 1.6 1.2 2.6 2.3 2.8C11 8.5 11.3 5.5 12 3z"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  steps: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>',
   edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>'
 };
 
 // ---------- rendering ----------
+// Trackers show the first letter of their name in a colored badge (no emoji anywhere in the UI).
+const ini = x => esc(([...String((x && x.name) || "").trim()][0] || "•").toLocaleUpperCase(LOC));
 const $ = s => document.querySelector(s);
 const view = $("#view"), layer = $("#layer");
 const PRESETS = {
@@ -859,16 +864,16 @@ function renderView() { ({ today: rToday, calendar: rCal, stats: rStats, manage:
 function itemHTML(t, k) {
   const c = cnt(t, k), done = c >= t.target, st = streak(t);
   const metas = [];
-  if (st.cur > 1 || (st.cur === 1 && done)) metas.push(`<span class="fl">🔥 ${st.cur}${t.freq === "weekly" ? " " + tx("wk") : ""}</span>`);
+  if (st.cur > 1 || (st.cur === 1 && done)) metas.push(`<span class="fl">${I.flame}${st.cur}${t.freq === "weekly" ? " " + tx("wk") : ""}</span>`);
   if (t.freq === "weekly") metas.push(`<span class="num">${tx("{done}/{goal} this week", { done: weekCount(t, fromKey(k)), goal: t.perWeek })}</span>`);
   else metas.push(`<span>${esc(schedText(t))}</span>`);
   if (t.freq === "once" && t.due && !done && t.due < k) { const n = diffDays(fromKey(k), fromKey(t.due)); metas.push(`<span class="late">${txn(n, "{n} day overdue", "{n} days overdue")}</span>`) }
-  if (rems(t).length) metas.push(`<span>⏰ ${remText(t)}</span>`);
-  if (t.subtasks.length) metas.push(`<span class="num">☑ ${subsDone(t, k).length}/${t.subtasks.length}</span>`);
+  if (rems(t).length) metas.push(`<span class="ic">${I.clock}${remText(t)}</span>`);
+  if (t.subtasks.length) metas.push(`<span class="num ic">${I.steps}${subsDone(t, k).length}/${t.subtasks.length}</span>`);
   t.tags.forEach(g => metas.push(`<span class="tagt">#${esc(g)}</span>`));
   const p = t.kind === "count" ? Math.min(1, c / t.target) : 0;
   const checkBtn = `<button class="check ${done ? "on" : ""}" style="--c:${t.color};--p:${p}" data-act="tap" data-id="${t.id}" aria-label="${done ? tx("Mark not done") : t.kind === "count" ? tx("Add one") : tx("Mark done")}: ${esc(t.name)}">
-      ${t.kind === "count" && !done ? `<span class="pie"></span><span class="emo">${esc(t.emoji)}</span>` : done ? I.tick : `<span class="emo">${esc(t.emoji)}</span>`}</button>`;
+      ${t.kind === "count" && !done ? `<span class="pie"></span><span class="emo">${ini(t)}</span>` : done ? I.tick : `<span class="emo">${ini(t)}</span>`}</button>`;
   const right = t.kind === "count"
     ? `<div class="counter"><button data-act="dec" data-id="${t.id}" aria-label="${tx("Minus one")}">−</button><button class="v num" data-act="setv" data-id="${t.id}" title="${tx("Type an amount")}">${c}<small>/ ${t.target}${t.unit ? " " + esc(t.unit) : ""}</small></button><button data-act="inc" data-id="${t.id}" aria-label="${tx("Plus one")}">+</button></div>`
     : `<span></span>`;
@@ -904,13 +909,13 @@ function rToday() {
     <input id="pin" type="text" placeholder="${tx("Type anything you want to track…")}" aria-label="${tx("Describe something to track")}" value="${esc(ui.prompt || "")}">
     <button class="go" type="submit">${tx("Add")}</button>
   </form>
-  ${draft ? previewHTML(draft) : `<div class="hint">${tx("Try:")} ${["gym 3 times a week", "read 20 pages every night", "pay rent on 2026-11-01", "meditate weekdays at 7am", "call mom on sunday"].map(x => `<button class="chip" data-act="try" data-v="${esc(x)}">${esc(x)}</button>`).join("")}<button class="chip" data-act="templates">📋 ${tx("Start from a template")}</button></div>`}
+  ${draft ? previewHTML(draft) : `<div class="hint">${tx("Try:")} ${["gym 3 times a week", "read 20 pages every night", "pay rent on 2026-11-01", "meditate weekdays at 7am", "call mom on sunday"].map(x => `<button class="chip" data-act="try" data-v="${esc(x)}">${esc(x)}</button>`).join("")}<button class="chip" data-act="templates">${tx("Start from a template")}</button></div>`}
   ${S.examples ? `<div class="banner"><span>${tx("The trackers below are examples so you can see how it works.")}</span><button class="btn small" data-act="clearex">${tx("Remove examples")}</button></div>` : ""}
   ${!list.length ? `<div class="sec"><div class="empty">${active().length ? tx("Nothing scheduled for this day.") : tx("Nothing to track yet. Type what you want to do in the box above and press Add.")}</div></div>` : ""}
   ${gKeys.map(g => `<section class="sec"><div class="sec-h"><h2>${esc(g || (gKeys.length > 1 ? tx("Other") : tx("To do")))}</h2><span class="muted num">${tx("{n} left", { n: groups[g].length })}</span></div><div class="list ${S.settings.look.layout === "grid" ? "grid" : ""}">${groups[g].map(t => itemHTML(t, k)).join("")}</div></section>`).join("")}
-  ${list.length && !todo.length ? `<div class="sec"><div class="empty">🎉 ${isToday ? tx("Everything is done for today.") : tx("Everything is done for this day.")}</div></div>` : ""}
+  ${list.length && !todo.length ? `<div class="sec"><div class="empty">${isToday ? tx("Everything is done for today.") : tx("Everything is done for this day.")}</div></div>` : ""}
   ${done.length ? `<section class="sec"><div class="sec-h"><h2>${tx("Done")} · ${done.length}</h2><button data-act="toggledone">${ui.doneOpen ? tx("Hide") : tx("Show")}</button></div>${ui.doneOpen ? `<div class="list">${done.map(t => itemHTML(t, k)).join("")}</div>` : ""}</section>` : ""}
-  ${upcoming.length ? `<section class="sec"><div class="sec-h"><h2>${tx("Coming up")}</h2></div><div class="list">${upcoming.map(t => `<div class="item"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="open" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(fmtDate(fromKey(t.due)))}</span>${rems(t).length ? `<span>⏰ ${remText(t)}</span>` : ""}</div></div><span></span></div>`).join("")}</div></section>` : ""}
+  ${upcoming.length ? `<section class="sec"><div class="sec-h"><h2>${tx("Coming up")}</h2></div><div class="list">${upcoming.map(t => `<div class="item"><span class="dot" style="--c:${t.color}">${ini(t)}</span><div class="body" data-act="open" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(fmtDate(fromKey(t.due)))}</span>${rems(t).length ? `<span class="ic">${I.clock}${remText(t)}</span>` : ""}</div></div><span></span></div>`).join("")}</div></section>` : ""}
   `;
 }
 // ---------- greeting + account ----------
@@ -994,7 +999,7 @@ function previewHTML(o) {
   if (o.reminder) tags.push(tx("reminder {time}", { time: fmtTime(o.reminder) }));
   (o.reminders || []).forEach(r => tags.push(tx("reminder {time}", { time: fmtTime(r) })));
   if (o.kind === "count") tags.push(tx("counts up to {n}", { n: o.target }));
-  return `<div class="preview" aria-live="polite"><div class="what"><span class="dot" style="--c:${o.color}">${esc(o.emoji)}</span><span>${esc(o.name)}</span></div>
+  return `<div class="preview" aria-live="polite"><div class="what"><span class="dot" style="--c:${o.color}">${ini(o)}</span><span>${esc(o.name)}</span></div>
     <div class="tags">${tags.map(x => `<span class="tag">${esc(x)}</span>`).join("")}</div>
     <div class="row-btns"><button class="btn primary" data-act="create">${tx("Create tracker")}</button><button class="btn" data-act="customize">${tx("Customize first")}</button><button class="btn" data-act="cancelp">${tx("Cancel")}</button></div></div>`;
 }
@@ -1043,7 +1048,7 @@ function quickPreview(v) {
   const ev = quickLines(v || ""), r = ui.qrep || "once";
   if (!ev.length) return `<span class="qi bad">${tx("Type an event, like: wed 15 CS341 midterm 2 12:30 pm")}</span>`;
   return ev.map(e => !e.name ? `<span class="qi bad">${tx("Add a name for the event")}</span>` : !e.due ? `<span class="qi bad">${esc(e.name)} · ${tx("add a date, like fri or Oct 20")}</span>`
-    : `<span class="qi">${esc(e.emoji)} <b>${esc(e.name)}</b> · ${esc(fmtDate(fromKey(e.due)))}${e.time ? " · " + fmtTime(e.time) : ""}${r !== "once" ? " · 🔁 " + esc(repText(r, e.due)) : ""}${e.mismatch ? ` <span class="w">⚠ ${tx("check the day")}</span>` : ""}</span>`).join("");
+    : `<span class="qi"><b>${esc(e.name)}</b> · ${esc(fmtDate(fromKey(e.due)))}${e.time ? " · " + fmtTime(e.time) : ""}${r !== "once" ? " · " + esc(repText(r, e.due)) : ""}${e.mismatch ? ` <span class="w">${tx("check the day")}</span>` : ""}</span>`).join("");
 }
 function addEvents(evs) {
   const r = ui.qrep || "once";
@@ -1073,8 +1078,8 @@ function openDaySheet(k, focusId) {
     layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dsh">
      <h2 id="dsh" style="margin:0 0 12px">${esc(d.toLocaleDateString(LOC, { weekday: "long", month: "long", day: "numeric" }))}</h2>
      ${l.length ? `<div class="dlist">${l.map(t => { const on = doneOn(t, k); return `<div class="drow ${t.id === focusId ? "focus" : ""}">
-       <button class="dchk ${on ? "on" : ""}" style="--c:${t.color}" data-ds="tog" data-id="${t.id}" aria-pressed="${on}" aria-label="${tx("Done")}">${on ? "✓" : esc(t.emoji)}</button>
-       <div class="body"><div class="name">${esc(t.name)}</div><div class="meta muted">${t.freq === "once" ? tx("One time") : esc(schedText(t))}${rems(t).length ? " · ⏰ " + remText(t) : ""}</div></div>
+       <button class="dchk ${on ? "on" : ""}" style="--c:${t.color}" data-ds="tog" data-id="${t.id}" aria-pressed="${on}" aria-label="${tx("Done")}">${on ? "✓" : ini(t)}</button>
+       <div class="body"><div class="name">${esc(t.name)}</div><div class="meta muted">${t.freq === "once" ? tx("One time") : esc(schedText(t))}${rems(t).length ? " · " + remText(t) : ""}</div></div>
        ${confirmId === t.id ? `<span class="row-btns"><button class="btn small danger" data-ds="del2" data-id="${t.id}">${tx("Delete")}</button><button class="btn small" data-ds="keep">${tx("Keep")}</button></span>`
          : `<button class="icon-btn" data-ds="edit" data-id="${t.id}" aria-label="${tx("Edit")}">${I.edit}</button><button class="icon-btn" data-ds="del" data-id="${t.id}" aria-label="${tx("Delete")}">${I.trash}</button>`}</div>` }).join("")}</div>
        ${confirmId && S.trackers.find(x => x.id === confirmId)?.freq !== "once" ? `<p class="muted" style="margin:8px 0 0">${tx("This repeats, so deleting removes every day of it.")}</p>` : ""}`
@@ -1132,7 +1137,7 @@ function rCal() {
     body = `<div class="weekv">${[0, 1, 2, 3, 4, 5, 6].map(i => {
       const d = addDays(start, i), st = dayStats(d);
       return `<div class="wday ${st.k === tk ? "today" : ""}"><button class="wh" data-act="calday" data-k="${st.k}">${esc(d.toLocaleDateString(LOC, { weekday: "long", month: "short", day: "numeric" }))}<span class="num">${st.l.length ? tx("{done}/{total} done", { done: st.done, total: st.l.length }) : tx("Nothing planned")}</span></button>
-        <div class="chips">${st.l.map(t => { const on = doneOn(t, st.k); return `<button class="tchip ${on ? "on" : ""}" style="--c:${t.color}" data-act="calchip" data-id="${t.id}" data-k="${st.k}" aria-pressed="${on}"><span class="e">${on ? "✓" : esc(t.emoji)}</span>${esc(t.name)}${t.kind === "count" ? ` <span class="muted num">${cnt(t, st.k)}/${t.target}</span>` : ""}</button>` }).join("")}</div></div>`;
+        <div class="chips">${st.l.map(t => { const on = doneOn(t, st.k); return `<button class="tchip ${on ? "on" : ""}" style="--c:${t.color}" data-act="calchip" data-id="${t.id}" data-k="${st.k}" aria-pressed="${on}"><span class="e">${on ? "✓" : ini(t)}</span>${esc(t.name)}${t.kind === "count" ? ` <span class="muted num">${cnt(t, st.k)}/${t.target}</span>` : ""}</button>` }).join("")}</div></div>`;
     }).join("")}</div><p class="muted">${tx("Tap an item to check it off. Tap a day's name to edit or delete things.")}</p>`;
   }
   view.innerHTML = `<header class="head"><div><div class="eyebrow">${tx("Calendar")}</div><h1>${ui.calMode === "month" ? tx("Your month") : tx("Your week")}</h1></div>
@@ -1215,7 +1220,7 @@ function rStats() {
   <section class="sec card"><h3>${weekly ? tx("Weekly completion") : tx("Daily completion")}</h3><div class="muted">${tx("Share of what was due that you finished, {span}", { span })}</div>${barChart(vals, labels)}</section>
   <section class="sec card"><h3>${tx("Your year")}</h3><div class="muted">${tx("Every day for the last 12 months. Darker means more got done.")}</div>${yearHeat(53)}</section>
   <section class="sec"><div class="sec-h"><h2>${tx("Each tracker")}</h2></div><div class="list">
-  ${ts.length ? ts.map(t => { const s = streak(t); return `<div class="card tstat"><div class="top"><h3>${esc(t.emoji)} ${esc(t.name)}</h3><div class="nums num"><span>${tx("Streak")} <b style="color:var(--flame)">${s.cur}</b></span><span>${tx("Best")} <b>${s.best}</b></span><span>${tx("Done")} <b>${Math.round(rate(t, days) * 100)}%</b></span></div></div>${heatmap(t, weekly ? 53 : 17)}<div class="muted">${esc(schedText(t))}</div></div>` }).join("") : `<div class="empty">${tx("Add a repeating tracker to see streaks and history here.")}</div>`}
+  ${ts.length ? ts.map(t => { const s = streak(t); return `<div class="card tstat"><div class="top"><h3>${esc(t.name)}</h3><div class="nums num"><span>${tx("Streak")} <b style="color:var(--flame)">${s.cur}</b></span><span>${tx("Best")} <b>${s.best}</b></span><span>${tx("Done")} <b>${Math.round(rate(t, days) * 100)}%</b></span></div></div>${heatmap(t, weekly ? 53 : 17)}<div class="muted">${esc(schedText(t))}</div></div>` }).join("") : `<div class="empty">${tx("Add a repeating tracker to see streaks and history here.")}</div>`}
   </div></section>`;
 }
 function isOpenOnce(t) { return t.freq === "once" && !Object.keys(S.log[t.id] || {}).some(x => doneOn(t, x)) }
@@ -1225,7 +1230,7 @@ function rManage() {
   const tags = [...new Set(live.flatMap(t => t.tags))].sort();
   const lists = [["all", tx("All")], ["week", tx("Due this week")], ["left", tx("Left today")], ["overdue", tx("Overdue")], ...groups.map(g => ["g:" + g, g]), ...tags.map(g => ["t:" + g, "#" + g])];
   if (!lists.some(l => l[0] === ui.list)) ui.list = "all";
-  const row = (t, i, n, move) => `<div class="mrow"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="edit" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(schedText(t))}</span>${t.category ? `<span>${esc(t.category)}</span>` : ""}${rems(t).length ? `<span>⏰ ${remText(t)}</span>` : ""}${t.subtasks.length ? `<span>☑ ${txn(t.subtasks.length, "{n} step", "{n} steps")}</span>` : ""}${t.tags.map(g => `<span class="tagt">#${esc(g)}</span>`).join("")}</div></div>
+  const row = (t, i, n, move) => `<div class="mrow"><span class="dot" style="--c:${t.color}">${ini(t)}</span><div class="body" data-act="edit" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(schedText(t))}</span>${t.category ? `<span>${esc(t.category)}</span>` : ""}${rems(t).length ? `<span class="ic">${I.clock}${remText(t)}</span>` : ""}${t.subtasks.length ? `<span>☑ ${txn(t.subtasks.length, "{n} step", "{n} steps")}</span>` : ""}${t.tags.map(g => `<span class="tagt">#${esc(g)}</span>`).join("")}</div></div>
     <div class="acts">${t.archived ? `<button class="btn small" data-act="unarchive" data-id="${t.id}">${tx("Restore")}</button>` : move ? `<button class="icon-btn" data-act="mv" data-n="-1" data-id="${t.id}" aria-label="${tx("Move up")}" ${i === 0 ? "disabled" : ""}>${I.up}</button><button class="icon-btn" data-act="mv" data-n="1" data-id="${t.id}" aria-label="${tx("Move down")}" ${i === n - 1 ? "disabled" : ""}>${I.down}</button>` : ""}<button class="icon-btn" data-act="edit" data-id="${t.id}" aria-label="${tx("Edit")}">${I.edit}</button></div></div>`;
   const rows = (arr, move) => arr.length ? `<div class="list">${arr.map((t, i) => row(t, i, arr.length, move)).join("")}</div>` : `<div class="empty">${tx("Nothing here right now.")}</div>`;
   let body;
@@ -1262,7 +1267,7 @@ const TEMPLATES = [
 function openTemplates() {
   layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tph">
     <h2 id="tph">${tx("Start from a template")}</h2><p class="muted" style="margin-top:-6px">${tx("Adds a ready-made set in one tap. You can change anything afterwards.")}</p>
-    <div class="list">${TEMPLATES.map((tp, i) => `<div class="tpl"><span class="big">${tp.emoji}</span><div style="min-width:0"><div class="name">${esc(tx(tp.name))}</div><div class="items">${tp.items.length === 1 && tp.items[0].subtasks ? esc(tp.items[0].subtasks.map(x => tx(x)).join(" · ")) : esc(tp.items.map(x => tx(x.name)).join(" · "))}</div></div><button class="btn small primary" data-tp="${i}">${tx("Add")}</button></div>`).join("")}</div>
+    <div class="list">${TEMPLATES.map((tp, i) => `<div class="tpl"><span class="dot big" style="--c:${tp.items[0].color}">${esc([...tx(tp.name)][0].toLocaleUpperCase(LOC))}</span><div style="min-width:0"><div class="name">${esc(tx(tp.name))}</div><div class="items">${tp.items.length === 1 && tp.items[0].subtasks ? esc(tp.items[0].subtasks.map(x => tx(x)).join(" · ")) : esc(tp.items.map(x => tx(x.name)).join(" · "))}</div></div><button class="btn small primary" data-tp="${i}">${tx("Add")}</button></div>`).join("")}</div>
     <div class="row-btns" style="margin-top:14px"><button class="btn" data-tp="close">${tx("Close")}</button></div></div></div>`;
   layer.onclick = ev => {
     const b = ev.target.closest("[data-tp]");
@@ -1281,7 +1286,7 @@ function rSettings() {
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   const notifOK = "Notification" in window;
   const L = st.look, mode = curMode();
-  /* i18n: tx("✓ Check") tx("Strike out") tx("Fade") tx("Slash") tx("Fill in") tx("Hide") */
+  /* i18n: tx("Check") tx("Strike out") tx("Fade") tx("Slash") tx("Fill in") tx("Hide") */
   const lseg = (key, opts) => `<div class="seg" style="flex-wrap:wrap">${opts.map(([v, l]) => `<button data-act="look" data-k="${key}" data-v="${v}" aria-pressed="${String(L[key]) === String(v)}">${tx(l)}</button>`).join("")}</div>`;
   /* i18n: tx("Auto") tx("Light") tx("Dark") tx("Small") tx("Normal") tx("Large") tx("Huge") tx("List") tx("Grid") tx("Circle") tx("Square") tx("On") tx("Off") tx("Monday") tx("Sunday") tx("Week") tx("Month") tx("3 months") tx("Year") tx("All time") tx("Pine") tx("Ocean") tx("Sakura") tx("Sand") tx("Lavender") tx("Neon") tx("Mono") tx("Modern") tx("Rounded") tx("Classic") tx("Typewriter") tx("Handwritten") tx("System") */
   const ACC = ["#2E6B57", "#245FA8", "#6D3FB0", "#B23A62", "#C2410C", "#9A5A12", "#0E8C8C", "#111111", "#72C3A5", "#7EB0F0", "#F08FAE", "#F0B060"];
@@ -1325,7 +1330,7 @@ function rSettings() {
     <div class="muted">${tx("On iPhone, a Shortcut can read today's steps and active calories from Health and open this link for you every evening.")}</div>
   </div>
   <div class="card set"><h3>${tx("Calendar")}</h3>
-    <div class="line" style="flex-wrap:wrap;gap:8px"><span>${tx("Finished events")}</span>${lseg("done", [["check", "✓ Check"], ["strike", "Strike out"], ["fade", "Fade"], ["slash", "Slash"], ["fill", "Fill in"], ["hide", "Hide"]])}</div>
+    <div class="line" style="flex-wrap:wrap;gap:8px"><span>${tx("Finished events")}</span>${lseg("done", [["check", "Check"], ["strike", "Strike out"], ["fade", "Fade"], ["slash", "Slash"], ["fill", "Fill in"], ["hide", "Hide"]])}</div>
     <div class="line"><span>${tx("Week starts on")}</span>${seg("weekStart", [[1, "Monday"], [0, "Sunday"]])}</div>
   </div>
   <div class="card set"><h3>${tx("Reminders")}</h3>
@@ -1347,7 +1352,6 @@ function rSettings() {
 }
 
 // ---------- editor sheet ----------
-const EMOJIS = ["✅", "💧", "📖", "🏋️", "🏃", "🧘", "😴", "💊", "🍎", "📚", "✍️", "💻", "🎸", "🧹", "💸", "📞", "🪴", "🐾", "🪥", "🙏", "🚫", "⭐"];
 function openEditor(t, isNew) {
   const e = JSON.parse(JSON.stringify(t));
   const cats = [...new Set(S.trackers.map(x => x.category).filter(Boolean))];
@@ -1355,7 +1359,6 @@ function openEditor(t, isNew) {
     layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="edh">
     <h2 id="edh">${isNew ? tx("New tracker") : tx("Edit tracker")}</h2>
     <div class="field"><label for="f-name">${tx("Name")}</label><input id="f-name" type="text" value="${esc(e.name)}" placeholder="${tx("e.g. Drink water")}"></div>
-    <div class="field"><span class="l">${tx("Icon")}</span><div class="emopick">${EMOJIS.map(x => `<button data-ed="emoji" data-v="${x}" aria-pressed="${e.emoji === x}" style="${e.emoji === x ? "outline:2px solid var(--accent)" : ""}">${x}</button>`).join("")}<input id="f-emoji" type="text" value="${esc(e.emoji)}" aria-label="${tx("Or type any emoji")}" style="width:56px;text-align:center;border:1px solid var(--line);border-radius:9px;background:var(--surface)"></div></div>
     <div class="field"><span class="l">${tx("Color")}</span><div class="swatches">${COLORS.map(c => `<button class="sw" style="--c:${c}" data-ed="color" data-v="${c}" aria-label="Color ${c}" aria-pressed="${e.color === c}"></button>`).join("")}</div></div>
     <div class="field"><span class="l">${tx("How do you finish it?")}</span><div class="seg"><button data-ed="kind" data-v="check" aria-pressed="${e.kind === "check"}">${tx("Check it off")}</button><button data-ed="kind" data-v="count" aria-pressed="${e.kind === "count"}">${tx("Reach an amount")}</button></div></div>
     ${e.kind === "count" ? `<div class="two"><div class="field"><label for="f-target">${tx("Amount")}</label><input id="f-target" type="number" min="1" value="${e.target}"></div><div class="field"><label for="f-unit">${tx("Unit")}</label><input id="f-unit" type="text" value="${esc(e.unit)}" placeholder="${tx("glasses, pages, km…")}"></div></div>` : ""}
@@ -1428,7 +1431,7 @@ function removeTracker(id) {
 function openDetail(t) {
   const s = streak(t);
   layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dth">
-   <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div><h2 id="dth" style="margin:0">${esc(t.name)}</h2><div class="muted">${esc(schedText(t))}${rems(t).length ? " · ⏰ " + remText(t) : ""}</div></div></div>
+   <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span class="dot" style="--c:${t.color}">${ini(t)}</span><div><h2 id="dth" style="margin:0">${esc(t.name)}</h2><div class="muted">${esc(schedText(t))}${rems(t).length ? " · " + remText(t) : ""}</div></div></div>
    ${t.freq !== "once" ? `<div class="tiles" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="tile"><b class="num" style="color:var(--flame)">${s.cur}</b><span>${tx("current streak")}</span></div><div class="tile"><b class="num">${s.best}</b><span>${tx("best streak")}</span></div><div class="tile"><b class="num">${Math.round(rate(t, 30) * 100)}%</b><span>${tx("last 30 days")}</span></div></div><div class="sec">${heatmap(t)}</div>` : ""}
    ${t.notes ? `<p>${esc(t.notes)}</p>` : ""}
    <div class="row-btns" style="margin-top:16px"><button class="btn primary" data-dt="edit">${tx("Edit")}</button><button class="btn" data-dt="close">${tx("Close")}</button></div></div></div>`;
@@ -1649,12 +1652,12 @@ function fireReminder(t, k) {
   let shown = false;
   if (S.settings.notify && "Notification" in window && Notification.permission === "granted") {
     try {
-      if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(`${t.emoji} ${t.name}`, { body, tag: t.id, icon: "icon-192.png", data: { id: t.id }, actions: [{ action: "done", title: tx("Done") }, { action: "snooze", title: tx("Snooze {n} min", { n: SNOOZE_MIN }) }] }));
-      else new Notification(`${t.emoji} ${t.name}`, { body, tag: t.id });
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(`${t.name}`, { body, tag: t.id, icon: "icon-192.png", data: { id: t.id }, actions: [{ action: "done", title: tx("Done") }, { action: "snooze", title: tx("Snooze {n} min", { n: SNOOZE_MIN }) }] }));
+      else new Notification(`${t.name}`, { body, tag: t.id });
       shown = true;
     } catch { }
   }
-  if (!shown || document.visibilityState === "visible") toast(`⏰ ${t.emoji} ${t.name}`, tx("Snooze {n} min", { n: SNOOZE_MIN }), () => snooze(t.id));
+  if (!shown || document.visibilityState === "visible") toast(`${t.name}`, tx("Snooze {n} min", { n: SNOOZE_MIN }), () => snooze(t.id));
 }
 function checkReminders() {
   const now = new Date(), k = keyOf(now), hm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;

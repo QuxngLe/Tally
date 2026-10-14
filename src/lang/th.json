@@ -240,8 +240,6 @@
  "Edit tracker": "แก้ไขตัวติดตาม",
  "Name": "ชื่อ",
  "e.g. Drink water": "เช่น ดื่มน้ำ",
- "Icon": "ไอคอน",
- "Or type any emoji": "หรือพิมพ์อีโมจิใดก็ได้",
  "Color": "สี",
  "How do you finish it?": "ทำอย่างไรถึงนับว่าเสร็จ?",
  "Check it off": "ทำเครื่องหมาย",
@@ -382,10 +380,10 @@
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "แต่ละวันจะเต็มขึ้นเมื่อคุณทำสิ่งต่างๆ เสร็จ จุดคืองานที่ทำครั้งเดียว แตะวันเพื่อแก้ไขหรือลบสิ่งที่อยู่ในวันนั้น",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "แตะรายการเพื่อทำเครื่องหมาย แตะชื่อวันเพื่อแก้ไขหรือลบ",
  "Repeat": "ทำซ้ำ",
- "✓ Check": "✓ ติ๊กถูก",
  "Strike out": "ขีดฆ่า",
  "Fade": "จางลง",
  "Slash": "เส้นทแยง",
  "Fill in": "เติมสี",
- "Finished events": "กิจกรรมที่เสร็จแล้ว"
+ "Finished events": "กิจกรรมที่เสร็จแล้ว",
+ "Check": "ติ๊กถูก"
 }
