@@ -225,7 +225,8 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 @media (min-width: 760px) {
   .wrap.wide { max-width: 1040px }
   body.has-q .toast { bottom: 140px }
-  .cell { aspect-ratio: auto; min-height: 108px }
+  .cell { aspect-ratio: auto; min-height: 108px; grid-template-rows: auto auto 1fr; align-content: start }
+  .cell .pc:empty { display: none }
   /* the month grid stretches down to just above the add bar */
   .wrap.wide .month .cell { min-height: max(60px, calc((100vh / var(--zoom, 1) - 290px) / var(--rows, 6) - 4px)) }
   .cell .evs { display: grid; gap: 2px; position: relative; align-self: start; margin-top: 3px; min-width: 0 }
