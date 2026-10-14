@@ -840,7 +840,7 @@ function toast(msg, label, fn) {
 // ---------- events ----------
 document.addEventListener("click", async ev => {
   const tab = ev.target.closest("[data-tab]");
-  if (tab) { ui.tab = tab.dataset.tab; ui.draft = null; render(); window.scrollTo(0, 0); return }
+  if (tab) { goTab(tab.dataset.tab); return }
   const b = ev.target.closest("[data-act]"); if (!b || layer.contains(b)) return;
   const a = b.dataset.act, t = S.trackers.find(x => x.id === b.dataset.id), k = ui.day;
   switch (a) {
@@ -863,7 +863,7 @@ document.addEventListener("click", async ev => {
     case "new": openEditor(blankTracker(), true); break;
     case "unarchive": t.archived = false; save(); render(); break;
     case "mv": { const L = active(), i = L.indexOf(t), j = i + +b.dataset.n; if (j < 0 || j >= L.length) break; const A = S.trackers.indexOf(L[i]), B = S.trackers.indexOf(L[j]); [S.trackers[A], S.trackers[B]] = [S.trackers[B], S.trackers[A]]; save(); render(); break }
-    case "adv": ui.adv = !ui.adv; render(); break;
+    case "adv": ui.adv = !ui.adv; try { sessionStorage.setItem("tally.adv", ui.adv ? "1" : "") } catch { } render(); break;
     case "look": { let v = b.dataset.v; const k2 = b.dataset.k;
       if (["size", "radius"].includes(k2)) v = +v; if (["glass", "streaks"].includes(k2)) v = v === "true";
       if (k2 === "preset" && v === "custom" && S.settings.look.preset !== "custom") { const p = palette(); S.settings.look.custom = { bg: p[0], surface: p[1], fg: p[2], accent: S.settings.look.accent || p[3] } }
@@ -930,6 +930,18 @@ setInterval(checkReminders, 20000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { checkReminders(); if (ui.day !== keyOf(today()) && ui.tab === "today" && !layer.innerHTML) { } render() } });
 
 // ---------- boot ----------
+// The open tab lives in the address (#settings etc.), so a refresh or the back button keeps you where you were.
+const TABS = ["today", "stats", "manage", "settings"];
+function goTab(id) {
+  if (!TABS.includes(id)) id = "today";
+  if (id !== ui.tab) { ui.tab = id; ui.draft = null; render(); window.scrollTo(0, 0) }
+  try { if (location.hash.slice(1) !== id) history.replaceState(null, "", id === "today" ? location.pathname + location.search : "#" + id) } catch { }
+  try { sessionStorage.setItem("tally.tab", id) } catch { }
+}
+window.addEventListener("hashchange", () => goTab(location.hash.slice(1)));
+{ let start = location.hash.slice(1); if (!TABS.includes(start)) { try { start = sessionStorage.getItem("tally.tab") || "" } catch { } }
+  if (TABS.includes(start)) ui.tab = start;
+  try { ui.adv = sessionStorage.getItem("tally.adv") === "1" } catch { } }
 applyTheme(); render(); setTimeout(checkReminders, 1500);
 try { if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && window.top === window.self) navigator.serviceWorker.register("sw.js").catch(() => { }) } catch { }
 })();
