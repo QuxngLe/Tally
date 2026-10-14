@@ -1127,7 +1127,7 @@ document.addEventListener("click", async ev => {
       if (!email || password.length < 6) { toast("Enter your email and a password of at least 6 characters."); break }
       try {
         await loadSupabase();
-        const r = a === "signup" ? await sb.auth.signUp({ email, password }) : await sb.auth.signInWithPassword({ email, password });
+        const r = a === "signup" ? await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + location.pathname } }) : await sb.auth.signInWithPassword({ email, password });
         if (r.error) throw r.error;
         if (a === "signup" && !r.data.session) { toast("Check your email to confirm the account, then sign in here."); break }
         syncUser = r.data.user; syncErr = ""; toast("Signed in. Syncing…"); await syncNow(); render();
@@ -1183,7 +1183,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && layer.inne
 // ---------- sync ----------
 // Fill these in from Supabase (Project Settings → API). The anon key is public by design; row level
 // security keeps each person's row private.
-const SYNC_URL = "", SYNC_KEY = "";
+const SYNC_URL = "https://bqdixkycggmmndbaesdy.supabase.co", SYNC_KEY = "sb_publishable_8RUc9YCRtozsGb-SlAKWRA_fCW61dtI";
 const syncReady = () => !!(SYNC_URL && SYNC_KEY) && /^https?:$/.test(location.protocol) && window.top === window.self;
 function mergeState(A, B) {
   const mtA = A.mt || {}, mtB = B.mt || {}, pick = k => (mtB[k] || 0) > (mtA[k] || 0) ? "B" : "A";
