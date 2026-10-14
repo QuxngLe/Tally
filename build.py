@@ -30,4 +30,7 @@ html = f"""<!doctype html>
 (dist / "index.html").write_text(html)
 for f in ["manifest.webmanifest", "sw.js", "icon.svg", "icon-192.png", "icon-512.png"]:
     if (src / f).exists(): shutil.copy(src / f, dist / f)
+(dist / "lang").mkdir(exist_ok=True)
+for f in (src / "lang").glob("*.json"):
+    if f.name != "keys.json": shutil.copy(f, dist / "lang" / f.name)
 print("built", dist)
