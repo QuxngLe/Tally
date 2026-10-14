@@ -721,7 +721,7 @@ function curMode() {
 }
 function palette() { const L = S.settings.look; if (L.preset === "custom") { const c = L.custom; return [c.bg, c.surface, c.fg, c.accent] } return (PRESETS[L.preset] || PRESETS.pine)[curMode()] }
 // Big screens get a bigger UI, so nothing looks tiny on a large monitor (stacks with the Text size setting).
-function screenScale() { return innerWidth < 1200 ? 1 : Math.min(1.5, Math.max(1, Math.min(innerWidth / 1150, innerHeight / 760))) }
+function screenScale() { return innerWidth < 1200 ? 1 : 1 + (Math.min(1.5, Math.max(1, Math.min(innerWidth / 1150, innerHeight / 760))) - 1) / 2 }
 addEventListener("resize", () => { clearTimeout(window.__rs); window.__rs = setTimeout(applyTheme, 120) });
 function applyTheme() {
   const r = document.documentElement, st = S.settings, L = st.look, set = (k, v) => r.style.setProperty(k, v);
