@@ -1,5 +1,5 @@
 // Offline support: keep the app shell cached, refresh it in the background.
-const CACHE = "tally-v2";
+const CACHE = "tally-v3";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
@@ -17,5 +17,12 @@ self.addEventListener("fetch", e => {
 });
 self.addEventListener("notificationclick", e => {
   e.notification.close();
-  e.waitUntil(self.clients.matchAll({ type: "window" }).then(cs => cs.length ? cs[0].focus() : self.clients.openWindow("./")));
+  const id = e.notification.data && e.notification.data.id, action = e.action;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(cs => {
+    if (action && id) {
+      if (cs.length) { cs.forEach(c => c.postMessage({ type: "remind", action, id })); return action === "done" ? undefined : cs[0].focus(); }
+      return self.clients.openWindow(`./?remind=${action}&id=${id}`);
+    }
+    return cs.length ? cs[0].focus() : self.clients.openWindow("./");
+  }));
 });

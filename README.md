@@ -8,6 +8,13 @@ Track anything you can finish: habits, to-dos, counts. One codebase runs in a br
 - **Streaks** per tracker (days, or weeks for "X times a week" goals).
 - **Progress**: 30-day completion chart, and a 17-week calendar grid per tracker.
 - **Reminders** at a set time; they show as notifications once you turn them on in Settings.
+- **Calendar**: month and week views; tap a day to open it, or check things off right in the week view.
+- **Steps inside a tracker**: add a checklist (e.g. a morning routine); finishing every step finishes the tracker.
+- **Several reminders per tracker**, each with a 10-minute snooze (also from the notification on Android and desktop).
+- **Progress over any range**: week, month, 3 months, year or all time, plus a 12-month heatmap.
+- **Templates**: Morning routine, Evening wind-down, Fitness basics, Study, Healthy habits, Home chores, Weekly review.
+- **Lists**: All, Due this week, Left today, Overdue, and one list per group and #tag.
+- **Steps and calories from your phone**: open `?steps=8421&calories=512` (an iPhone Shortcut can do this nightly from Apple Health).
 - **Customize**: name, icon, color, group, schedule (every day, some days, X times a week, one time), amount and unit, notes, archive, reorder, theme and accent color, week start.
 - **Data** stays on the device. Backup/restore moves it between devices.
 

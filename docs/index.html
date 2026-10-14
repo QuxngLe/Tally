@@ -171,6 +171,52 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
   padding: 10px 14px; border-radius: 12px; font-weight: 600; font-size: 14px; display: flex; gap: 12px; align-items: center; max-width: calc(100% - 32px) }
 .toast button { border: 0; background: none; color: var(--bg); text-decoration: underline; font-weight: 700 }
 @media (min-width: 760px) { .toast { bottom: 24px } }
+/* subtasks */
+.subs { display: grid; gap: 2px; margin-top: 6px }
+.sub { display: flex; gap: 8px; align-items: center; border: 0; background: none; padding: 3px 0; text-align: left; font-size: 14px; color: var(--fg) }
+.sub i { width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--c); display: grid; place-items: center; flex: none; color: #fff }
+.sub i svg { width: 12px; height: 12px; opacity: 0 }
+.sub.on i { background: var(--c) }
+.sub.on i svg { opacity: 1 }
+.sub.on span { text-decoration: line-through; color: var(--muted) }
+.subedit { display: grid; gap: 6px }
+.subedit .row { display: flex; gap: 6px }
+.subedit input { flex: 1; min-width: 0 }
+.remlist { display: flex; gap: 6px; flex-wrap: wrap; align-items: center }
+.remlist .r { display: flex; gap: 4px; align-items: center }
+.remlist input[type=time] { width: auto !important }
+/* calendar */
+.calbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px }
+.calbar .nav { display: flex; gap: 6px; align-items: center }
+.calbar h2 { font-size: 20px; min-width: 9ch }
+.month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px }
+.month .dow { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding-bottom: 2px }
+.cell { aspect-ratio: 1 / 1.05; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 4px; display: grid; grid-template-rows: auto 1fr auto; text-align: left; font-size: 12px; min-width: 0; position: relative; overflow: hidden }
+.cell .fill { position: absolute; inset: auto 0 0 0; background: var(--accent); opacity: .22 }
+.cell b { font-weight: 700; position: relative }
+.cell.out { opacity: .4 }
+.cell.today { border: 2px solid var(--accent) }
+.cell .pc { position: relative; font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums }
+.cell .dots { position: relative; display: flex; gap: 2px; flex-wrap: wrap; align-self: end }
+.cell .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c) }
+.cell.full .fill { opacity: .45 }
+.weekv { display: grid; gap: 8px }
+.wday { background: var(--surface); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--shadow) }
+.wday.today { outline: 2px solid var(--accent) }
+.wday .wh { display: flex; justify-content: space-between; align-items: baseline; border: 0; background: none; padding: 0; width: 100%; font-weight: 700; margin-bottom: 6px }
+.wday .wh span { font-weight: 500; font-size: 12px; color: var(--muted) }
+.chips { display: flex; gap: 6px; flex-wrap: wrap }
+.tchip { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 10px 4px 6px; font-size: 13px }
+.tchip.on { background: color-mix(in srgb, var(--c) 22%, var(--surface)); border-color: var(--c); text-decoration: line-through; text-decoration-color: var(--muted) }
+.tchip .e { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--c) 25%, transparent); font-size: 12px }
+/* lists, templates */
+.filters { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; scrollbar-width: none }
+.filters button { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--muted) }
+.filters button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: transparent }
+.tpl { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; background: var(--surface); border-radius: var(--r); padding: 12px; box-shadow: var(--shadow) }
+.tpl .big { font-size: 26px }
+.tpl .items { font-size: 13px; color: var(--muted) }
+.tagt { color: var(--accent); font-weight: 600 }
 /* appearance options */
 #bgimg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-size: cover; background-position: center }
 #bgimg::after { content: ""; position: absolute; inset: 0; background: var(--bg); opacity: var(--bg-dim, .3) }
@@ -211,6 +257,7 @@ input[type=range] { width: min(220px, 100%); accent-color: var(--accent) }
 </style>
 <title>${labels[i]}: ${Math.round(v * 100)}%</title>
 <title>${fmtShort(d)}: ${c}${t.kind === "count" ? "/" + t.target : c ? " done" : ""}</title>
+<title>${fmtShort(d)}: ${st.done}/${st.l.length}</title>
 <style>:root{padding-top:env(safe-area-inset-top,0px)} body{margin:0} [hidden]{display:none!important}</style>
 </head>
 <body>
@@ -260,7 +307,18 @@ if (!S) { S = defaults(); seedExamples(); }
 S.settings = Object.assign(defaults().settings, S.settings || {});
 S.fired = S.fired || {};
 const save = () => store.set(KEY, S);
-let ui = { adv: false, tab: "today", day: keyOf(today()), draft: null, doneOpen: true };
+// Older saves had one reminder per tracker; now each has a list, plus subtasks and tags.
+function fixTrackers() {
+  S.subs = S.subs || {}; S.snooze = S.snooze || {};
+  S.trackers.forEach(t => {
+    if (!Array.isArray(t.reminders)) t.reminders = t.reminder ? [t.reminder] : [];
+    delete t.reminder;
+    if (!Array.isArray(t.subtasks)) t.subtasks = [];
+    if (!Array.isArray(t.tags)) t.tags = [];
+  });
+}
+fixTrackers(); save();
+let ui = { calMode: "month", calRef: keyOf(today()), range: 30, list: "all", adv: false, tab: "today", day: keyOf(today()), draft: null, doneOpen: true };
 
 function seedExamples() {
   const mk = (o) => Object.assign({ id: uid(), emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminder: null, category: "", notes: "", archived: false, example: true, created: keyOf(addDays(today(), -60)) }, o);
@@ -365,6 +423,17 @@ function schedText(t) {
   return "";
 }
 
+const rems = t => t.reminders || [];
+const remText = t => rems(t).map(fmtTime).join(", ");
+const subKey = (t, k) => t.freq === "once" ? "once" : k;
+const subsDone = (t, k) => ((S.subs[t.id] || {})[subKey(t, k)] || []).filter(id => t.subtasks.some(x => x.id === id));
+function setSubs(t, k, ids) { (S.subs[t.id] ||= {})[subKey(t, k)] = ids; if (!ids.length) delete S.subs[t.id][subKey(t, k)] }
+function toggleSub(t, k, sid) {
+  const cur = subsDone(t, k), on = cur.includes(sid), next = on ? cur.filter(x => x !== sid) : [...cur, sid];
+  setSubs(t, k, next);
+  if (t.kind === "check") { const all = next.length === t.subtasks.length; if (all && !doneOn(t, k)) setCount(t, k, 1); else if (!all && doneOn(t, k)) setCount(t, k, 0) }
+  save();
+}
 function setCount(t, k, v) {
   v = Math.max(0, Math.min(v, t.kind === "count" ? 999999 : 1));
   (S.log[t.id] ||= {});
@@ -461,6 +530,7 @@ const I = {
   stats: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg>',
   gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
   tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
   up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>',
   down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
@@ -578,10 +648,11 @@ function openCropper(im) {
   };
 }
 function renderTabs() {
-  const tabs = [["today", "Today"], ["stats", "Progress"], ["manage", "Trackers"], ["settings", "Settings"]];
-  $("#tabs").innerHTML = tabs.map(([id, l]) => `<button data-tab="${id}" aria-current="${ui.tab === id}">${I[{ today: "today", stats: "stats", manage: "list", settings: "gear" }[id]]}<span>${l}</span></button>`).join("");
+  const tabs = [["today", "Today"], ["calendar", "Calendar"], ["stats", "Progress"], ["manage", "Lists"], ["settings", "Settings"]];
+  $("#tabs").innerHTML = tabs.map(([id, l]) => `<button data-tab="${id}" aria-current="${ui.tab === id}">${I[{ today: "today", calendar: "cal", stats: "stats", manage: "list", settings: "gear" }[id]]}<span>${l}</span></button>`).join("");
 }
-function render() { renderTabs(); ({ today: rToday, stats: rStats, manage: rManage, settings: rSettings })[ui.tab](); }
+function render() { renderTabs(); renderView(); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth) }
+function renderView() { ({ today: rToday, calendar: rCal, stats: rStats, manage: rManage, settings: rSettings })[ui.tab]() }
 
 function itemHTML(t, k) {
   const c = cnt(t, k), done = c >= t.target, st = streak(t);
@@ -590,14 +661,20 @@ function itemHTML(t, k) {
   if (t.freq === "weekly") metas.push(`<span class="num">${weekCount(t, fromKey(k))}/${t.perWeek} this week</span>`);
   else metas.push(`<span>${esc(schedText(t))}</span>`);
   if (t.freq === "once" && t.due && !done && t.due < k) { const n = diffDays(fromKey(k), fromKey(t.due)); metas.push(`<span class="late">${n} day${n > 1 ? "s" : ""} overdue</span>`) }
-  if (t.reminder) metas.push(`<span>⏰ ${fmtTime(t.reminder)}</span>`);
+  if (rems(t).length) metas.push(`<span>⏰ ${remText(t)}</span>`);
+  if (t.subtasks.length) metas.push(`<span class="num">☑ ${subsDone(t, k).length}/${t.subtasks.length}</span>`);
+  t.tags.forEach(g => metas.push(`<span class="tagt">#${esc(g)}</span>`));
   const p = t.kind === "count" ? Math.min(1, c / t.target) : 0;
   const checkBtn = `<button class="check ${done ? "on" : ""}" style="--c:${t.color};--p:${p}" data-act="tap" data-id="${t.id}" aria-label="${done ? "Mark not done" : t.kind === "count" ? "Add one" : "Mark done"}: ${esc(t.name)}">
       ${t.kind === "count" && !done ? `<span class="pie"></span><span class="emo">${esc(t.emoji)}</span>` : done ? I.tick : `<span class="emo">${esc(t.emoji)}</span>`}</button>`;
   const right = t.kind === "count"
     ? `<div class="counter"><button data-act="dec" data-id="${t.id}" aria-label="Minus one">−</button><button class="v num" data-act="setv" data-id="${t.id}" title="Type an amount">${c}<small>/ ${t.target}${t.unit ? " " + esc(t.unit) : ""}</small></button><button data-act="inc" data-id="${t.id}" aria-label="Plus one">+</button></div>`
     : `<span></span>`;
-  return `<div class="item ${done ? "done" : ""}">${checkBtn}<div class="body" data-act="open" data-id="${t.id}"><div class="name">${t.kind === "check" ? "" : ""}${esc(t.name)}</div><div class="meta">${metas.join("")}</div></div>${right}</div>`;
+  return `<div class="item ${done ? "done" : ""}">${checkBtn}<div class="body" data-act="open" data-id="${t.id}"><div class="name">${t.kind === "check" ? "" : ""}${esc(t.name)}</div><div class="meta">${metas.join("")}</div>${t.subtasks.length && !done ? subsHTML(t, k) : ""}</div>${right}</div>`;
+}
+function subsHTML(t, k) {
+  const d = subsDone(t, k);
+  return `<div class="subs" style="--c:${t.color}">${t.subtasks.map(x => `<button class="sub ${d.includes(x.id) ? "on" : ""}" data-act="sub" data-id="${t.id}" data-sid="${x.id}" aria-pressed="${d.includes(x.id)}"><i>${I.tick}</i><span>${esc(x.text)}</span></button>`).join("")}</div>`;
 }
 
 function rToday() {
@@ -613,9 +690,9 @@ function rToday() {
   view.innerHTML = `
   <header class="head">
     <div>
-      <div class="eyebrow">${S.settings.look.title ? esc(S.settings.look.title) + " · " : ""}${isToday ? "Today" : diffDays(d, today()) === -1 ? "Yesterday" : "Looking back"}</div>
+      <div class="eyebrow">${S.settings.look.title ? esc(S.settings.look.title) + " · " : ""}${isToday ? "Today" : diffDays(d, today()) === -1 ? "Yesterday" : diffDays(d, today()) === 1 ? "Tomorrow" : d > today() ? "Coming up" : "Looking back"}</div>
       <h1>${esc(fmtDate(d))}</h1>
-      <div class="daynav"><button data-act="day" data-n="-1" aria-label="Previous day">‹ Prev</button>${isToday ? "" : `<button data-act="day" data-n="0">Back to today</button>`}${isToday ? "" : `<button data-act="day" data-n="1" aria-label="Next day">Next ›</button>`}</div>
+      <div class="daynav"><button data-act="day" data-n="-1" aria-label="Previous day">‹ Prev</button>${isToday ? "" : `<button data-act="day" data-n="0">Back to today</button>`}<button data-act="day" data-n="1" aria-label="Next day">Next ›</button></div>
     </div>
     <div class="ring" role="img" aria-label="${done.length} of ${list.length} done">
       <svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="30" fill="none" stroke="var(--surface-2)" stroke-width="7"/><circle cx="36" cy="36" r="30" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}" style="transition:stroke-dashoffset .4s"/></svg>
@@ -626,22 +703,62 @@ function rToday() {
     <input id="pin" type="text" placeholder="Type anything you want to track…" aria-label="Describe something to track" value="${esc(ui.prompt || "")}">
     <button class="go" type="submit">Add</button>
   </form>
-  ${draft ? previewHTML(draft) : `<div class="hint">Try: ${["gym 3 times a week", "read 20 pages every night", "pay rent on 2026-11-01", "meditate weekdays at 7am", "call mom on sunday"].map(x => `<button class="chip" data-act="try" data-v="${esc(x)}">${esc(x)}</button>`).join("")}</div>`}
+  ${draft ? previewHTML(draft) : `<div class="hint">Try: ${["gym 3 times a week", "read 20 pages every night", "pay rent on 2026-11-01", "meditate weekdays at 7am", "call mom on sunday"].map(x => `<button class="chip" data-act="try" data-v="${esc(x)}">${esc(x)}</button>`).join("")}<button class="chip" data-act="templates">📋 Start from a template</button></div>`}
   ${S.examples ? `<div class="banner"><span>The trackers below are examples so you can see how it works.</span><button class="btn small" data-act="clearex">Remove examples</button></div>` : ""}
   ${!list.length ? `<div class="sec"><div class="empty">${active().length ? "Nothing scheduled for this day." : "Nothing to track yet. Type what you want to do in the box above and press Add."}</div></div>` : ""}
   ${gKeys.map(g => `<section class="sec"><div class="sec-h"><h2>${esc(g || (gKeys.length > 1 ? "Other" : "To do"))}</h2><span class="muted num">${groups[g].length} left</span></div><div class="list ${S.settings.look.layout === "grid" ? "grid" : ""}">${groups[g].map(t => itemHTML(t, k)).join("")}</div></section>`).join("")}
   ${list.length && !todo.length ? `<div class="sec"><div class="empty">🎉 Everything is done for ${isToday ? "today" : "this day"}.</div></div>` : ""}
   ${done.length ? `<section class="sec"><div class="sec-h"><h2>Done · ${done.length}</h2><button data-act="toggledone">${ui.doneOpen ? "Hide" : "Show"}</button></div>${ui.doneOpen ? `<div class="list">${done.map(t => itemHTML(t, k)).join("")}</div>` : ""}</section>` : ""}
-  ${upcoming.length ? `<section class="sec"><div class="sec-h"><h2>Coming up</h2></div><div class="list">${upcoming.map(t => `<div class="item"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="open" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(fmtDate(fromKey(t.due)))}</span>${t.reminder ? `<span>⏰ ${fmtTime(t.reminder)}</span>` : ""}</div></div><span></span></div>`).join("")}</div></section>` : ""}
+  ${upcoming.length ? `<section class="sec"><div class="sec-h"><h2>Coming up</h2></div><div class="list">${upcoming.map(t => `<div class="item"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="open" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(fmtDate(fromKey(t.due)))}</span>${rems(t).length ? `<span>⏰ ${remText(t)}</span>` : ""}</div></div><span></span></div>`).join("")}</div></section>` : ""}
   `;
 }
 function previewHTML(o) {
   const tags = [schedText(o)];
   if (o.reminder) tags.push("reminder " + fmtTime(o.reminder));
+  (o.reminders || []).forEach(r => tags.push("reminder " + fmtTime(r)));
   if (o.kind === "count") tags.push(`counts up to ${o.target}`);
   return `<div class="preview" aria-live="polite"><div class="what"><span class="dot" style="--c:${o.color}">${esc(o.emoji)}</span><span>${esc(o.name)}</span></div>
     <div class="tags">${tags.map(x => `<span class="tag">${esc(x)}</span>`).join("")}</div>
     <div class="row-btns"><button class="btn primary" data-act="create">Create tracker</button><button class="btn" data-act="customize">Customize first</button><button class="btn" data-act="cancelp">Cancel</button></div></div>`;
+}
+
+// ---------- calendar ----------
+function dayStats(d) {
+  const k = keyOf(d), l = dueList(d), done = l.filter(t => doneOn(t, k)).length;
+  return { l, k, done, pct: l.length ? done / l.length : 0 };
+}
+function rCal() {
+  const ref = fromKey(ui.calRef), ws = S.settings.weekStart, tk = keyOf(today());
+  const dows = [0, 1, 2, 3, 4, 5, 6].map(i => DOW[(i + ws) % 7]);
+  let title, body;
+  if (ui.calMode === "month") {
+    const first = new Date(ref.getFullYear(), ref.getMonth(), 1), start = weekStart(first, ws);
+    title = ref.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    let cells = "";
+    for (let i = 0; i < 42; i++) {
+      const d = addDays(start, i); if (i >= 35 && d.getMonth() !== ref.getMonth()) break;
+      const st = dayStats(d), future = st.k > tk, once = st.l.filter(t => t.freq === "once");
+      const fill = future ? 0 : st.pct;
+      cells += `<button class="cell ${d.getMonth() !== ref.getMonth() ? "out" : ""} ${st.k === tk ? "today" : ""} ${fill === 1 && st.l.length ? "full" : ""}" data-act="calday" data-k="${st.k}" aria-label="${fmtDate(d)}: ${st.done} of ${st.l.length} done">
+        <span class="fill" style="height:${Math.round(fill * 100)}%"></span><b class="num">${d.getDate()}</b>
+        <span class="pc">${st.l.length && !future ? `${st.done}/${st.l.length}` : ""}</span>
+        <span class="dots">${once.slice(0, 4).map(t => `<i style="--c:${t.color}" title="${esc(t.name)}"></i>`).join("")}</span></button>`;
+    }
+    body = `<div class="month">${dows.map(x => `<div class="dow">${x}</div>`).join("")}${cells}</div>
+      <p class="muted">Each day fills up as you finish things. Dots are one-time tasks. Tap a day to open it.</p>`;
+  } else {
+    const start = weekStart(ref, ws);
+    title = `${fmtShort(start)} – ${fmtShort(addDays(start, 6))}`;
+    body = `<div class="weekv">${[0, 1, 2, 3, 4, 5, 6].map(i => {
+      const d = addDays(start, i), st = dayStats(d);
+      return `<div class="wday ${st.k === tk ? "today" : ""}"><button class="wh" data-act="calday" data-k="${st.k}">${esc(d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }))}<span class="num">${st.l.length ? `${st.done}/${st.l.length} done` : "Nothing planned"}</span></button>
+        <div class="chips">${st.l.map(t => { const on = doneOn(t, st.k); return `<button class="tchip ${on ? "on" : ""}" style="--c:${t.color}" data-act="calchip" data-id="${t.id}" data-k="${st.k}" aria-pressed="${on}"><span class="e">${on ? "✓" : esc(t.emoji)}</span>${esc(t.name)}${t.kind === "count" ? ` <span class="muted num">${cnt(t, st.k)}/${t.target}</span>` : ""}</button>` }).join("")}</div></div>`;
+    }).join("")}</div><p class="muted">Tap an item to check it off for that day. Amounts open the day so you can fill them in.</p>`;
+  }
+  view.innerHTML = `<header class="head"><div><div class="eyebrow">Calendar</div><h1>Your ${ui.calMode === "month" ? "month" : "week"}</h1></div>
+    <div class="seg"><button data-act="calmode" data-v="month" aria-pressed="${ui.calMode === "month"}">Month</button><button data-act="calmode" data-v="week" aria-pressed="${ui.calMode === "week"}">Week</button></div></header>
+  <div class="calbar"><h2>${esc(title)}</h2><div class="nav"><button class="icon-btn" data-act="calnav" data-n="-1" aria-label="Previous">‹</button><button class="btn small" data-act="calnav" data-n="0">Today</button><button class="icon-btn" data-act="calnav" data-n="1" aria-label="Next">›</button></div></div>
+  ${body}`;
 }
 
 // charts
@@ -649,9 +766,9 @@ function barChart(vals, labels) {
   const W = 360, H = 150, L = 34, B = 20, T = 8, n = vals.length, bw = (W - L - 4) / n;
   const y = v => T + (H - T - B) * (1 - v);
   let g = [0, .5, 1].map(v => `<line class="grid" x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v * 100}%</text>`).join("");
-  g += vals.map((v, i) => v == null ? "" : `<rect x="${L + i * bw + bw * .15}" y="${y(Math.max(v, .015))}" width="${bw * .7}" height="${(H - T - B) * Math.max(v, .015)}" rx="2" fill="var(--accent)" opacity="${i === n - 1 ? 1 : .55 + .35 * v}"></rect>`).join("");
+  g += vals.map((v, i) => v == null ? "" : `<rect x="${L + i * bw + bw * .15}" y="${y(Math.max(v, .015))}" width="${Math.max(bw * .7, .8)}" height="${(H - T - B) * Math.max(v, .015)}" rx="2" fill="var(--accent)" opacity="${i === n - 1 ? 1 : .55 + .35 * v}"></rect>`).join("");
   [0, Math.floor(n / 2), n - 1].forEach(i => g += `<text x="${L + i * bw + bw / 2}" y="${H - 5}" text-anchor="middle">${labels[i]}</text>`);
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Daily completion, last ${n} days">${g}</svg>`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Completion over ${n} periods">${g}</svg>`;
 }
 function heatmap(t, weeks = 17) {
   const cs = 13, gap = 3, ws = S.settings.weekStart, start = addDays(weekStart(today(), ws), -7 * (weeks - 1));
@@ -665,37 +782,114 @@ function heatmap(t, weeks = 17) {
   const W = weeks * (cs + gap), H = 7 * (cs + gap);
   return `<div class="heat"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Last ${weeks} weeks for ${esc(t.name)}">${g}</svg></div>`;
 }
+const RANGES = [[7, "Week"], [30, "Month"], [90, "3 months"], [365, "Year"], [0, "All time"]];
+function rangeDays() {
+  if (ui.range) return ui.range;
+  let first = keyOf(today());
+  S.trackers.forEach(t => { if (t.created && t.created < first) first = t.created; Object.keys(S.log[t.id] || {}).forEach(k => { if (k < first) first = k }) });
+  return Math.min(1100, Math.max(7, diffDays(today(), fromKey(first)) + 1));
+}
+function yearHeat(weeks) {
+  const cs = 11, gap = 3, ws = S.settings.weekStart, start = addDays(weekStart(today(), ws), -7 * (weeks - 1)), top = 14;
+  let g = "", lastM = -1;
+  for (let w = 0; w < weeks; w++) {
+    const d0 = addDays(start, w * 7);
+    if (d0.getMonth() !== lastM) { lastM = d0.getMonth(); if (w < weeks - 2) g += `<text x="${w * (cs + gap)}" y="10">${d0.toLocaleDateString(undefined, { month: "short" })}</text>` }
+    for (let r = 0; r < 7; r++) {
+      const d = addDays(d0, r); if (d > today()) continue;
+      const st = dayStats(d), f = st.l.length ? st.pct : 0;
+      g += `<rect x="${w * (cs + gap)}" y="${top + r * (cs + gap)}" width="${cs}" height="${cs}" rx="2.5" fill="${f > 0 ? "var(--accent)" : "var(--surface-2)"}" opacity="${f > 0 ? .25 + .75 * f : 1}"></rect>`;
+    }
+  }
+  const W = weeks * (cs + gap), H = top + 7 * (cs + gap);
+  return `<div class="heat"><svg class="chart" style="width:${W}px;max-width:none" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Every day for the last ${weeks} weeks">${g}</svg></div>`;
+}
 function rStats() {
+  const days = rangeDays(), weekly = days > 90;
   const ts = active().filter(t => t.freq !== "once");
   const vals = [], labels = [];
-  for (let i = 29; i >= 0; i--) {
+  if (!weekly) for (let i = days - 1; i >= 0; i--) {
     const d = addDays(today(), -i), k = keyOf(d), l = dueList(d).filter(t => t.freq !== "weekly");
     vals.push(l.length ? l.filter(t => doneOn(t, k)).length / l.length : null); labels.push(fmtShort(d));
+  } else for (let w = Math.ceil(days / 7) - 1; w >= 0; w--) {
+    let due = 0, dn = 0; const ws = addDays(weekStart(today(), S.settings.weekStart), -7 * w);
+    for (let i = 0; i < 7; i++) { const d = addDays(ws, i); if (d > today()) continue; const k = keyOf(d), l = dueList(d).filter(t => t.freq !== "weekly"); due += l.length; dn += l.filter(t => doneOn(t, k)).length }
+    vals.push(due ? dn / due : null); labels.push(fmtShort(ws));
   }
   const tl = dueList(today()), tdone = tl.filter(t => doneOn(t, keyOf(today()))).length;
-  const wk = vals.slice(-7).filter(v => v != null), wkAvg = wk.length ? wk.reduce((a, b) => a + b, 0) / wk.length : 0;
-  const streaks = ts.map(t => [t, streak(t)]);
-  const top = streaks.sort((a, b) => b[1].cur - a[1].cur)[0];
-  let checks = 0; for (let i = 0; i < 30; i++) { const k = keyOf(addDays(today(), -i)); active().forEach(t => { if (doneOn(t, k)) checks++ }) }
+  const vv = vals.filter(v => v != null), avg = vv.length ? vv.reduce((a, b) => a + b, 0) / vv.length : 0;
+  const top = ts.map(t => [t, streak(t)]).sort((a, b) => b[1].cur - a[1].cur)[0];
+  let checks = 0; for (let i = 0; i < days; i++) { const k = keyOf(addDays(today(), -i)); active().forEach(t => { if (doneOn(t, k)) checks++ }) }
+  const rl = RANGES.find(r => r[0] === ui.range)[1].toLowerCase();
+  const span = ui.range === 0 ? "all time" : ui.range === 7 ? "the last 7 days" : `the last ${rl}`;
   view.innerHTML = `<header class="head"><div><div class="eyebrow">Progress</div><h1>How it's going</h1></div></header>
+  <div class="filters" role="group" aria-label="Time range">${RANGES.map(([v, l]) => `<button data-act="range" data-v="${v}" aria-pressed="${ui.range === v}">${l}</button>`).join("")}</div>
   <div class="tiles">
     <div class="tile"><b class="num">${tl.length ? Math.round(tdone / tl.length * 100) : 0}%</b><span>done today</span></div>
-    <div class="tile"><b class="num">${Math.round(wkAvg * 100)}%</b><span>last 7 days</span></div>
+    <div class="tile"><b class="num">${Math.round(avg * 100)}%</b><span>average, ${span}</span></div>
     <div class="tile"><b class="num" style="color:var(--flame)">${top ? top[1].cur : 0}</b><span>longest current streak${top && top[1].cur ? " · " + esc(top[0].name) : ""}</span></div>
-    <div class="tile"><b class="num">${checks}</b><span>things finished in 30 days</span></div>
+    <div class="tile"><b class="num">${checks.toLocaleString()}</b><span>things finished, ${span}</span></div>
   </div>
-  <section class="sec card"><h3>Daily completion</h3><div class="muted">Share of each day's items you finished, last 30 days</div>${barChart(vals, labels)}</section>
+  <section class="sec card"><h3>${weekly ? "Weekly" : "Daily"} completion</h3><div class="muted">Share of what was due that you finished, ${span}</div>${barChart(vals, labels)}</section>
+  <section class="sec card"><h3>Your year</h3><div class="muted">Every day for the last 12 months. Darker means more got done.</div>${yearHeat(53)}</section>
   <section class="sec"><div class="sec-h"><h2>Each tracker</h2></div><div class="list">
-  ${ts.length ? ts.map(t => { const s = streak(t); return `<div class="card tstat"><div class="top"><h3>${esc(t.emoji)} ${esc(t.name)}</h3><div class="nums num"><span>Streak <b style="color:var(--flame)">${s.cur}</b></span><span>Best <b>${s.best}</b></span><span>30-day <b>${Math.round(rate(t, 30) * 100)}%</b></span></div></div>${heatmap(t)}<div class="muted">${esc(schedText(t))}</div></div>` }).join("") : `<div class="empty">Add a repeating tracker to see streaks and history here.</div>`}
+  ${ts.length ? ts.map(t => { const s = streak(t); return `<div class="card tstat"><div class="top"><h3>${esc(t.emoji)} ${esc(t.name)}</h3><div class="nums num"><span>Streak <b style="color:var(--flame)">${s.cur}</b></span><span>Best <b>${s.best}</b></span><span>Done <b>${Math.round(rate(t, days) * 100)}%</b></span></div></div>${heatmap(t, weekly ? 53 : 17)}<div class="muted">${esc(schedText(t))}</div></div>` }).join("") : `<div class="empty">Add a repeating tracker to see streaks and history here.</div>`}
   </div></section>`;
 }
+function isOpenOnce(t) { return t.freq === "once" && !Object.keys(S.log[t.id] || {}).some(x => doneOn(t, x)) }
 function rManage() {
-  const live = active(), arch = S.trackers.filter(t => t.archived);
-  const row = (t, i, n) => `<div class="mrow"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="edit" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(schedText(t))}</span>${t.category ? `<span>${esc(t.category)}</span>` : ""}${t.reminder ? `<span>⏰ ${fmtTime(t.reminder)}</span>` : ""}</div></div>
-    <div class="acts">${t.archived ? `<button class="btn small" data-act="unarchive" data-id="${t.id}">Restore</button>` : `<button class="icon-btn" data-act="mv" data-n="-1" data-id="${t.id}" aria-label="Move up" ${i === 0 ? "disabled" : ""}>${I.up}</button><button class="icon-btn" data-act="mv" data-n="1" data-id="${t.id}" aria-label="Move down" ${i === n - 1 ? "disabled" : ""}>${I.down}</button>`}<button class="icon-btn" data-act="edit" data-id="${t.id}" aria-label="Edit">${I.edit}</button></div></div>`;
-  view.innerHTML = `<header class="head"><div><div class="eyebrow">Trackers</div><h1>Everything you track</h1></div><button class="btn primary" data-act="new">New</button></header>
-  <div class="list">${live.length ? live.map((t, i) => row(t, i, live.length)).join("") : `<div class="empty">No trackers yet. Tap New, or type one on the Today tab.</div>`}</div>
-  ${arch.length ? `<section class="sec"><div class="sec-h"><h2>Archived</h2></div><div class="list">${arch.map((t, i) => row(t, i, arch.length)).join("")}</div></section>` : ""}`;
+  const live = active(), arch = S.trackers.filter(t => t.archived), tk = keyOf(today());
+  const groups = [...new Set(live.map(t => t.category).filter(Boolean))].sort();
+  const tags = [...new Set(live.flatMap(t => t.tags))].sort();
+  const lists = [["all", "All"], ["week", "Due this week"], ["left", "Left today"], ["overdue", "Overdue"], ...groups.map(g => ["g:" + g, g]), ...tags.map(g => ["t:" + g, "#" + g])];
+  if (!lists.some(l => l[0] === ui.list)) ui.list = "all";
+  const row = (t, i, n, move) => `<div class="mrow"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div class="body" data-act="edit" data-id="${t.id}"><div class="name">${esc(t.name)}</div><div class="meta"><span>${esc(schedText(t))}</span>${t.category ? `<span>${esc(t.category)}</span>` : ""}${rems(t).length ? `<span>⏰ ${remText(t)}</span>` : ""}${t.subtasks.length ? `<span>☑ ${t.subtasks.length} steps</span>` : ""}${t.tags.map(g => `<span class="tagt">#${esc(g)}</span>`).join("")}</div></div>
+    <div class="acts">${t.archived ? `<button class="btn small" data-act="unarchive" data-id="${t.id}">Restore</button>` : move ? `<button class="icon-btn" data-act="mv" data-n="-1" data-id="${t.id}" aria-label="Move up" ${i === 0 ? "disabled" : ""}>${I.up}</button><button class="icon-btn" data-act="mv" data-n="1" data-id="${t.id}" aria-label="Move down" ${i === n - 1 ? "disabled" : ""}>${I.down}</button>` : ""}<button class="icon-btn" data-act="edit" data-id="${t.id}" aria-label="Edit">${I.edit}</button></div></div>`;
+  const rows = (arr, move) => arr.length ? `<div class="list">${arr.map((t, i) => row(t, i, arr.length, move)).join("")}</div>` : `<div class="empty">Nothing here right now.</div>`;
+  let body;
+  if (ui.list === "all") body = live.length ? rows(live, true) : `<div class="empty">No trackers yet. Tap New, pick a template, or type one on the Today tab.</div>`;
+  else if (ui.list === "week") {
+    const daily = live.filter(t => t.freq === "daily" || t.freq === "weekly").length;
+    const overdue = live.filter(t => isOpenOnce(t) && t.due && t.due < tk);
+    body = (overdue.length ? `<section class="sec"><div class="sec-h"><h2>Overdue</h2></div>${rows(overdue)}</section>` : "") + [0, 1, 2, 3, 4, 5, 6].map(i => {
+      const d = addDays(today(), i), k = keyOf(d);
+      const l = live.filter(t => t.freq !== "daily" && t.freq !== "weekly" && (t.freq === "once" ? isOpenOnce(t) && t.due === k : isDue(t, d) && !doneOn(t, k)));
+      return l.length ? `<section class="sec"><div class="sec-h"><h2>${i === 0 ? "Today" : i === 1 ? "Tomorrow" : esc(d.toLocaleDateString(undefined, { weekday: "long" }))}</h2><span class="muted">${esc(fmtShort(d))}</span></div>${rows(l)}</section>` : "";
+    }).join("") + (daily ? `<p class="muted">Plus ${daily} tracker${daily > 1 ? "s" : ""} you do every day or a few times a week.</p>` : "");
+  }
+  else if (ui.list === "left") body = rows(dueList(today()).filter(t => !doneOn(t, tk)));
+  else if (ui.list === "overdue") body = rows(live.filter(t => isOpenOnce(t) && t.due && t.due < tk));
+  else if (ui.list.startsWith("g:")) body = rows(live.filter(t => t.category === ui.list.slice(2)));
+  else body = rows(live.filter(t => t.tags.includes(ui.list.slice(2))));
+  view.innerHTML = `<header class="head"><div><div class="eyebrow">Lists</div><h1>Everything you track</h1></div><div class="row-btns" style="flex-wrap:nowrap"><button class="btn small" data-act="templates">Templates</button><button class="btn small primary" data-act="new">New</button></div></header>
+  <div class="filters" role="group" aria-label="Lists">${lists.map(([v, l]) => `<button data-act="list" data-v="${esc(v)}" aria-pressed="${ui.list === v}">${esc(l)}</button>`).join("")}</div>
+  ${body}
+  ${ui.list === "all" && arch.length ? `<section class="sec"><div class="sec-h"><h2>Archived</h2></div><div class="list">${arch.map((t, i) => row(t, i, arch.length)).join("")}</div></section>` : ""}
+  <p class="muted">Add groups and #tags to trackers to get a list for each one.</p>`;
+}
+// ---------- templates ----------
+const TEMPLATES = [
+  { name: "Morning routine", emoji: "🌅", items: [{ name: "Morning routine", emoji: "🌅", color: COLORS[4], reminders: ["07:00"], subtasks: ["Make the bed", "Drink a glass of water", "Stretch for 5 minutes", "Plan the day"] }] },
+  { name: "Evening wind-down", emoji: "🌙", items: [{ name: "Evening routine", emoji: "🌙", color: COLORS[2], reminders: ["21:30"], subtasks: ["Tidy up for 10 minutes", "Lay out tomorrow's clothes", "No screens 30 minutes before bed", "Read before sleep"] }] },
+  { name: "Fitness basics", emoji: "🏋️", items: [{ name: "Gym", emoji: "🏋️", color: COLORS[4], freq: "weekly", perWeek: 3 }, { name: "Steps", emoji: "🚶", color: COLORS[6], kind: "count", target: 10000, unit: "steps" }, { name: "Drink water", emoji: "💧", color: COLORS[1], kind: "count", target: 8, unit: "glasses", reminders: ["10:00", "15:00"] }] },
+  { name: "Study", emoji: "📚", items: [{ name: "Study", emoji: "📚", color: COLORS[2], kind: "count", target: 60, unit: "minutes", freq: "days", days: [1, 2, 3, 4, 5], reminders: ["17:00"] }, { name: "Review flashcards", emoji: "🗂️", color: COLORS[6], kind: "count", target: 20, unit: "cards" }, { name: "Read", emoji: "📖", color: COLORS[3], kind: "count", target: 20, unit: "pages", reminders: ["21:00"] }] },
+  { name: "Healthy habits", emoji: "🥗", items: [{ name: "Take vitamins", emoji: "💊", color: COLORS[3], reminders: ["08:00"] }, { name: "Fruit and veg", emoji: "🥗", color: COLORS[7], kind: "count", target: 5, unit: "servings" }, { name: "Meditate", emoji: "🧘", color: COLORS[0], kind: "count", target: 10, unit: "minutes" }, { name: "In bed by 11 PM", emoji: "😴", color: COLORS[2], reminders: ["22:30"] }] },
+  { name: "Home chores", emoji: "🧹", items: [{ name: "Laundry", emoji: "🧺", color: COLORS[1], freq: "weekly", perWeek: 1 }, { name: "Clean room", emoji: "🧹", color: COLORS[5], freq: "days", days: [0, 6] }, { name: "Take out the trash", emoji: "🗑️", color: COLORS[8], freq: "days", days: [2, 5], reminders: ["19:00"] }, { name: "Water plants", emoji: "🪴", color: COLORS[7], freq: "days", days: [1, 4] }] },
+  { name: "Weekly review", emoji: "📝", items: [{ name: "Weekly review", emoji: "📝", color: COLORS[1], freq: "days", days: [0], reminders: ["18:00"], subtasks: ["Look back at the week", "Clear your inbox", "Pick next week's top 3", "Check your budget"] }] }
+];
+function openTemplates() {
+  layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tph">
+    <h2 id="tph">Start from a template</h2><p class="muted" style="margin-top:-6px">Adds a ready-made set in one tap. You can change anything afterwards.</p>
+    <div class="list">${TEMPLATES.map((tp, i) => `<div class="tpl"><span class="big">${tp.emoji}</span><div style="min-width:0"><div class="name">${esc(tp.name)}</div><div class="items">${tp.items.length === 1 && tp.items[0].subtasks ? esc(tp.items[0].subtasks.join(" · ")) : esc(tp.items.map(x => x.name).join(" · "))}</div></div><button class="btn small primary" data-tp="${i}">Add</button></div>`).join("")}</div>
+    <div class="row-btns" style="margin-top:14px"><button class="btn" data-tp="close">Close</button></div></div></div>`;
+  layer.onclick = ev => {
+    const b = ev.target.closest("[data-tp]");
+    if (!b) { if (ev.target.dataset.act === "closebg") closeSheet(); return }
+    if (b.dataset.tp === "close") return closeSheet();
+    const tp = TEMPLATES[+b.dataset.tp];
+    tp.items.forEach(x => S.trackers.push(blankTracker(Object.assign({}, x, { category: tp.name, subtasks: (x.subtasks || []).map(text => ({ id: uid(), text })), reminders: [...(x.reminders || [])] }))));
+    save(); closeSheet(); toast(`Added ${tp.name}`);
+  };
 }
 let deferredInstall = null;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; if (ui.tab === "settings") render() });
@@ -780,8 +974,10 @@ function openEditor(t, isNew) {
     ${e.freq === "days" ? `<div class="field"><span class="l">Which days</span><div class="days">${[1, 2, 3, 4, 5, 6, 0].map(i => `<button data-ed="day" data-v="${i}" aria-pressed="${e.days.includes(i)}">${DOW[i]}</button>`).join("")}</div></div>` : ""}
     ${e.freq === "weekly" ? `<div class="field"><label for="f-pw">Times per week</label><input id="f-pw" type="number" min="1" max="7" value="${e.perWeek}"></div>` : ""}
     ${e.freq === "once" ? `<div class="field"><label for="f-due">Date</label><input id="f-due" type="date" value="${e.due || keyOf(today())}"></div>` : ""}
-    <div class="two"><div class="field"><label for="f-rem">Reminder</label><input id="f-rem" type="time" value="${e.reminder || ""}"></div>
-    <div class="field"><label for="f-cat">Group</label><input id="f-cat" type="text" list="cats" value="${esc(e.category)}" placeholder="Health, Work…"><datalist id="cats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist></div></div>
+    <div class="field"><span class="l">Reminders</span><div class="remlist">${e.reminders.map((r, i) => `<span class="r"><input type="time" id="f-rem-${i}" value="${r}" aria-label="Reminder ${i + 1}"><button class="icon-btn" data-ed="rmrem" data-v="${i}" aria-label="Remove reminder">✕</button></span>`).join("")}<button class="btn small" data-ed="addrem">+ Add a reminder</button></div></div>
+    <div class="field"><span class="l">Steps inside it (optional)</span><div class="subedit">${e.subtasks.map((x, i) => `<div class="row"><input type="text" id="f-sub-${i}" value="${esc(x.text)}" placeholder="Step ${i + 1}" aria-label="Step ${i + 1}"><button class="icon-btn" data-ed="rmsub" data-v="${i}" aria-label="Remove step">✕</button></div>`).join("")}<div><button class="btn small" data-ed="addsub">+ Add a step</button></div></div></div>
+    <div class="two"><div class="field"><label for="f-cat">Group</label><input id="f-cat" type="text" list="cats" value="${esc(e.category)}" placeholder="Health, Work…"><datalist id="cats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+    <div class="field"><label for="f-tags">Tags</label><input id="f-tags" type="text" value="${esc(e.tags.join(", "))}" placeholder="school, urgent"></div></div>
     <div class="field"><label for="f-notes">Notes</label><textarea id="f-notes" rows="2">${esc(e.notes)}</textarea></div>
     <div class="row-btns" style="justify-content:space-between"><div class="row-btns"><button class="btn primary" data-ed="save">Save</button><button class="btn" data-ed="cancel">Cancel</button></div>
     ${isNew ? "" : `<div class="row-btns"><button class="btn" data-ed="archive">${e.archived ? "Restore" : "Archive"}</button><button class="btn danger" data-ed="delete">Delete</button></div>`}</div>
@@ -795,7 +991,10 @@ function openEditor(t, isNew) {
     if (v("f-unit") != null) e.unit = v("f-unit").trim();
     if (v("f-pw") != null) e.perWeek = Math.min(7, Math.max(1, parseInt(v("f-pw")) || 1));
     if (v("f-due") != null) e.due = v("f-due") || null;
-    e.reminder = v("f-rem") || null; e.category = (v("f-cat") || "").trim(); e.notes = v("f-notes") || "";
+    e.reminders = e.reminders.map((r, i) => v("f-rem-" + i) ?? r);
+    e.subtasks = e.subtasks.map((x, i) => ({ id: x.id, text: v("f-sub-" + i) ?? x.text }));
+    e.tags = (v("f-tags") || "").split(",").map(x => x.trim().replace(/^#/, "")).filter(Boolean);
+    e.category = (v("f-cat") || "").trim(); e.notes = v("f-notes") || "";
   };
   draw();
   layer.onclick = ev => {
@@ -808,11 +1007,16 @@ function openEditor(t, isNew) {
     else if (a === "kind") { e.kind = val; if (val === "check") e.target = 1; else if (e.target < 2) e.target = 8 }
     else if (a === "freq") { e.freq = val; if (val === "days" && !e.days.length) e.days = [1, 2, 3, 4, 5]; if (val === "once" && !e.due) e.due = keyOf(today()) }
     else if (a === "day") { const i = +val; e.days = e.days.includes(i) ? e.days.filter(x => x !== i) : [...e.days, i] }
+    else if (a === "addrem") e.reminders.push(e.reminders.length ? e.reminders[e.reminders.length - 1] : "09:00");
+    else if (a === "rmrem") e.reminders.splice(+val, 1);
+    else if (a === "addsub") { e.subtasks.push({ id: uid(), text: "" }); draw(); const el = document.getElementById("f-sub-" + (e.subtasks.length - 1)); if (el) el.focus(); return }
+    else if (a === "rmsub") e.subtasks.splice(+val, 1);
     else if (a === "cancel") return closeSheet();
     else if (a === "save") {
       if (!e.name.trim()) { document.getElementById("f-name").focus(); return }
       if (e.freq === "days" && !e.days.length) e.freq = "daily";
-      e.name = e.name.trim();
+      e.name = e.name.trim(); e.subtasks = e.subtasks.filter(x => x.text.trim()).map(x => ({ id: x.id, text: x.text.trim() }));
+      e.reminders = [...new Set(e.reminders.filter(Boolean))].sort();
       const i = S.trackers.findIndex(x => x.id === e.id);
       if (e.example && i >= 0) { const o = S.trackers[i]; if (o.name !== e.name) e.example = false }
       if (i >= 0) S.trackers[i] = e; else S.trackers.push(e);
@@ -835,7 +1039,7 @@ function removeTracker(id) {
 function openDetail(t) {
   const s = streak(t);
   layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dth">
-   <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div><h2 id="dth" style="margin:0">${esc(t.name)}</h2><div class="muted">${esc(schedText(t))}${t.reminder ? " · ⏰ " + fmtTime(t.reminder) : ""}</div></div></div>
+   <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><span class="dot" style="--c:${t.color}">${esc(t.emoji)}</span><div><h2 id="dth" style="margin:0">${esc(t.name)}</h2><div class="muted">${esc(schedText(t))}${rems(t).length ? " · ⏰ " + remText(t) : ""}</div></div></div>
    ${t.freq !== "once" ? `<div class="tiles" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="tile"><b class="num" style="color:var(--flame)">${s.cur}</b><span>current streak</span></div><div class="tile"><b class="num">${s.best}</b><span>best streak</span></div><div class="tile"><b class="num">${Math.round(rate(t, 30) * 100)}%</b><span>last 30 days</span></div></div><div class="sec">${heatmap(t)}</div>` : ""}
    ${t.notes ? `<p>${esc(t.notes)}</p>` : ""}
    <div class="row-btns" style="margin-top:16px"><button class="btn primary" data-dt="edit">Edit</button><button class="btn" data-dt="close">Close</button></div></div></div>`;
@@ -845,7 +1049,7 @@ function openDetail(t) {
     if (b.dataset.dt === "edit") openEditor(t, false); else closeSheet();
   };
 }
-function blankTracker(o = {}) { return Object.assign({ id: uid(), name: "", emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminder: null, category: "", notes: "", archived: false, created: keyOf(today()) }, o) }
+function blankTracker(o = {}) { return Object.assign({ id: uid(), name: "", emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminders: [], subtasks: [], tags: [], category: "", notes: "", archived: false, created: keyOf(today()) }, o, o.reminder ? { reminders: [o.reminder] } : {}, { reminder: undefined }) }
 
 // ---------- toast ----------
 let toastTimer;
@@ -864,7 +1068,8 @@ document.addEventListener("click", async ev => {
   const b = ev.target.closest("[data-act]"); if (!b || layer.contains(b)) return;
   const a = b.dataset.act, t = S.trackers.find(x => x.id === b.dataset.id), k = ui.day;
   switch (a) {
-    case "tap": if (t.kind === "count") setCount(t, k, cnt(t, k) >= t.target ? 0 : cnt(t, k) + 1); else setCount(t, k, doneOn(t, k) ? 0 : 1); render(); break;
+    case "tap": if (t.subtasks.length && t.kind === "check") { const on = !doneOn(t, k); setSubs(t, k, on ? t.subtasks.map(x => x.id) : []); setCount(t, k, on ? 1 : 0); render(); break }
+      if (t.kind === "count") setCount(t, k, cnt(t, k) >= t.target ? 0 : cnt(t, k) + 1); else setCount(t, k, doneOn(t, k) ? 0 : 1); render(); break;
     case "inc": setCount(t, k, cnt(t, k) + 1); render(); break;
     case "dec": setCount(t, k, cnt(t, k) - 1); render(); break;
     case "setv": { const holder = b; holder.outerHTML = `<input class="v num" id="qv" type="number" min="0" value="${cnt(t, k)}" style="width:64px;border:1px solid var(--line);background:var(--surface)" aria-label="Amount">`;
@@ -872,12 +1077,21 @@ document.addEventListener("click", async ev => {
       const commit = () => { setCount(t, k, parseFloat(inp.value) || 0); render() };
       inp.addEventListener("blur", commit); inp.addEventListener("keydown", e => { if (e.key === "Enter") inp.blur() }); break }
     case "open": openDetail(t); break;
-    case "day": { const n = +b.dataset.n; ui.day = n === 0 ? keyOf(today()) : keyOf(addDays(fromKey(ui.day), n)); if (ui.day > keyOf(today())) ui.day = keyOf(today()); render(); break }
+    case "sub": toggleSub(t, k, b.dataset.sid); render(); break;
+    case "templates": openTemplates(); break;
+    case "list": ui.list = b.dataset.v; render(); break;
+    case "range": ui.range = +b.dataset.v; render(); break;
+    case "calmode": ui.calMode = b.dataset.v; render(); break;
+    case "calnav": { const n = +b.dataset.n, r = fromKey(ui.calRef);
+      ui.calRef = n === 0 ? keyOf(today()) : ui.calMode === "month" ? keyOf(new Date(r.getFullYear(), r.getMonth() + n, 1)) : keyOf(addDays(r, 7 * n)); render(); break }
+    case "calday": ui.day = b.dataset.k; goTab("today"); break;
+    case "calchip": { const kk = b.dataset.k; if (t.kind === "count" || t.subtasks.length) { ui.day = kk; goTab("today"); break } setCount(t, kk, doneOn(t, kk) ? 0 : 1); render(); break }
+    case "day": { const n = +b.dataset.n; ui.day = n === 0 ? keyOf(today()) : keyOf(addDays(fromKey(ui.day), n)); render(); break }
     case "try": ui.prompt = b.dataset.v; ui.draft = parsePrompt(b.dataset.v); render(); break;
     case "create": { const n = blankTracker(ui.draft); S.trackers.push(n); save(); ui.draft = null; ui.prompt = ""; render(); toast(`Added “${n.name}”`, "Edit", () => openEditor(n, false)); break }
     case "customize": { const n = blankTracker(ui.draft); ui.draft = null; ui.prompt = ""; openEditor(n, true); break }
     case "cancelp": ui.draft = null; ui.prompt = ""; render(); break;
-    case "clearex": S.trackers.filter(x => x.example).forEach(x => delete S.log[x.id]); S.trackers = S.trackers.filter(x => !x.example); S.examples = false; save(); render(); toast("Examples removed"); break;
+    case "clearex": S.trackers.filter(x => x.example).forEach(x => { delete S.log[x.id]; delete S.subs[x.id] }); S.trackers = S.trackers.filter(x => !x.example); S.examples = false; save(); render(); toast("Examples removed"); break;
     case "toggledone": ui.doneOpen = !ui.doneOpen; render(); break;
     case "edit": openEditor(t, false); break;
     case "new": openEditor(blankTracker(), true); break;
@@ -903,10 +1117,10 @@ document.addEventListener("click", async ev => {
     case "download": { try { const blob = new Blob([JSON.stringify(Object.assign({}, S, bgImage ? { bgimg: bgImage } : {}), null, 1)], { type: "application/json" }); const u = URL.createObjectURL(blob); const l = document.createElement("a"); l.href = u; l.download = `tally-backup-${keyOf(today())}.json`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); toast("Backup file saved") } catch { toast("Saving files isn't allowed here. Use Copy backup instead.") } break }
     case "importbox": $("#dataio").innerHTML = `<textarea class="data" id="imp" placeholder="Paste a backup here, or pick a file below"></textarea><div class="row-btns" style="margin-top:8px"><button class="btn small primary" data-act="doimport">Restore</button><label class="btn small" style="display:inline-block">Choose file<input id="impf" type="file" accept=".json,application/json" hidden></label></div>`;
       $("#impf").onchange = async e => { const f = e.target.files[0]; if (f) $("#imp").value = await f.text() }; break;
-    case "doimport": try { const d = JSON.parse($("#imp").value); if (!Array.isArray(d.trackers) || typeof d.log !== "object") throw 0; if (d.bgimg) { bgImage = d.bgimg; store.set("tally.bgimg", bgImage) } delete d.bgimg; S = Object.assign(defaults(), d); fixSettings(); save(); applyTheme(); render(); toast("Backup restored") } catch { toast("That text isn't a Tally backup. Copy the whole backup and try again.") } break;
+    case "doimport": try { const d = JSON.parse($("#imp").value); if (!Array.isArray(d.trackers) || typeof d.log !== "object") throw 0; if (d.bgimg) { bgImage = d.bgimg; store.set("tally.bgimg", bgImage) } delete d.bgimg; S = Object.assign(defaults(), d); fixSettings(); fixTrackers(); save(); applyTheme(); render(); toast("Backup restored") } catch { toast("That text isn't a Tally backup. Copy the whole backup and try again.") } break;
     case "reset": $("#dataio").innerHTML = `<div class="banner"><span>Erase all trackers and history on this device?</span><span class="row-btns"><button class="btn small danger" data-act="reset2">Erase</button><button class="btn small" data-act="noreset">Keep</button></span></div>`; break;
     case "noreset": $("#dataio").innerHTML = ""; break;
-    case "reset2": S = defaults(); bgImage = ""; try { localStorage.removeItem("tally.bgimg") } catch { } save(); applyTheme(); render(); toast("Everything erased"); break;
+    case "reset2": S = defaults(); fixTrackers(); bgImage = ""; try { localStorage.removeItem("tally.bgimg") } catch { } save(); applyTheme(); render(); toast("Everything erased"); break;
   }
 });
 document.addEventListener("input", ev => {
@@ -930,23 +1144,38 @@ document.addEventListener("submit", ev => {
 document.addEventListener("keydown", e => { if (e.key === "Escape" && layer.innerHTML) closeSheet() });
 
 // ---------- reminders ----------
+const SNOOZE_MIN = 10;
+function snooze(id) { S.snooze[id] = Date.now() + SNOOZE_MIN * 60e3; save(); toast(`Snoozed for ${SNOOZE_MIN} minutes`) }
+function remindAction(action, id) {
+  const t = S.trackers.find(x => x.id === id); if (!t) return;
+  if (action === "snooze") snooze(id);
+  else if (action === "done") { const k = keyOf(today()); if (t.subtasks.length) setSubs(t, k, t.subtasks.map(x => x.id)); setCount(t, k, t.target); render(); toast(`${t.emoji} ${t.name} done`) }
+}
+function fireReminder(t, k) {
+  const body = t.kind === "count" ? `${cnt(t, k)} of ${t.target} ${t.unit} so far` : t.subtasks.length ? `${subsDone(t, k).length} of ${t.subtasks.length} steps done` : "Tap to check it off";
+  let shown = false;
+  if (S.settings.notify && "Notification" in window && Notification.permission === "granted") {
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(`${t.emoji} ${t.name}`, { body, tag: t.id, icon: "icon-192.png", data: { id: t.id }, actions: [{ action: "done", title: "Done" }, { action: "snooze", title: `Snooze ${SNOOZE_MIN} min` }] }));
+      else new Notification(`${t.emoji} ${t.name}`, { body, tag: t.id });
+      shown = true;
+    } catch { }
+  }
+  if (!shown || document.visibilityState === "visible") toast(`⏰ ${t.emoji} ${t.name}`, `Snooze ${SNOOZE_MIN} min`, () => snooze(t.id));
+}
 function checkReminders() {
   const now = new Date(), k = keyOf(now), hm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   dueList(today()).forEach(t => {
-    if (!t.reminder || t.reminder > hm || S.fired[t.id] === k || doneOn(t, k)) return;
-    S.fired[t.id] = k; save();
-    const body = t.kind === "count" ? `${cnt(t, k)} of ${t.target} ${t.unit} so far` : "Tap to check it off";
-    let shown = false;
-    if (S.settings.notify && "Notification" in window && Notification.permission === "granted") {
-      try {
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(`${t.emoji} ${t.name}`, { body, tag: t.id, icon: "icon-192.png" }));
-        else new Notification(`${t.emoji} ${t.name}`, { body, tag: t.id });
-        shown = true;
-      } catch { }
+    if (doneOn(t, k)) { delete S.snooze[t.id]; return }
+    if (S.snooze[t.id] && Date.now() >= S.snooze[t.id]) { delete S.snooze[t.id]; save(); return fireReminder(t, k) }
+    for (const r of rems(t)) {
+      const fk = t.id + "@" + r;
+      if (r > hm || S.fired[fk] === k) continue;
+      S.fired[fk] = k; save(); fireReminder(t, k); break;
     }
-    if (!shown || document.visibilityState === "visible") toast(`⏰ ${t.emoji} ${t.name}`);
   });
 }
+try { navigator.serviceWorker && navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.type === "remind") remindAction(e.data.action, e.data.id) }) } catch { }
 setInterval(checkReminders, 20000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { checkReminders(); if (ui.day !== keyOf(today()) && ui.tab === "today" && !layer.innerHTML) { } render() } });
 
@@ -977,8 +1206,9 @@ function importFitness() {
   setTimeout(() => toast(`Saved ${saved.join(" and ")}`), 300);
 }
 importFitness();
+try { const q = new URLSearchParams(location.search); if (q.get("remind") && q.get("id")) { const a = q.get("remind"), id = q.get("id"); history.replaceState(null, "", location.pathname + location.hash); setTimeout(() => remindAction(a, id), 400) } } catch { }
 // The open tab lives in the address (#settings etc.), so a refresh or the back button keeps you where you were.
-const TABS = ["today", "stats", "manage", "settings"];
+const TABS = ["today", "calendar", "stats", "manage", "settings"];
 function goTab(id) {
   if (!TABS.includes(id)) id = "today";
   if (id !== ui.tab) { ui.tab = id; ui.draft = null; render(); window.scrollTo(0, 0) }
