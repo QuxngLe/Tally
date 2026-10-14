@@ -381,5 +381,11 @@
  "Open day": "เปิดวัน",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "แต่ละวันจะเต็มขึ้นเมื่อคุณทำสิ่งต่างๆ เสร็จ จุดคืองานที่ทำครั้งเดียว แตะวันเพื่อแก้ไขหรือลบสิ่งที่อยู่ในวันนั้น",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "แตะรายการเพื่อทำเครื่องหมาย แตะชื่อวันเพื่อแก้ไขหรือลบ",
- "Repeat": "ทำซ้ำ"
+ "Repeat": "ทำซ้ำ",
+ "✓ Check": "✓ ติ๊กถูก",
+ "Strike out": "ขีดฆ่า",
+ "Fade": "จางลง",
+ "Slash": "เส้นทแยง",
+ "Fill in": "เติมสี",
+ "Finished events": "กิจกรรมที่เสร็จแล้ว"
 }

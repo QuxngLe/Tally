@@ -381,5 +381,11 @@
  "Open day": "باز کردن روز",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "هر روز با انجام کارها پر می‌شود. نقطه‌ها کارهای یک‌باره‌اند. روی یک روز بزنید تا محتوای آن را ویرایش یا حذف کنید.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "برای تیک زدن روی یک مورد بزنید. برای ویرایش یا حذف، روی نام روز بزنید.",
- "Repeat": "تکرار"
+ "Repeat": "تکرار",
+ "✓ Check": "✓ تیک",
+ "Strike out": "خط زدن",
+ "Fade": "کم‌رنگ",
+ "Slash": "خط مورب",
+ "Fill in": "پر کردن",
+ "Finished events": "رویدادهای انجام‌شده"
 }

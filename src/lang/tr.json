@@ -381,5 +381,11 @@
  "Open day": "Günü aç",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Bir şeyleri bitirdikçe her gün dolar. Noktalar tek seferlik görevlerdir. Bir günün içeriğini düzenlemek veya silmek için o güne dokun.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "İşaretlemek için bir öğeye dokun. Düzenlemek veya silmek için günün adına dokun.",
- "Repeat": "Tekrar"
+ "Repeat": "Tekrar",
+ "✓ Check": "✓ Onay",
+ "Strike out": "Üstünü çiz",
+ "Fade": "Soluklaştır",
+ "Slash": "Eğik çizgi",
+ "Fill in": "Doldur",
+ "Finished events": "Biten etkinlikler"
 }

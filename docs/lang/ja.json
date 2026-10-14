@@ -381,5 +381,11 @@
  "Open day": "この日を開く",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "やることを終えるごとに各日が埋まっていきます。点は1回きりのタスクです。日をタップすると、その日の項目を編集・削除できます。",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "項目をタップしてチェック。曜日名をタップすると編集・削除できます。",
- "Repeat": "繰り返し"
+ "Repeat": "繰り返し",
+ "✓ Check": "✓ チェック",
+ "Strike out": "取り消し線",
+ "Fade": "薄く表示",
+ "Slash": "斜線",
+ "Fill in": "塗りつぶし",
+ "Finished events": "完了した予定"
 }

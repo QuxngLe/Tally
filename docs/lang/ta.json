@@ -381,5 +381,11 @@
  "Open day": "நாளைத் திற",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "நீங்கள் வேலைகளை முடிக்க முடிக்க ஒவ்வொரு நாளும் நிரம்பும். புள்ளிகள் ஒருமுறை செய்யும் பணிகள். ஒரு நாளில் உள்ளதைத் திருத்த அல்லது நீக்க அந்த நாளைத் தட்டுங்கள்.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "டிக் செய்ய ஒரு உருப்படியைத் தட்டுங்கள். திருத்த அல்லது நீக்க நாளின் பெயரைத் தட்டுங்கள்.",
- "Repeat": "மீண்டும்"
+ "Repeat": "மீண்டும்",
+ "✓ Check": "✓ டிக்",
+ "Strike out": "அடித்துவிடு",
+ "Fade": "மங்கலாக்கு",
+ "Slash": "சாய்வுக் கோடு",
+ "Fill in": "வண்ணம் நிரப்பு",
+ "Finished events": "முடிந்த நிகழ்வுகள்"
 }

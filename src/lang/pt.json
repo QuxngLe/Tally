@@ -381,5 +381,11 @@
  "Open day": "Abrir dia",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Cada dia vai se enchendo conforme você termina as coisas. Os pontos são tarefas únicas. Toque em um dia para editar ou excluir o que há nele.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Toque em um item para marcá-lo. Toque no nome de um dia para editar ou excluir coisas.",
- "Repeat": "Repetir"
+ "Repeat": "Repetir",
+ "✓ Check": "✓ Marca",
+ "Strike out": "Riscar",
+ "Fade": "Esmaecer",
+ "Slash": "Barra",
+ "Fill in": "Preencher",
+ "Finished events": "Eventos concluídos"
 }

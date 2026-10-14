@@ -381,5 +381,11 @@
  "Open day": "రోజును తెరువు",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "మీరు పనులు పూర్తి చేస్తున్న కొద్దీ ప్రతి రోజు నిండుతుంది. చుక్కలు ఒక్కసారి చేసే పనులు. ఒక రోజులో ఉన్నవాటిని సవరించడానికి లేదా తొలగించడానికి ఆ రోజును నొక్కండి.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "టిక్ పెట్టడానికి అంశాన్ని నొక్కండి. సవరించడానికి లేదా తొలగించడానికి రోజు పేరును నొక్కండి.",
- "Repeat": "పునరావృతం"
+ "Repeat": "పునరావృతం",
+ "✓ Check": "✓ టిక్",
+ "Strike out": "కొట్టివేయి",
+ "Fade": "మసకగా",
+ "Slash": "వాలు గీత",
+ "Fill in": "రంగు నింపు",
+ "Finished events": "పూర్తైన ఈవెంట్లు"
 }

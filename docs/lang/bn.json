@@ -381,5 +381,11 @@
  "Open day": "দিন খুলুন",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "কাজ শেষ করার সাথে সাথে প্রতিটি দিন ভরে ওঠে। বিন্দুগুলো একবারের কাজ। কোনো দিনে ট্যাপ করে তার জিনিস সম্পাদনা করুন বা মুছুন।",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "টিক দিতে কোনো আইটেমে ট্যাপ করুন। সম্পাদনা বা মুছতে দিনের নামে ট্যাপ করুন।",
- "Repeat": "পুনরাবৃত্তি"
+ "Repeat": "পুনরাবৃত্তি",
+ "✓ Check": "✓ টিক",
+ "Strike out": "কেটে দিন",
+ "Fade": "ফিকে",
+ "Slash": "তির্যক রেখা",
+ "Fill in": "ভরাট",
+ "Finished events": "সম্পন্ন ইভেন্ট"
 }

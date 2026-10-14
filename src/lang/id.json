@@ -381,5 +381,11 @@
  "Open day": "Buka hari",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Setiap hari terisi saat kamu menyelesaikan sesuatu. Titik adalah tugas sekali saja. Ketuk sebuah hari untuk mengedit atau menghapus isinya.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Ketuk item untuk mencentangnya. Ketuk nama hari untuk mengedit atau menghapus.",
- "Repeat": "Ulangi"
+ "Repeat": "Ulangi",
+ "✓ Check": "✓ Centang",
+ "Strike out": "Coret",
+ "Fade": "Pudarkan",
+ "Slash": "Garis miring",
+ "Fill in": "Isi warna",
+ "Finished events": "Acara selesai"
 }

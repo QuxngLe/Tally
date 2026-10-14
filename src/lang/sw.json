@@ -381,5 +381,11 @@
  "Open day": "Fungua siku",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Kila siku hujaa unapomaliza mambo. Vitone ni kazi za mara moja. Gusa siku ili kuhariri au kufuta vilivyomo.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Gusa kipengee ili kuweka tiki. Gusa jina la siku ili kuhariri au kufuta.",
- "Repeat": "Rudia"
+ "Repeat": "Rudia",
+ "✓ Check": "✓ Alama ya vema",
+ "Strike out": "Piga mstari",
+ "Fade": "Fifisha",
+ "Slash": "Mstari wa mshazari",
+ "Fill in": "Jaza rangi",
+ "Finished events": "Matukio yaliyokamilika"
 }

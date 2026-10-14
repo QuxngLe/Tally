@@ -381,5 +381,11 @@
  "Open day": "Открыть день",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Каждый день заполняется по мере того, как вы всё выполняете. Точки — разовые задачи. Нажмите на день, чтобы изменить или удалить его содержимое.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Нажмите на пункт, чтобы отметить его. Нажмите на название дня, чтобы изменить или удалить записи.",
- "Repeat": "Повтор"
+ "Repeat": "Повтор",
+ "✓ Check": "✓ Галочка",
+ "Strike out": "Зачеркнуть",
+ "Fade": "Приглушить",
+ "Slash": "Косая черта",
+ "Fill in": "Заливка",
+ "Finished events": "Выполненные события"
 }

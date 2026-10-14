@@ -224,6 +224,16 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .cell { aspect-ratio: 1 / 1.05; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 4px; display: grid; grid-template-rows: auto 1fr auto; text-align: left; font-size: 12px; min-width: 0; position: relative; overflow: hidden }
 .cell .fill { position: absolute; inset: auto 0 0 0; background: var(--accent); opacity: .22 }
 .cell b { font-weight: 700; position: relative }
+/* how finished events look on the calendar (Settings → Calendar → Finished events) */
+.cell .evs span.done, .cell .dots i.done { transition: opacity .15s }
+.ds-check .evs span.done::before { content: "✓ "; font-weight: 800; color: var(--c) }
+.ds-check .dots i.done { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--c) }
+.ds-strike .evs span.done { text-decoration: line-through; text-decoration-thickness: 1.5px; opacity: .7 }
+.ds-fade .evs span.done, .ds-fade .dots i.done { opacity: .38 }
+.ds-slash .evs span.done { background: linear-gradient(to top right, transparent calc(50% - 1px), var(--c) calc(50% - .5px), var(--c) calc(50% + .5px), transparent calc(50% + 1px)), color-mix(in srgb, var(--c) 10%, transparent) !important; opacity: .8 }
+.ds-fill .evs span.done { background: var(--c) !important; color: #fff; font-weight: 600 }
+.ds-fill .evs span.done em { color: rgba(255,255,255,.85) }
+.ds-hide .evs span.done, .ds-hide .dots i.done { display: none !important }
 .cell b sup { font-size: .62em; font-weight: 600; margin-inline-start: 1px; vertical-align: super; line-height: 0 }
 .cell.out { opacity: .4 }
 .cell.today { border: 2px solid var(--accent) }
@@ -376,7 +386,7 @@ const fmtShort = d => d.toLocaleDateString(LOC, { month: "short", day: "numeric"
 
 // ---------- state ----------
 let S = store.get(KEY, null);
-const defaultLook = () => ({ preset: "pine", accent: "", custom: { bg: "#F3F5F1", surface: "#FFFFFF", fg: "#16201B", accent: "#2E6B57" }, bg: "none", dim: 0.4, glass: true, font: "modern", size: 1, radius: 14, density: "comfy", layout: "list", check: "circle", streaks: true, title: "Tally" });
+const defaultLook = () => ({ preset: "pine", accent: "", custom: { bg: "#F3F5F1", surface: "#FFFFFF", fg: "#16201B", accent: "#2E6B57" }, bg: "none", dim: 0.4, glass: true, font: "modern", size: 1, radius: 14, density: "comfy", layout: "list", check: "circle", done: "check", streaks: true, title: "Tally" });
 const defaults = () => ({ trackers: [], log: {}, fired: {}, examples: false, settings: { theme: "system", weekStart: 1, notify: false, showDone: true, look: defaultLook() } });
 function fixSettings() {
   const st = S.settings = Object.assign(defaults().settings, S.settings || {});
@@ -1107,11 +1117,11 @@ function rCal() {
       const fill = future ? 0 : st.pct;
       cells += `<button class="cell ${d.getMonth() !== ref.getMonth() ? "out" : ""} ${st.k === tk ? "today" : ""} ${fill === 1 && st.l.length ? "full" : ""}" data-act="calday" data-k="${st.k}" aria-label="${fmtDate(d)}: ${tx("{done} of {total} done", { done: st.done, total: st.l.length })}">
         <span class="fill" style="height:${Math.round(fill * 100)}%"></span><b class="num">${d.getDate()}${ordSuf(d.getDate())}</b>
-        <span class="pc">${st.l.length && !future ? `${st.done}/${st.l.length}` : ""}</span>
-        <span class="evs">${evs.slice(0, 3).map(t => `<span style="--c:${t.color}" title="${esc(t.name)}" data-act="calev" data-id="${t.id}" data-k="${st.k}">${rems(t)[0] ? `<em>${esc(fmtTime(rems(t)[0]))}</em> ` : ""}${esc(t.name)}</span>`).join("")}${evs.length > 3 ? `<em>+${evs.length - 3}</em>` : ""}</span>
-        <span class="dots">${once.slice(0, 4).map(t => `<i style="--c:${t.color}" title="${esc(t.name)}"></i>`).join("")}</span></button>`;
+        
+        <span class="evs">${evs.slice(0, 3).map(t => `<span class="${doneOn(t, st.k) ? "done" : ""}" style="--c:${t.color}" title="${esc(t.name)}" data-act="calev" data-id="${t.id}" data-k="${st.k}">${rems(t)[0] ? `<em>${esc(fmtTime(rems(t)[0]))}</em> ` : ""}${esc(t.name)}</span>`).join("")}${evs.length > 3 ? `<em>+${evs.length - 3}</em>` : ""}</span>
+        <span class="dots">${once.slice(0, 4).map(t => `<i class="${doneOn(t, st.k) ? "done" : ""}" style="--c:${t.color}" title="${esc(t.name)}"></i>`).join("")}</span></button>`;
     }
-    body = `<div class="month" style="--rows:${Math.ceil(cells.split('class="cell').length - 1) / 7}">${dows.map(x => `<div class="dow">${x}</div>`).join("")}${cells}</div>
+    body = `<div class="month ds-${S.settings.look.done || "check"}" style="--rows:${Math.ceil(cells.split('class="cell').length - 1) / 7}">${dows.map(x => `<div class="dow">${x}</div>`).join("")}${cells}</div>
       <p class="muted">${tx("Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.")}</p>`;
   } else {
     const start = weekStart(ref, ws);
@@ -1268,6 +1278,7 @@ function rSettings() {
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   const notifOK = "Notification" in window;
   const L = st.look, mode = curMode();
+  /* i18n: tx("✓ Check") tx("Strike out") tx("Fade") tx("Slash") tx("Fill in") tx("Hide") */
   const lseg = (key, opts) => `<div class="seg" style="flex-wrap:wrap">${opts.map(([v, l]) => `<button data-act="look" data-k="${key}" data-v="${v}" aria-pressed="${String(L[key]) === String(v)}">${tx(l)}</button>`).join("")}</div>`;
   /* i18n: tx("Auto") tx("Light") tx("Dark") tx("Small") tx("Normal") tx("Large") tx("Huge") tx("List") tx("Grid") tx("Circle") tx("Square") tx("On") tx("Off") tx("Monday") tx("Sunday") tx("Week") tx("Month") tx("3 months") tx("Year") tx("All time") tx("Pine") tx("Ocean") tx("Sakura") tx("Sand") tx("Lavender") tx("Neon") tx("Mono") tx("Modern") tx("Rounded") tx("Classic") tx("Typewriter") tx("Handwritten") tx("System") */
   const ACC = ["#2E6B57", "#245FA8", "#6D3FB0", "#B23A62", "#C2410C", "#9A5A12", "#0E8C8C", "#111111", "#72C3A5", "#7EB0F0", "#F08FAE", "#F0B060"];
@@ -1310,7 +1321,8 @@ function rSettings() {
     <div class="line"><code style="overflow-wrap:anywhere;font-size:13px">${esc(location.origin + location.pathname)}?steps=8421&amp;calories=512</code><button class="btn small" data-act="copysteps">${tx("Copy link")}</button></div>
     <div class="muted">${tx("On iPhone, a Shortcut can read today's steps and active calories from Health and open this link for you every evening.")}</div>
   </div>
-  <div class="card set"><h3>${tx("Week")}</h3>
+  <div class="card set"><h3>${tx("Calendar")}</h3>
+    <div class="line" style="flex-wrap:wrap;gap:8px"><span>${tx("Finished events")}</span>${lseg("done", [["check", "✓ Check"], ["strike", "Strike out"], ["fade", "Fade"], ["slash", "Slash"], ["fill", "Fill in"], ["hide", "Hide"]])}</div>
     <div class="line"><span>${tx("Week starts on")}</span>${seg("weekStart", [[1, "Monday"], [0, "Sunday"]])}</div>
   </div>
   <div class="card set"><h3>${tx("Reminders")}</h3>

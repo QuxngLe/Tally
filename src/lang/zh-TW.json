@@ -381,5 +381,11 @@
  "Open day": "開啟這一天",
  "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "完成事項後，每天會逐漸填滿。圓點是一次性任務。點一下某一天即可編輯或刪除其中的內容。",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "點一下項目即可打勾。點一下日期名稱即可編輯或刪除。",
- "Repeat": "重複"
+ "Repeat": "重複",
+ "✓ Check": "✓ 打勾",
+ "Strike out": "劃掉",
+ "Fade": "變淡",
+ "Slash": "斜線",
+ "Fill in": "填色",
+ "Finished events": "已完成的事項"
 }
