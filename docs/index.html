@@ -818,13 +818,13 @@ function openAccount(mode) {
     layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ach">
       <h2 id="ach">${up ? "Create your account" : "Welcome back"}</h2>
       <div class="seg authtabs"><button data-ac="mode" data-v="signin" aria-pressed="${!up}">Sign in</button><button data-ac="mode" data-v="signup" aria-pressed="${up}">Create account</button></div>
-      <p class="muted" style="margin-top:0">${up ? "Make an account to keep your phone and computer in step. Everything already on this device comes with you." : "Sign in to sync your trackers across your devices."}</p>
+      ${up ? `<p class="muted" style="margin-top:0">Make an account to keep your phone and computer in step. Everything already on this device comes with you.</p>` : ""}
       ${up ? input("name", "Your name", "text", f.name, "name") : ""}
       ${input("email", "Email", "email", f.email, "email")}
       <div class="field"><label for="a-pass">Password</label><div class="pw"><input id="a-pass" type="${f.show ? "text" : "password"}" value="${esc(f.pass)}" autocomplete="${up ? "new-password" : "current-password"}" style="padding-right:64px"><button data-ac="show" type="button">${f.show ? "Hide" : "Show"}</button></div></div>
       ${f.err ? `<div class="err" role="alert">${esc(f.err)}</div>` : ""}
       <div class="row-btns"><button class="btn primary" data-ac="go" ${f.busy ? "disabled" : ""}>${f.busy ? "One moment…" : up ? "Create account" : "Sign in"}</button><button class="btn" data-ac="close">Not now</button></div>
-      <p class="muted">You can keep using Tally without an account. Your data then stays on this device.</p></div></div>`;
+      <p class="muted">Tally is free to use without an account, but your data is then saved only on this device. Sign in to keep your trackers in sync across all your devices. You can use more than one account and switch between them at any time.</p></div></div>`;
     const first = document.getElementById(up ? "a-name" : "a-email"); if (first && !f[up ? "name" : "email"]) first.focus();
   };
   draw();
