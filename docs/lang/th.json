@@ -509,5 +509,6 @@
  "Keep this code private. Anyone with it can add steps to your account.": "เก็บรหัสนี้เป็นความลับ ใครที่มีรหัสนี้สามารถเพิ่มจำนวนก้าวลงในบัญชีของคุณได้",
  "Shortcut steps": "ขั้นตอนสร้างคำสั่งลัด",
  "Game": "เกม",
- "Removed the example trackers. Only your own trackers are kept in your account.": "ลบตัวติดตามตัวอย่างแล้ว บัญชีของคุณจะเก็บเฉพาะตัวติดตามของคุณเอง"
+ "Removed the example trackers. Only your own trackers are kept in your account.": "ลบตัวติดตามตัวอย่างแล้ว บัญชีของคุณจะเก็บเฉพาะตัวติดตามของคุณเอง",
+ "Add something to track": "เพิ่มสิ่งที่จะติดตาม"
 }

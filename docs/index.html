@@ -110,6 +110,8 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 .prompt { display: flex; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 6px 6px 6px 14px; box-shadow: var(--shadow); align-items: center }
 .prompt input { flex: 1; min-width: 0; border: 0; background: none; outline: none; padding: 8px 0; font-size: 16px }
 .prompt .go { border: 0; background: var(--accent); color: var(--accent-ink); border-radius: 11px; padding: 9px 14px; font-weight: 700; white-space: nowrap }
+.addbtn { width: 100%; display: flex; align-items: center; gap: 10px; border: 1px dashed var(--line); background: var(--surface); color: var(--muted); border-radius: 16px; padding: 12px 14px; font: inherit; font-weight: 600; text-align: left; cursor: pointer }
+.addbtn svg { width: 18px; height: 18px; color: var(--accent) }
 .hint { font-size: 13px; color: var(--muted); margin: 8px 2px 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
 .chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 10px; font-size: 13px; color: var(--fg) }
 .preview { margin-top: 10px; background: var(--surface-2); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 10px }
@@ -329,6 +331,14 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .weekv { display: grid; gap: 8px }
 .cell .evs { display: none }
 .qadd, .qspace { display: none }
+.gsheet #game { box-shadow: none; border: 0; padding: 0; background: none }
+/* Phones: a roomier month view (about 15% bigger cells and text) */
+@media (max-width: 759px) {
+  .wrap.wide { padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)) }
+  .wrap.wide .month { gap: 3px }
+  .wrap.wide .cell { aspect-ratio: 1 / 1.25; font-size: 13.8px; padding: 5px }
+  .wrap.wide .cell .dots i { width: 7px; height: 7px }
+}
 @media (min-width: 760px) {
   .wrap.wide { max-width: 1040px }
   body.has-q .toast { bottom: 140px }
@@ -387,8 +397,7 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .err { color: var(--danger); font-size: 14px; margin: 4px 0 10px }
 .acc-head { display: flex; gap: 14px; align-items: center; margin-bottom: 14px }
 /* appearance options */
-.ptr { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; z-index: 40; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: var(--muted); box-shadow: var(--shadow); border: 1px solid var(--line); transform: translate(-50%, -70px); pointer-events: none }
-.ptr.back { transition: transform .2s ease }
+.ptr { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 6px); left: 50%; z-index: 40; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: var(--muted); box-shadow: var(--shadow); border: 1px solid var(--line); transform: translate(-50%, -60px); opacity: 0; pointer-events: none }
 .ptr svg { width: 20px; height: 20px }
 .ptr.ready { color: var(--accent) }
 .ptr.spin svg { animation: ptrspin .7s linear infinite }
@@ -489,6 +498,11 @@ function fixSettings() {
   const d = defaultLook(); ["radius", "density", "title"].forEach(k => st.look[k] = d[k]);
 }
 if (!S) { S = defaults(); seedExamples(); }
+// The old set of five examples (with made-up history) is replaced by the three basic ones.
+if (S.examples && S.trackers.some(t => t.example === true)) {
+  S.trackers.filter(t => t.example === true).forEach(t => { delete S.log[t.id]; if (S.subs) delete S.subs[t.id] });
+  const mine = S.trackers.filter(t => !t.example), log = S.log; seedExamples(); S.trackers = [...S.trackers, ...mine]; S.log = log;
+}
 S.settings = Object.assign(defaults().settings, S.settings || {});
 S.fired = S.fired || {};
 // ---------- change tracking (for sync) ----------
@@ -570,28 +584,14 @@ function setLang() {
 let ui = { calMode: "month", calRef: keyOf(today()), range: 30, list: "all", adv: false, tab: "today", day: keyOf(today()), draft: null, doneOpen: true };
 
 function seedExamples() {
-  const mk = (o) => Object.assign({ id: uid(), emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminder: null, category: "", notes: "", archived: false, example: true, created: keyOf(addDays(today(), -60)) }, o);
+  const mk = (o) => Object.assign({ id: uid(), emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminder: null, category: "", notes: "", archived: false, example: "basic", created: keyOf(today()) }, o);
   const t = [
-    mk({ name: "Drink water", emoji: "💧", color: COLORS[1], kind: "count", target: 8, unit: "glasses", reminder: "09:00", category: "Health" }),
-    mk({ name: "Read", emoji: "📖", color: COLORS[2], kind: "count", target: 20, unit: "pages", reminder: "21:30", category: "Mind" }),
-    mk({ name: "Gym", emoji: "🏋️", color: COLORS[4], freq: "weekly", perWeek: 3, category: "Health" }),
-    mk({ name: "Meditate", emoji: "🧘", color: COLORS[0], freq: "days", days: [1, 2, 3, 4, 5], reminder: "07:30", category: "Mind" }),
-    mk({ name: "Call mom", emoji: "📞", color: COLORS[3], freq: "once", due: keyOf(addDays(today(), 1)), category: "" })
+    mk({ id: "ex-workout", name: "Work out", emoji: "🏋️", color: COLORS[4], freq: "weekly", perWeek: 3, category: "Health" }),
+    mk({ id: "ex-water", name: "Drink water", emoji: "💧", color: COLORS[1], kind: "count", target: 8, unit: "glasses", reminders: ["09:00"], category: "Health" }),
+    mk({ id: "ex-bed", name: "Make the bed", emoji: "🛏️", color: COLORS[2], category: "Home" })
   ];
+  // Same ids on every device, so syncing never doubles them and removing them anywhere removes them everywhere.
   S.trackers = t; S.examples = true;
-  // plausible history so charts have something to show
-  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-  for (let i = 1; i <= 56; i++) {
-    const d = addDays(today(), -i), k = keyOf(d);
-    t.forEach(tr => {
-      if (tr.freq === "once") return;
-      if (!isDue(tr, d)) return;
-      const p = tr.freq === "weekly" ? 0.45 : 0.8 - (i > 30 ? 0.15 : 0);
-      if (rnd() < p) (S.log[tr.id] ||= {})[k] = tr.target;
-      else if (tr.kind === "count" && rnd() < .6) (S.log[tr.id] ||= {})[k] = Math.floor(tr.target * rnd());
-    });
-  }
-  (S.log[t[0].id] ||= {})[keyOf(today())] = 3;
 }
 
 // ---------- tracker logic ----------
@@ -775,6 +775,7 @@ window.parsePrompt = parsePrompt;
 
 // ---------- icons ----------
 const I = {
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>',
   fish: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-5 9-6 13-3l5-3v12l-5-3c-4 3-10 2-13-3z"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></svg>',
   today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/></svg>',
@@ -1178,11 +1179,11 @@ function rToday() {
     </div>
   </header>
   ${gameOn() && !sideLeftOn() && !isPhone() ? levelBar(gameStats(), true) : ""}
-  <form class="prompt" id="pform" autocomplete="off">
+  ${ui.addOpen || ui.prompt || draft ? `<form class="prompt" id="pform" autocomplete="off">
     <input id="pin" type="text" placeholder="${tx("Type anything you want to track…")}" aria-label="${tx("Describe something to track")}" value="${esc(ui.prompt || "")}">
     <button class="go" type="submit">${tx("Add")}</button>
   </form>
-  ${draft ? previewHTML(draft) : `<div class="hint">${tx("Try:")} ${["gym 3 times a week", "read 20 pages every night", "pay rent on 2026-11-01", "meditate weekdays at 7am", "call mom on sunday"].map(x => `<button class="chip" data-act="try" data-v="${esc(x)}">${esc(x)}</button>`).join("")}<button class="chip" data-act="templates">${tx("Start from a template")}</button></div>`}
+  ${draft ? previewHTML(draft) : `<div class="hint"><button class="chip" data-act="templates">${tx("Start from a template")}</button></div>`}` : `<button class="addbtn" data-act="openadd">${I.plus}<span>${tx("Add something to track")}</span></button>`}
   ${S.examples ? `<div class="banner"><span>${tx("The trackers below are examples so you can see how it works.")}</span><button class="btn small" data-act="clearex">${tx("Remove examples")}</button></div>` : ""}
   ${!list.length ? `<div class="sec"><div class="empty">${active().length ? tx("Nothing scheduled for this day.") : tx("Nothing to track yet. Type what you want to do in the box above and press Add.")}</div></div>` : ""}
   ${gKeys.map(g => `<section class="sec"><div class="sec-h"><h2>${esc(g || (gKeys.length > 1 ? tx("Other") : tx("To do")))}</h2><span class="muted num">${tx("{n} left", { n: groups[g].length })}</span></div><div class="list ${S.settings.look.layout === "grid" ? "grid" : ""}">${groups[g].map(t => itemHTML(t, k)).join("")}</div></section>`).join("")}
@@ -1583,7 +1584,7 @@ function rStats() {
     <div class="tile"><b class="num" style="color:var(--flame)">${top ? top[1].cur : 0}</b><span>${tx("longest current streak")}${top && top[1].cur ? " · " + esc(top[0].name) : ""}</span></div>
     <div class="tile"><b class="num">${checks.toLocaleString(LOC)}</b><span>${tx("things finished, {span}", { span })}</span></div>
   </div>
-  ${gameOn() && !sideLeftOn() ? gameCard(gameStats()) : ""}
+  ${gameOn() && !sideLeftOn() && !isPhone() ? gameCard(gameStats()) : ""}
   <section class="sec card"><h3>${weekly ? tx("Weekly completion") : tx("Daily completion")}</h3><div class="muted">${tx("Share of what was due that you finished, {span}", { span })}</div>${barChart(vals, labels)}</section>
   ${weekdayCard(days)}
   ${monthCard()}
@@ -1856,13 +1857,19 @@ document.addEventListener("click", async ev => {
     case "calnav": { const n = +b.dataset.n, r = fromKey(ui.calRef);
       ui.calRef = n === 0 ? keyOf(today()) : ui.calMode === "month" ? keyOf(new Date(r.getFullYear(), r.getMonth() + n, 1)) : keyOf(addDays(r, 7 * n)); render(); break }
     case "calday": openDaySheet(b.dataset.k); break;
-    case "gogame": goTab("stats"); setTimeout(() => { const c = $("#game"); if (c) c.scrollIntoView({ block: "start", behavior: "smooth" }) }, 50); break;
+    case "gogame": if (isPhone()) {
+      // Phones: level and badges open in a sheet from the corner badge (the Progress tab stays about your trackers).
+      layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet gsheet" role="dialog" aria-modal="true">${gameCard(gameStats())}<div class="row-btns"><button class="btn primary" data-ac="close">${tx("Done")}</button></div></div></div>`;
+      layer.onclick = ev => { if (ev.target.closest("[data-ac]") || ev.target.dataset.act === "closebg") closeSheet() };
+      break;
+    } goTab("stats"); setTimeout(() => { const c = $("#game"); if (c) c.scrollIntoView({ block: "start", behavior: "smooth" }) }, 50); break;
     case "opennote": ui.day = b.dataset.k; goTab("today"); setTimeout(() => { const n = $("#daynote"); if (n) { n.scrollIntoView({ block: "center" }); n.focus() } }, 50); break;
     case "csv": b.dataset.v === "notes" ? saveText(`tally-notes-${keyOf(today())}.csv`, notesCSV()) : saveText(`tally-history-${keyOf(today())}.csv`, historyCSV()); break;
     case "calev": openDaySheet(b.dataset.k, b.dataset.id); break;
     case "calchip": { const kk = b.dataset.k; if (t.kind === "count" || t.subtasks.length) { ui.day = kk; goTab("today"); break } setCount(t, kk, doneOn(t, kk) ? 0 : 1); render(); break }
     case "day": { const n = +b.dataset.n; ui.day = n === 0 ? keyOf(today()) : keyOf(addDays(fromKey(ui.day), n)); render(); break }
     case "try": ui.prompt = b.dataset.v; ui.draft = parsePrompt(b.dataset.v); render(); break;
+    case "openadd": ui.addOpen = true; render(); { const i = $("#pin"); if (i) i.focus() } break;
     case "create": { const n = blankTracker(ui.draft); S.trackers.push(n); save(); ui.draft = null; ui.prompt = ""; render(); toast(tx("Added “{name}”", { name: n.name }), tx("Edit"), () => openEditor(n, false)); break }
     case "customize": { const n = blankTracker(ui.draft); ui.draft = null; ui.prompt = ""; openEditor(n, true); break }
     case "cancelp": ui.draft = null; ui.prompt = ""; render(); break;
@@ -2016,13 +2023,13 @@ async function syncNow(manual) {
     const keepLocal = { fired: S.fired, snooze: S.snooze };
     S = Object.assign(merged, keepLocal); fixSettings(); fixTrackers();
     snap = pieces(S); store.set(KEY, S);
-    // Starter examples only exist to show a new, signed-out user how things work. They never belong in an
-    // account: drop them (and their made-up history) everywhere, recording the removal so other devices drop them too.
-    const ex = S.trackers.filter(t => t.example);
-    if (ex.length || S.examples) {
+    // The old five examples (random ids, made-up history) got copied into accounts from each new device.
+    // Drop them everywhere, recording the removal so other devices drop them too.
+    const ex = S.trackers.filter(t => t.example === true);
+    if (ex.length) {
       const now = Date.now();
       ex.forEach(t => { delete S.log[t.id]; delete S.subs[t.id]; S.deleted[t.id] = now; S.mt["t|" + t.id] = now - 1 });
-      S.trackers = S.trackers.filter(t => !t.example); S.examples = false; S.mt.examples = now;
+      S.trackers = S.trackers.filter(t => t.example !== true); if (!S.trackers.some(t => t.example)) { S.examples = false; S.mt.examples = now }
       snap = pieces(S); store.set(KEY, S);
       if (ex.length) setTimeout(() => toast(tx("Removed the example trackers. Only your own trackers are kept in your account.")), 600);
     }
@@ -2241,25 +2248,27 @@ window.addEventListener("hashchange", () => goTab(location.hash.slice(1)));
 { let start = ui.tab !== "today" ? "" : location.hash.slice(1);  if (!TABS.includes(start)) { try { start = sessionStorage.getItem("tally.tab") || "" } catch { } }
   if (TABS.includes(start)) ui.tab = start;
   try { ui.adv = sessionStorage.getItem("tally.adv") === "1" } catch { } }
-// Pull down from the top to refresh: syncs, then reloads so the newest version of the app shows.
-// (The browser's own pull-to-refresh is off so this works the same in the installed app.)
+// Pull down from the top to refresh: the page follows your finger, a spinner shows in the gap, then it syncs
+// and reloads with the newest version. (The browser's own pull-to-refresh is off so this also works in the installed app.)
 (() => {
   const ind = Object.assign(document.createElement("div"), { className: "ptr", innerHTML: I.refresh }); document.body.appendChild(ind);
+  const MAX = 130, GO = 80, HOLD = 64;
   let y0 = null, d = 0;
-  const reset = () => { ind.classList.add("back"); ind.classList.remove("ready"); ind.style.transform = "" };
+  const move = (px, anim) => { view.style.transition = ind.style.transition = anim ? "transform .25s ease" : "none"; view.style.transform = px ? `translateY(${px}px)` : ""; ind.style.transform = `translate(-50%, ${px - 52}px) rotate(${px * 3}deg)`; ind.style.opacity = Math.min(1, px / GO) };
   addEventListener("touchstart", e => { y0 = scrollY <= 0 && !layer.innerHTML && e.touches.length === 1 ? e.touches[0].clientY : null; d = 0 }, { passive: true });
   addEventListener("touchmove", e => {
     if (y0 == null) return;
-    if (scrollY > 0) { y0 = null; return reset() }
-    d = Math.max(0, e.touches[0].clientY - y0);
-    ind.classList.remove("back"); ind.style.transform = `translate(-50%, ${Math.min(d, 140) * .55 - 70}px) rotate(${d * 2}deg)`; ind.classList.toggle("ready", d > 100);
+    if (scrollY > 0) { y0 = null; return move(0, true) }
+    const raw = Math.max(0, e.touches[0].clientY - y0); d = MAX * (1 - Math.exp(-raw / MAX)) * 1.1; // eases off as you pull further
+    move(d, false); ind.classList.toggle("ready", d > GO);
   }, { passive: true });
   addEventListener("touchend", async () => {
-    if (y0 == null) return; const go = d > 100; y0 = null; d = 0;
-    if (!go) return reset();
-    ind.classList.add("spin");
+    if (y0 == null) return; const go = d > GO; y0 = null; d = 0;
+    if (!go) { ind.classList.remove("ready"); return move(0, true) }
+    move(HOLD, true); ind.classList.add("spin"); ind.style.transform = `translate(-50%, ${HOLD - 52}px)`;
+    const wait = new Promise(r => setTimeout(r, 700));
     try { if (syncUser) { syncing = false; await syncNow() } const r = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(); if (r) await r.update() } catch { }
-    location.reload();
+    await wait; location.reload();
   });
 })();
 setLang(); importFitness(); applyTheme(); render(); setTimeout(checkReminders, 1500); initSync();

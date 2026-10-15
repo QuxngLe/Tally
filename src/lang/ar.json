@@ -509,5 +509,6 @@
  "Keep this code private. Anyone with it can add steps to your account.": "احتفظ بهذا الرمز لنفسك. أي شخص يملكه يمكنه إضافة خطوات إلى حسابك.",
  "Shortcut steps": "خطوات إعداد الاختصار",
  "Game": "لعبة",
- "Removed the example trackers. Only your own trackers are kept in your account.": "تمت إزالة المتتبعات التجريبية. يُحفظ في حسابك متتبعاتك أنت فقط."
+ "Removed the example trackers. Only your own trackers are kept in your account.": "تمت إزالة المتتبعات التجريبية. يُحفظ في حسابك متتبعاتك أنت فقط.",
+ "Add something to track": "أضف شيئًا لتتبعه"
 }

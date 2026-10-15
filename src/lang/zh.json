@@ -509,5 +509,6 @@
  "Keep this code private. Anyone with it can add steps to your account.": "请勿泄露此同步码。任何拿到它的人都能向你的账户添加步数。",
  "Shortcut steps": "快捷指令设置步骤",
  "Game": "游戏",
- "Removed the example trackers. Only your own trackers are kept in your account.": "已移除示例追踪项。你的账户只保留你自己的追踪项。"
+ "Removed the example trackers. Only your own trackers are kept in your account.": "已移除示例追踪项。你的账户只保留你自己的追踪项。",
+ "Add something to track": "添加要追踪的项目"
 }
