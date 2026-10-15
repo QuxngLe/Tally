@@ -325,8 +325,12 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 @media (max-width: 759px) {
   .wrap.wide { padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)) }
   .wrap.wide .month { gap: 3px }
-  .wrap.wide .cell { aspect-ratio: 1 / 1.25; font-size: 13.8px; padding: 5px }
-  .wrap.wide .cell .dots i { width: 7px; height: 7px }
+  .wrap.wide .cell { aspect-ratio: auto; min-height: calc((100vw - 34px) / 7 * 1.25); font-size: 13.8px; padding: 5px; grid-template-rows: auto auto 1fr; align-content: start }
+  .wrap.wide .cell .dots { display: none }
+  .wrap.wide .cell .evs { display: grid; gap: 2px; position: relative; align-self: start; margin-top: 2px; min-width: 0 }
+  .wrap.wide .cell .evs span { display: block; font-size: 9px; line-height: 1.3; padding: 0 3px; border-radius: 3px; background: color-mix(in srgb, var(--c) 18%, transparent); border-inline-start: 2px solid var(--c); white-space: nowrap; overflow: hidden; text-overflow: clip }
+  .wrap.wide .cell .evs em { display: none }
+  .wrap.wide .cell .evs > em:last-child { display: block; font-style: normal; font-size: 9px; color: var(--muted) }
 }
 @media (min-width: 760px) {
   .wrap.wide { max-width: 1040px }
@@ -750,8 +754,10 @@ function parsePrompt(raw) {
   o.name = name.charAt(0).toUpperCase() + name.slice(1);
   const hay = raw.toLowerCase(), nm = o.name.toLowerCase();
   o.emoji = (EMOJI.find(([re]) => re.test(nm)) || EMOJI.find(([re]) => re.test(hay)) || [, "✅"])[1];
-  o.color = COLORS[Math.abs([...o.name].reduce((a, c) => a * 31 + c.charCodeAt(0), 7)) % COLORS.length];
+  o.color = nextColor();
   if (o.freq === "days" && !o.days.length) o.freq = "daily";
+  // Nothing said about repeating: one time.
+  if (o.freq === "daily" && !recurring) o.freq = "once";
   if (o.freq === "daily" && !recurring && o.kind === "check" && /^(buy|pay|finish|submit|send|email|book|fix|return|pick up|cancel|renew|schedule|order|print|sign|reply|answer|mail|post|call|visit|bring|deliver|apply|register|prepare|pack|wash|repair|replace|get)\b/i.test(o.name)) { o.freq = "once"; o.due = keyOf(today()) }
   return o;
 }
@@ -1311,10 +1317,11 @@ function quickPreview(v) {
 }
 function addEvents(evs) {
   const r = ui.qrep || "once";
-  const made = evs.map(e => blankTracker({ name: e.name, emoji: e.emoji, color: COLORS[Math.abs([...e.name].reduce((a, c) => a * 31 + c.charCodeAt(0), 7)) % COLORS.length],
+  const made = [];
+  evs.forEach(e => made.push(S.trackers[S.trackers.push(blankTracker({ name: e.name, emoji: e.emoji,
     freq: r === "daily" ? "daily" : r === "once" ? "once" : "days", due: r === "once" ? e.due : null, days: r === "weekly" ? [fromKey(e.due).getDay()] : r === "weekdays" ? [1, 2, 3, 4, 5] : [],
-    created: r === "once" ? keyOf(today()) : e.due, reminders: e.time ? [e.time] : [], cal: true }));
-  S.trackers.push(...made); save();
+    created: r === "once" ? keyOf(today()) : e.due, reminders: e.time ? [e.time] : [], cal: true })) - 1]));
+  save();
   ui.calRef = evs[0].due;
   ui.qtext = ""; render(); const q = $("#qin"); if (q) q.focus();
   const m0 = made[0], when = r === "once" ? fmtDate(fromKey(evs[0].due)) : repText(r, evs[0].due);
@@ -1630,7 +1637,7 @@ function openTemplates() {
     if (!b) { if (ev.target.dataset.act === "closebg") closeSheet(); return }
     if (b.dataset.tp === "close") return closeSheet();
     const tp = TEMPLATES[+b.dataset.tp];
-    tp.items.forEach(x => S.trackers.push(blankTracker(Object.assign({}, x, { name: tx(x.name), unit: x.unit ? tx(x.unit) : "", category: tx(tp.name), subtasks: (x.subtasks || []).map(text => ({ id: uid(), text: tx(text) })), reminders: [...(x.reminders || [])] }))));
+    tp.items.forEach(x => S.trackers.push(blankTracker(Object.assign({ freq: "daily" }, x, { name: tx(x.name), unit: x.unit ? tx(x.unit) : "", category: tx(tp.name), subtasks: (x.subtasks || []).map(text => ({ id: uid(), text: tx(text) })), reminders: [...(x.reminders || [])] }))));
     save(); closeSheet(); toast(tx("Added {name}", { name: tx(tp.name) }));
   };
 }
@@ -1805,7 +1812,13 @@ function openDetail(t) {
     if (b.dataset.dt === "edit") openEditor(t, false); else closeSheet();
   };
 }
-function blankTracker(o = {}) { return Object.assign({ id: uid(), name: "", emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminders: [], subtasks: [], tags: [], category: "", notes: "", archived: false, created: keyOf(today()) }, o, o.reminder ? { reminders: [o.reminder] } : {}, { reminder: undefined }) }
+// Each tracker made on the same day gets a color none of that day's others has (cycling once all are used).
+function nextColor() {
+  const tk = keyOf(today()), used = S.trackers.filter(t => (t.made || t.created) === tk).map(t => t.color);
+  return COLORS.find(c => !used.includes(c)) || COLORS[used.length % COLORS.length];
+}
+// New trackers default to one time; repeating needs saying so (or picking it).
+function blankTracker(o = {}) { return Object.assign({ id: uid(), name: "", emoji: "✅", color: nextColor(), made: keyOf(today()), kind: "check", target: 1, unit: "", freq: "once", days: [], perWeek: 3, due: null, reminders: [], subtasks: [], tags: [], category: "", notes: "", archived: false, created: keyOf(today()) }, o, o.reminder ? { reminders: [o.reminder] } : {}, { reminder: undefined }) }
 
 // ---------- toast ----------
 let toastTimer;
@@ -1973,6 +1986,8 @@ function mergeState(A, B) {
   out.settings = pick("settings") === "B" ? B.settings : A.settings;
   out.examples = pick("examples") === "B" ? B.examples : A.examples;
   out.fish = pick("fish") === "B" ? B.fish : A.fish;
+  if (out.fish == null) out.fish = A.fish || B.fish;
+  if (out.settings == null) out.settings = A.settings || B.settings;
   return out;
 }
 var sb = null, syncUser = null, syncTimer = null, syncing = false, lastSync = store.get("tally.lastsync", 0), syncErr = "";
@@ -1992,13 +2007,29 @@ async function initSync() {
   try {
     await loadSupabase();
     const { data } = await sb.auth.getSession(); syncUser = data.session ? data.session.user : null;
-    sb.auth.onAuthStateChange((_e, session) => { syncUser = session ? session.user : null; if (!layer.innerHTML) render() });
+    sb.auth.onAuthStateChange((_e, session) => { syncUser = session ? session.user : null; if (syncUser) syncLive(); else syncUnlive(); if (!layer.innerHTML) render() });
     if (syncUser) syncNow();
   } catch (e) { syncErr = e.message }
 }
-function scheduleSync() { if (!syncUser) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 1500) }
+function scheduleSync() { if (!syncUser) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 300) }
+// Live sync: after a device uploads a change it pings its other signed-in devices over Supabase Realtime
+// (a broadcast channel per account, no database setup), and they pull the change right away.
+const DEVICE = uid();
+var syncChan = null, syncAgain = false;
+function syncLive() {
+  if (!sb || !syncUser || !sb.channel) return;
+  const name = "welli-" + syncUser.id;
+  if (syncChan && syncChan.topic === "realtime:" + name) return;
+  if (syncChan) { try { sb.removeChannel(syncChan) } catch { } }
+  syncChan = sb.channel(name).on("broadcast", { event: "changed" }, m => { if (!m.payload || m.payload.from !== DEVICE) syncNow() }).subscribe();
+}
+// Safety net in case the live channel is down: a quick check every 15 seconds while the app is on screen.
+setInterval(() => { if (syncUser && document.visibilityState === "visible") syncNow() }, 15000);
+function syncUnlive() { if (syncChan && sb) { try { sb.removeChannel(syncChan) } catch { } } syncChan = null }
 async function syncNow(manual) {
-  if (!sb || !syncUser || syncing) return; syncing = true;
+  if (!sb || !syncUser) return;
+  if (syncing) { syncAgain = true; return } syncing = true; syncLive();
+  const before = JSON.stringify(pieces(S));
   try {
     const { data, error } = await sb.from("tally_state").select("data").eq("user_id", syncUser.id).maybeSingle();
     if (error) throw error;
@@ -2017,16 +2048,30 @@ async function syncNow(manual) {
       snap = pieces(S); store.set(KEY, S);
       if (ex.length) setTimeout(() => toast(tx("Removed the example trackers. Only your own trackers are kept in your account.")), 600);
     }
-    const up = Object.assign({}, S); delete up.fired; delete up.snooze;
-    const { error: e2 } = await sb.from("tally_state").upsert({ user_id: syncUser.id, data: up, updated_at: new Date().toISOString() });
-    if (e2) throw e2;
+    // Upload only when this device has something the account doesn't, and then ping the other devices.
+    const after = JSON.stringify(pieces(S));
+    if (!data || !data.data || after !== JSON.stringify(pieces(data.data))) {
+      const up = Object.assign({}, S); delete up.fired; delete up.snooze;
+      const { error: e2 } = await sb.from("tally_state").upsert({ user_id: syncUser.id, data: up, updated_at: new Date().toISOString() });
+      if (e2) throw e2;
+      try { syncChan && syncChan.send({ type: "broadcast", event: "changed", payload: { from: DEVICE } }) } catch { }
+    }
     lastSync = Date.now(); store.set("tally.lastsync", lastSync); syncErr = "";
     syncing = false; await healthPull(); pushSchedule();
-    if (!layer.innerHTML) { applyTheme(); render() }
-    if (manual) toast(tx("Synced"));
+    if (after !== before) softRender();
+    if (manual) { if (!layer.innerHTML) render(); toast(tx("Synced")) }
   } catch (e) { syncErr = (e && e.message) || tx("Sync failed"); if (manual) toast(tx("Sync didn't work: {err}", { err: syncErr })) }
   syncing = false;
+  if (syncAgain) { syncAgain = false; syncNow() }
 }
+// Redraw after a sync, but not while a sheet is open or you're typing; it catches up when you finish.
+var renderLater = false;
+function softRender() {
+  const a = document.activeElement, typing = a && view.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);
+  if (layer.innerHTML || typing) { renderLater = true; return }
+  applyTheme(); render();
+}
+document.addEventListener("focusout", () => setTimeout(() => { if (renderLater) { renderLater = false; softRender() } }, 50));
 function syncCard() {
   if (!syncReady()) return `<div class="card set"><h3>${tx("Sync across devices")}</h3><div class="muted">${tx("Sync works in the installed app and on the website, not in this preview.")}</div></div>`;
   if (!syncUser) return `<div class="card set"><h3>${tx("Sync across devices")}</h3>
@@ -2192,8 +2237,8 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 // numbers, so a phone automation (e.g. an iPhone Shortcut reading Apple Health) can fill them in.
 /* i18n: tx("Steps") tx("Calories burned") */
 const FIT = [
-  { key: "steps", unit: /^steps?$/i, name: /\bsteps?\b/i, make: { name: "Steps", emoji: "🚶", color: COLORS[6], target: 10000, unit: "steps" }, label: "steps" },
-  { key: "calories", unit: /^(kcal|cal|calories)$/i, name: /\bcalories?\b|\bkcal\b/i, make: { name: "Calories burned", emoji: "🔥", color: COLORS[4], target: 500, unit: "kcal" }, label: "calories" }
+  { key: "steps", unit: /^steps?$/i, name: /\bsteps?\b/i, make: { name: "Steps", emoji: "🚶", color: COLORS[6], freq: "daily", target: 10000, unit: "steps" }, label: "steps" },
+  { key: "calories", unit: /^(kcal|cal|calories)$/i, name: /\bcalories?\b|\bkcal\b/i, make: { name: "Calories burned", emoji: "🔥", color: COLORS[4], freq: "daily", target: 500, unit: "kcal" }, label: "calories" }
 ];
 function importFitness() {
   let q; try { q = new URLSearchParams(location.search) } catch { return }
