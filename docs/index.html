@@ -387,6 +387,12 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
 .err { color: var(--danger); font-size: 14px; margin: 4px 0 10px }
 .acc-head { display: flex; gap: 14px; align-items: center; margin-bottom: 14px }
 /* appearance options */
+.ptr { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; z-index: 40; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: var(--muted); box-shadow: var(--shadow); border: 1px solid var(--line); transform: translate(-50%, -70px); pointer-events: none }
+.ptr.back { transition: transform .2s ease }
+.ptr svg { width: 20px; height: 20px }
+.ptr.ready { color: var(--accent) }
+.ptr.spin svg { animation: ptrspin .7s linear infinite }
+@keyframes ptrspin { to { transform: rotate(360deg) } }
 #bgimg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-size: cover; background-position: center }
 #bgimg::after { content: ""; position: absolute; inset: 0; background: var(--bg); opacity: var(--bg-dim, .3) }
 .wrap { position: relative; z-index: 1; zoom: var(--zoom, 1) }
@@ -769,6 +775,7 @@ window.parsePrompt = parsePrompt;
 
 // ---------- icons ----------
 const I = {
+  refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>',
   fish: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-5 9-6 13-3l5-3v12l-5-3c-4 3-10 2-13-3z"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></svg>',
   today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/></svg>',
   stats: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>',
@@ -2218,6 +2225,27 @@ window.addEventListener("hashchange", () => goTab(location.hash.slice(1)));
 { let start = ui.tab !== "today" ? "" : location.hash.slice(1);  if (!TABS.includes(start)) { try { start = sessionStorage.getItem("tally.tab") || "" } catch { } }
   if (TABS.includes(start)) ui.tab = start;
   try { ui.adv = sessionStorage.getItem("tally.adv") === "1" } catch { } }
+// Pull down from the top to refresh: syncs, then reloads so the newest version of the app shows.
+// (The browser's own pull-to-refresh is off so this works the same in the installed app.)
+(() => {
+  const ind = Object.assign(document.createElement("div"), { className: "ptr", innerHTML: I.refresh }); document.body.appendChild(ind);
+  let y0 = null, d = 0;
+  const reset = () => { ind.classList.add("back"); ind.classList.remove("ready"); ind.style.transform = "" };
+  addEventListener("touchstart", e => { y0 = scrollY <= 0 && !layer.innerHTML && e.touches.length === 1 ? e.touches[0].clientY : null; d = 0 }, { passive: true });
+  addEventListener("touchmove", e => {
+    if (y0 == null) return;
+    if (scrollY > 0) { y0 = null; return reset() }
+    d = Math.max(0, e.touches[0].clientY - y0);
+    ind.classList.remove("back"); ind.style.transform = `translate(-50%, ${Math.min(d, 140) * .55 - 70}px) rotate(${d * 2}deg)`; ind.classList.toggle("ready", d > 100);
+  }, { passive: true });
+  addEventListener("touchend", async () => {
+    if (y0 == null) return; const go = d > 100; y0 = null; d = 0;
+    if (!go) return reset();
+    ind.classList.add("spin");
+    try { if (syncUser) { syncing = false; await syncNow() } const r = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(); if (r) await r.update() } catch { }
+    location.reload();
+  });
+})();
 setLang(); importFitness(); applyTheme(); render(); setTimeout(checkReminders, 1500); initSync();
 try { if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && window.top === window.self) navigator.serviceWorker.register("sw.js").catch(() => { }) } catch { }
 })();
