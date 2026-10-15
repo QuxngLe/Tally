@@ -33,7 +33,7 @@
   --flame: #F0A24F; --danger: #F07A7A; --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark }
 
 * { box-sizing: border-box }
-html, body { height: 100% }
+html, body { height: 100%; overscroll-behavior-y: none }
 body { background: var(--bg); color: var(--fg); font: 15px/1.45 var(--f-body); -webkit-tap-highlight-color: transparent }
 button, input, select, textarea { font: inherit; color: inherit }
 button { cursor: pointer }
@@ -53,6 +53,14 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 .tabs button[aria-current="true"] { color: var(--accent); background: var(--surface-2) }
 .toprow { display: flex; justify-content: flex-end; padding-top: 12px }
 .toprow + .head { padding-top: 6px }
+.lvchip { margin-right: auto; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 999px; padding: 3px 12px 3px 3px; box-shadow: var(--shadow); max-width: 55% }
+.lvchip b { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-size: 13px; flex: none }
+.lvchip > span { display: grid; gap: 3px; min-width: 64px; text-align: left }
+.lvchip em { font-style: normal; font-size: 12px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.lvchip .xpbar { height: 5px }
+.fishtab .pond { height: 220px }
+.fishtab .sp > h3 { display: none }
+.fishtab .fishbook { grid-template-columns: repeat(4, 1fr) }
 .tabs .me { display: none }
 .toprow .me, .tabs .me { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 14px 4px 4px; font-weight: 600; font-size: 14px; color: var(--fg); box-shadow: var(--shadow); max-width: 220px }
 .toprow .me.out, .tabs .me.out { padding: 7px 16px; background: var(--accent); color: var(--accent-ink); border-color: transparent }
@@ -761,6 +769,7 @@ window.parsePrompt = parsePrompt;
 
 // ---------- icons ----------
 const I = {
+  fish: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-5 9-6 13-3l5-3v12l-5-3c-4 3-10 2-13-3z"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></svg>',
   today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/></svg>',
   stats: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg>',
@@ -898,7 +907,9 @@ function openCropper(im) {
 }
 function renderTabs() {
   const tabs = [["today", tx("Today")], ["calendar", tx("Calendar")], ["stats", tx("Progress")], ["manage", tx("Lists")]];
-  $("#tabs").innerHTML = tabs.map(([id, l]) => `<button data-tab="${id}" aria-current="${ui.tab === id}">${I[{ today: "today", calendar: "cal", stats: "stats", manage: "list" }[id]]}<span>${l}</span></button>`).join("") + meBtnHTML();
+  // Without the side panels (phones, small windows), the fishing game gets its own tab.
+  if (!sidesOn()) tabs.push(["fish", tx("Fishing")]);
+  $("#tabs").innerHTML = tabs.map(([id, l]) => `<button data-tab="${id}" aria-current="${ui.tab === id}">${I[{ today: "today", calendar: "cal", stats: "stats", manage: "list", fish: "fish" }[id]]}<span>${l}</span></button>`).join("") + meBtnHTML();
 }
 // The button at the top right opens a small menu: account, language and settings.
 function meBtnHTML() {
@@ -956,6 +967,12 @@ function gameStats() {
 }
 const gameOn = () => S.settings.game !== false;
 const BADGE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M8 14.5 6 22l6-3 6 3-2-7.5"/><circle cx="12" cy="9" r="6.5"/><path d="m12 5.8 1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z" fill="currentColor"/></svg>';
+// Phones: a small level badge in the top-left corner instead of the bar on Today.
+function lvlChip(g) {
+  const p = Math.round(Math.min(1, (g.xp - g.from) / (g.to - g.from)) * 100);
+  return `<button class="lvchip" data-act="gogame" aria-label="${esc(tx("Level {n}", { n: g.level }) + ", " + levelTitle(g.level))}"><b class="num">${g.level}</b><span><em>${esc(levelTitle(g.level))}</em><span class="xpbar"><i style="width:${p}%"></i></span></span></button>`;
+}
+const isPhone = () => innerWidth < 760;
 function levelBar(g, compact) {
   const p = Math.min(1, (g.xp - g.from) / (g.to - g.from));
   return `<button class="lvl ${compact ? "mini" : ""}" data-act="gogame"><span class="lv num">${tx("Level {n}", { n: g.level })}</span><span class="tt">${esc(levelTitle(g.level))}</span><span class="xpbar"><i style="width:${Math.round(p * 100)}%"></i></span><span class="xp num">${(g.xp - g.from).toLocaleString(LOC)} / ${(g.to - g.from).toLocaleString(LOC)} XP</span></button>`;
@@ -998,15 +1015,18 @@ function sideGameHTML(g) {
 function renderSides() {
   const on = sidesOn(), L = $("#sideL"), R = $("#sideR");
   document.body.classList.toggle("sides", on);
-  if (!on) { L.innerHTML = ""; R.innerHTML = ""; fishReset(); return }
+  if (!on) { L.innerHTML = ""; if (fishBox().parentNode === R) { fishReset(); R.removeChild(fishBox()) } return }
   const left = sideLeftOn(), b = document.body.classList;
   b.toggle("snarrow", sideW() < 1300); b.toggle("snoleft", !left);
   L.innerHTML = left ? sideGameHTML(gameStats()) : "";
   L.hidden = !left;
-  if (!R.firstChild) R.innerHTML = fishHTML();
+  if (fishBox().parentNode !== R) R.appendChild(fishBox());
   fishCounts();
 }
-addEventListener("resize", () => { clearTimeout(window.__sr); window.__sr = setTimeout(() => { const was = document.body.classList.contains("snoleft"), had = document.body.classList.contains("sides"); renderSides(); if (was !== document.body.classList.contains("snoleft") || had !== document.body.classList.contains("sides")) render() }, 150) });
+// Re-render when the layout changes shape (side panels on/off, phone vs larger screen).
+const layoutKey = () => [sidesOn(), sideLeftOn(), isPhone()].join();
+var lastLayout = "";
+addEventListener("resize", () => { clearTimeout(window.__sr); window.__sr = setTimeout(() => { if (layoutKey() !== lastLayout) render(); else renderSides() }, 150) });
 
 // ---------- fishing ----------
 // Everything you finish earns one bait (plus a few to start). Cast, wait for the bite, reel in fast.
@@ -1030,6 +1050,13 @@ function fishHTML() {
     <div class="muted small" id="fishmsg" aria-live="polite"></div>
     <div class="sub" style="margin-top:12px">${tx("Fishbook")} · <span id="fishcount"></span></div>
     <div class="fishbook" id="fishbook"></div></div>`;
+}
+// One pond element that moves between the side panel and the Fishing tab, so a cast survives re-renders.
+var fishEl = null;
+const fishBox = () => fishEl || (fishEl = Object.assign(document.createElement("div"), { innerHTML: fishHTML() }));
+function rFish() {
+  view.innerHTML = `<header class="head"><div><div class="eyebrow">${tx("Game")}</div><h1>${tx("Fishing")}</h1></div></header><div id="fishslot" class="fishtab"></div>`;
+  $("#fishslot").appendChild(fishBox()); fishCounts();
 }
 function fishCounts() {
   const f = fishData(), b = $("#bait"), book = $("#fishbook"); if (!b) return;
@@ -1062,7 +1089,7 @@ function fishAct() {
   }
 }
 document.addEventListener("click", ev => { if (ev.target.closest("#fishbtn")) fishAct() });
-function render() { renderTabs(); view.classList.toggle("wide", ui.tab === "calendar"); document.body.classList.toggle("has-q", ui.tab === "calendar"); renderView(); view.insertAdjacentHTML("afterbegin", `<div class="toprow">${meBtnHTML()}</div>`); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth); gameTick(); renderSides() }
+function render() { lastLayout = layoutKey(); if (ui.tab === "fish" && sidesOn()) { ui.tab = "today"; try { history.replaceState(null, "", location.pathname + location.search) } catch { } } renderTabs(); view.classList.toggle("wide", ui.tab === "calendar"); document.body.classList.toggle("has-q", ui.tab === "calendar"); renderView(); view.insertAdjacentHTML("afterbegin", `<div class="toprow">${gameOn() ? lvlChip(gameStats()) : ""}${meBtnHTML()}</div>`); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth); gameTick(); renderSides() }
 function openMenu() {
   const cur = (LANGS.find(l => l[0] === LANG) || LANGS[0])[1], n = userName();
   layer.innerHTML = `<div class="scrim clear" data-act="closebg"><div class="menu" role="menu">
@@ -1095,7 +1122,7 @@ function openLangs() {
     closeSheet();
   };
 }
-function renderView() { ({ today: rToday, calendar: rCal, stats: rStats, manage: rManage, settings: rSettings })[ui.tab]() }
+function renderView() { ({ fish: rFish, today: rToday, calendar: rCal, stats: rStats, manage: rManage, settings: rSettings })[ui.tab]() }
 
 function itemHTML(t, k) {
   const c = cnt(t, k), done = c >= t.target, st = streak(t);
@@ -1141,7 +1168,7 @@ function rToday() {
       <div class="lbl num">${done.length}/${list.length}<small>${tx("done")}</small></div>
     </div>
   </header>
-  ${gameOn() && !sideLeftOn() ? levelBar(gameStats(), true) : ""}
+  ${gameOn() && !sideLeftOn() && !isPhone() ? levelBar(gameStats(), true) : ""}
   <form class="prompt" id="pform" autocomplete="off">
     <input id="pin" type="text" placeholder="${tx("Type anything you want to track…")}" aria-label="${tx("Describe something to track")}" value="${esc(ui.prompt || "")}">
     <button class="go" type="submit">${tx("Add")}</button>
@@ -2180,7 +2207,7 @@ function applyFitness(k, vals) {
 }
 try { const q = new URLSearchParams(location.search); if (q.get("remind") && q.get("id")) { const a = q.get("remind"), id = q.get("id"); history.replaceState(null, "", location.pathname + location.hash); setTimeout(() => remindAction(a, id), 400) } } catch { }
 // The open tab lives in the address (#settings etc.), so a refresh or the back button keeps you where you were.
-const TABS = ["today", "calendar", "stats", "manage", "settings"];
+const TABS = ["today", "calendar", "stats", "manage", "settings", "fish"];
 function goTab(id) {
   if (!TABS.includes(id)) id = "today";
   if (id !== ui.tab) { ui.tab = id; ui.draft = null; render(); window.scrollTo(0, 0) }

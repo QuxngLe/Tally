@@ -507,5 +507,6 @@
  "Your sync code": "รหัสซิงค์ของคุณ",
  "New code": "รหัสใหม่",
  "Keep this code private. Anyone with it can add steps to your account.": "เก็บรหัสนี้เป็นความลับ ใครที่มีรหัสนี้สามารถเพิ่มจำนวนก้าวลงในบัญชีของคุณได้",
- "Shortcut steps": "ขั้นตอนสร้างคำสั่งลัด"
+ "Shortcut steps": "ขั้นตอนสร้างคำสั่งลัด",
+ "Game": "เกม"
 }
