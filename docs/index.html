@@ -163,6 +163,45 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 .xpfloat { position: fixed; z-index: 60; left: 50%; bottom: 120px; transform: translateX(-50%); background: var(--accent); color: var(--accent-ink); font-weight: 800; padding: 6px 14px; border-radius: 999px; box-shadow: var(--shadow); pointer-events: none; animation: xpup 1.4s ease-out forwards; zoom: var(--zoom, 1) }
 @keyframes xpup { 0% { opacity: 0; transform: translate(-50%, 10px) } 15% { opacity: 1; transform: translate(-50%, 0) } 75% { opacity: 1 } 100% { opacity: 0; transform: translate(-50%, -30px) } }
 @media (prefers-reduced-motion: reduce) { .xpfloat { animation: none } }
+.side { display: none }
+@media (min-width: 760px) {
+  body.sides .side { display: block; position: fixed; top: 76px; bottom: 16px; width: 270px; overflow: auto; z-index: 5; zoom: var(--zoom, 1); scrollbar-width: thin }
+  body.sides .sideL { left: 16px } body.sides .sideR { right: 16px }
+  body.sides .side[hidden] { display: none }
+  body.sides .wrap { max-width: min(640px, calc(100vw / var(--zoom, 1) - 620px)) }
+  body.sides .wrap.wide { max-width: min(1040px, calc(100vw / var(--zoom, 1) - 620px)) }
+  body.sides .qadd { width: min(640px, calc(100% - 640px)) }
+}
+.sp { background: var(--surface); border-radius: var(--r); padding: 14px; box-shadow: var(--shadow); border: 1px solid var(--line) }
+.small { font-size: 12.5px }
+.sp .gl { width: 46px; height: 46px; font-size: 22px; border-radius: 13px }
+.sbadges { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px }
+.sbadge { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; font-size: 12px; font-weight: 600; opacity: .4; filter: grayscale(1); min-width: 0 }
+.sbadge svg { width: 20px; height: 20px; flex: none; color: var(--muted) }
+.sbadge span { line-height: 1.2; overflow-wrap: anywhere }
+.sbadge.on { opacity: 1; filter: none; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)) }
+.sbadge.on svg { color: var(--flame) }
+.pond { position: relative; height: 150px; margin-top: 10px; border-radius: 12px; overflow: hidden; background: linear-gradient(#5aa6c9, #2f6f96 70%, #24597a) }
+.pond .wave { position: absolute; left: -50%; width: 200%; height: 14px; border-radius: 50%; border-top: 2px solid rgba(255,255,255,.35); animation: wave 6s linear infinite }
+.pond .w1 { top: 34px } .pond .w2 { top: 80px; animation-duration: 9s; opacity: .6 }
+@keyframes wave { from { transform: translateX(0) } to { transform: translateX(25%) } }
+.pond .swim { position: absolute; animation: swim 11s linear infinite } .pond .s1 { top: 92px } .pond .s2 { top: 118px; animation-duration: 15s; animation-delay: -6s }
+@keyframes swim { from { left: -50px } to { left: 110% } }
+.pond .bob { position: absolute; left: 50%; top: 52px; width: 14px; height: 18px; margin-left: -7px; opacity: 0; transition: opacity .2s }
+.pond .bob i { display: block; width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(#e94b3c 50%, #fff 50%); box-shadow: 0 2px 0 rgba(0,0,0,.25) }
+.pond.cast .bob { opacity: 1; animation: bob 1.6s ease-in-out infinite }
+.pond.bite .bob { animation: dip .25s ease-in-out infinite }
+@keyframes bob { 50% { transform: translateY(3px) } } @keyframes dip { 50% { transform: translateY(9px) } }
+.pond .bang { position: absolute; left: 50%; top: 18px; margin-left: 10px; font-weight: 900; font-size: 22px; color: #fff; opacity: 0; text-shadow: 0 2px 0 rgba(0,0,0,.3) }
+.pond.bite .bang { opacity: 1 }
+.pond .catch { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; transform: translateY(20px); transition: .3s }
+.pond.caught .catch { opacity: 1; transform: none }
+.frow { display: flex; justify-content: space-between; align-items: center; margin: 10px 0 4px }
+#fishmsg { min-height: 1.4em }
+.fishbook { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px }
+.fb { display: grid; justify-items: center; gap: 2px; border: 1px solid var(--line); border-radius: 10px; padding: 6px 4px; font-size: 11.5px; text-align: center }
+.fb span { font-weight: 600 } .fb em { font-style: normal; color: var(--muted); font-size: 10.5px } .fb:not(.on) { opacity: .5 }
+@media (prefers-reduced-motion: reduce) { .pond .wave, .pond .swim, .pond.cast .bob { animation: none } }
 .daynote { width: 100%; resize: vertical; min-height: 64px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); color: inherit; padding: 10px 12px; font: inherit; box-shadow: var(--shadow) }
 .wdbars { display: grid; gap: 6px; margin-top: 10px }
 .wdb { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; font-size: 13px }
@@ -380,6 +419,8 @@ input[type=range] { width: min(220px, 100%); accent-color: var(--accent) }
 <nav class="tabs" id="tabs" aria-label="Sections"></nav>
 <div id="bgimg" hidden></div>
 <main class="wrap" id="view"></main>
+<aside class="side sideL" id="sideL" aria-label="Level and badges"></aside>
+<aside class="side sideR" id="sideR" aria-label="Fishing"></aside>
 <div id="layer"></div>
 
 <script>
@@ -442,6 +483,7 @@ function pieces(D) {
   m["order"] = JSON.stringify((D.trackers || []).map(t => t.id));
   m["settings"] = JSON.stringify(D.settings || {});
   m["examples"] = JSON.stringify(!!D.examples);
+  m["fish"] = JSON.stringify(D.fish || null);
   return m;
 }
 function stampChanges() {
@@ -931,7 +973,84 @@ function gameTick() {
   if (g.level > was.level) toast(tx("Level up! You're now level {n}: {title}", { n: g.level, title: levelTitle(g.level) }));
   else if (nb) toast(tx("New badge: {name}", { name: tx(BADGES.find(b => b[0] === nb)[1]) }));
 }
-function render() { renderTabs(); view.classList.toggle("wide", ui.tab === "calendar"); document.body.classList.toggle("has-q", ui.tab === "calendar"); renderView(); view.insertAdjacentHTML("afterbegin", `<div class="toprow">${meBtnHTML()}</div>`); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth); gameTick() }
+// ---------- side panels (computers only) ----------
+// Wide screens get a level-and-badges panel on the left and a small fishing game on the right.
+const sidesOn = () => innerWidth / (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--zoom")) || 1) >= 1300;
+function sideGameHTML(g) {
+  const p = Math.round(Math.min(1, (g.xp - g.from) / (g.to - g.from)) * 100);
+  return `<div class="sp"><div class="gtop"><div class="gl num">${g.level}</div><div style="min-width:0;flex:1"><h3 style="margin:0">${esc(levelTitle(g.level))}</h3>
+    <div class="muted small">${tx("{xp} XP in total · {n} XP to level {next}", { xp: g.xp.toLocaleString(LOC), n: (g.to - g.xp).toLocaleString(LOC), next: g.level + 1 })}</div></div></div>
+    <span class="xpbar big"><i style="width:${p}%"></i></span>
+    <div class="muted small" style="margin-top:8px">${tx("Today: +{n} XP", { n: g.today })}</div>
+    <div class="sub" style="margin-top:12px">${tx("Badges")} · ${g.badges.length}/${BADGES.length}</div>
+    <div class="sbadges">${BADGES.map(([id, name, how]) => `<div class="sbadge ${g.badges.includes(id) ? "on" : ""}" title="${esc(tx(how))}">${BADGE_SVG}<span>${esc(tx(name))}</span></div>`).join("")}</div></div>`;
+}
+function renderSides() {
+  const on = sidesOn(), L = $("#sideL"), R = $("#sideR");
+  document.body.classList.toggle("sides", on);
+  if (!on) { L.innerHTML = ""; R.innerHTML = ""; fishReset(); return }
+  L.innerHTML = gameOn() ? sideGameHTML(gameStats()) : "";
+  L.hidden = !gameOn();
+  if (!R.firstChild) R.innerHTML = fishHTML();
+  fishCounts();
+}
+addEventListener("resize", () => { clearTimeout(window.__sr); window.__sr = setTimeout(renderSides, 150) });
+
+// ---------- fishing ----------
+// Everything you finish earns one bait (plus a few to start). Cast, wait for the bite, reel in fast.
+const FISH = [
+  ["minnow", "Minnow", "#9AA5A8", 30, [4, 9]], ["perch", "Perch", "#8C9A3C", 24, [12, 30]], ["bluegill", "Bluegill", "#4D7FB8", 20, [10, 24]],
+  ["trout", "Rainbow trout", "#D98A9A", 10, [25, 60]], ["bass", "Bass", "#4E8A4C", 8, [25, 65]], ["salmon", "Salmon", "#E07A5F", 4.5, [50, 110]],
+  ["koi", "Koi", "#F08A24", 3, [30, 90]], ["gold", "Golden carp", "#E8B931", 0.5, [40, 120]]
+];
+/* i18n: tx("Minnow") tx("Perch") tx("Bluegill") tx("Rainbow trout") tx("Bass") tx("Salmon") tx("Koi") tx("Golden carp") */
+const FISH_START = 5;
+const fishData = () => (S.fish ||= { spent: 0, caught: {}, best: {}, total: 0 });
+const baitLeft = () => Math.max(0, FISH_START + gameStats().checks - fishData().spent);
+const fishSVG = (c, w = 46) => `<svg class="fishsvg" viewBox="0 0 64 32" width="${w}" height="${w / 2}" aria-hidden="true"><path d="M50 16 63 5v22z" fill="${c}"/><ellipse cx="28" cy="16" rx="24" ry="11" fill="${c}"/><path d="M20 6c5 3 5 17 0 20" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="2"/><circle cx="13" cy="13" r="2.4" fill="#fff"/><circle cx="12.6" cy="13" r="1.2" fill="#111"/></svg>`;
+let fishState = "idle", fishTimers = [];
+function fishHTML() {
+  return `<div class="sp"><h3 style="margin:0 0 2px">${tx("Fishing")}</h3><div class="muted small">${tx("Everything you finish earns one bait. Cast, wait for a bite, then reel in fast.")}</div>
+    <div class="pond" id="pond"><div class="wave w1"></div><div class="wave w2"></div>
+      <div class="swim s1">${fishSVG("rgba(0,0,0,.18)", 34)}</div><div class="swim s2">${fishSVG("rgba(0,0,0,.14)", 26)}</div>
+      <div class="bob" id="bob"><i></i></div><div class="bang" id="bang">!</div><div class="catch" id="catch"></div></div>
+    <div class="frow"><span class="muted small" id="bait"></span><button class="btn primary small" id="fishbtn" data-fish="cast">${tx("Cast")}</button></div>
+    <div class="muted small" id="fishmsg" aria-live="polite"></div>
+    <div class="sub" style="margin-top:12px">${tx("Fishbook")} · <span id="fishcount"></span></div>
+    <div class="fishbook" id="fishbook"></div></div>`;
+}
+function fishCounts() {
+  const f = fishData(), b = $("#bait"), book = $("#fishbook"); if (!b) return;
+  b.textContent = tx("Bait: {n}", { n: baitLeft() });
+  $("#fishcount").textContent = `${Object.keys(f.caught).length}/${FISH.length}`;
+  book.innerHTML = FISH.map(([id, name, c]) => f.caught[id] ? `<div class="fb on" title="${esc(tx(name))}">${fishSVG(c, 34)}<span>${esc(tx(name))}</span><em class="num">×${f.caught[id]} · ${f.best[id]} cm</em></div>` : `<div class="fb" title="?">${fishSVG("var(--surface-2)", 34)}<span>???</span></div>`).join("");
+  const btn = $("#fishbtn"); if (btn && fishState === "idle") btn.disabled = !baitLeft();
+}
+function fishSay(m) { const e = $("#fishmsg"); if (e) e.textContent = m }
+function fishReset() { fishTimers.forEach(clearTimeout); fishTimers = []; fishState = "idle"; const p = $("#pond"); if (p) p.className = "pond"; const b = $("#fishbtn"); if (b) { b.dataset.fish = "cast"; b.textContent = tx("Cast") } }
+function pickFish() { const tot = FISH.reduce((a, f) => a + f[3], 0); let r = Math.random() * tot; for (const f of FISH) { if ((r -= f[3]) < 0) return f } return FISH[0] }
+function fishAct() {
+  const btn = $("#fishbtn"), pond = $("#pond");
+  if (fishState === "idle") {
+    if (!baitLeft()) return fishSay(tx("Out of bait. Finish something to earn more."));
+    fishData().spent++; save(); fishCounts();
+    fishState = "waiting"; pond.className = "pond cast"; btn.dataset.fish = "reel"; btn.textContent = tx("Reel in"); fishSay(tx("Waiting for a bite…"));
+    fishTimers.push(setTimeout(() => {
+      fishState = "bite"; pond.className = "pond cast bite"; fishSay(tx("A bite! Reel in now!"));
+      fishTimers.push(setTimeout(() => { if (fishState === "bite") { fishReset(); fishSay(tx("It got away. Try again.")); fishCounts() } }, 900 + Math.random() * 400));
+    }, 1500 + Math.random() * 4500));
+  } else if (fishState === "waiting") { fishReset(); fishSay(tx("Too early, the fish swam off.")); fishCounts() }
+  else if (fishState === "bite") {
+    fishTimers.forEach(clearTimeout); fishTimers = [];
+    const [id, name, c, , [lo, hi]] = pickFish(), size = Math.round(lo + Math.random() * (hi - lo)), f = fishData();
+    const isNew = !f.caught[id]; f.caught[id] = (f.caught[id] || 0) + 1; f.total = (f.total || 0) + 1; const rec = size > (f.best[id] || 0); if (rec) f.best[id] = size; save();
+    fishState = "caught"; pond.className = "pond caught"; $("#catch").innerHTML = fishSVG(c, 64); btn.disabled = true; fishCounts();
+    fishSay(isNew ? tx("New fish! {name}, {n} cm", { name: tx(name), n: size }) : rec ? tx("{name}, {n} cm. New record!", { name: tx(name), n: size }) : tx("{name}, {n} cm", { name: tx(name), n: size }));
+    fishTimers.push(setTimeout(() => { fishReset(); fishCounts() }, 1800));
+  }
+}
+document.addEventListener("click", ev => { if (ev.target.closest("#fishbtn")) fishAct() });
+function render() { renderTabs(); view.classList.toggle("wide", ui.tab === "calendar"); document.body.classList.toggle("has-q", ui.tab === "calendar"); renderView(); view.insertAdjacentHTML("afterbegin", `<div class="toprow">${meBtnHTML()}</div>`); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth); gameTick(); renderSides() }
 function openMenu() {
   const cur = (LANGS.find(l => l[0] === LANG) || LANGS[0])[1], n = userName();
   layer.innerHTML = `<div class="scrim clear" data-act="closebg"><div class="menu" role="menu">
@@ -1010,7 +1129,7 @@ function rToday() {
       <div class="lbl num">${done.length}/${list.length}<small>${tx("done")}</small></div>
     </div>
   </header>
-  ${gameOn() ? levelBar(gameStats(), true) : ""}
+  ${gameOn() && !sidesOn() ? levelBar(gameStats(), true) : ""}
   <form class="prompt" id="pform" autocomplete="off">
     <input id="pin" type="text" placeholder="${tx("Type anything you want to track…")}" aria-label="${tx("Describe something to track")}" value="${esc(ui.prompt || "")}">
     <button class="go" type="submit">${tx("Add")}</button>
@@ -1416,7 +1535,7 @@ function rStats() {
     <div class="tile"><b class="num" style="color:var(--flame)">${top ? top[1].cur : 0}</b><span>${tx("longest current streak")}${top && top[1].cur ? " · " + esc(top[0].name) : ""}</span></div>
     <div class="tile"><b class="num">${checks.toLocaleString(LOC)}</b><span>${tx("things finished, {span}", { span })}</span></div>
   </div>
-  ${gameOn() ? gameCard(gameStats()) : ""}
+  ${gameOn() && !sidesOn() ? gameCard(gameStats()) : ""}
   <section class="sec card"><h3>${weekly ? tx("Weekly completion") : tx("Daily completion")}</h3><div class="muted">${tx("Share of what was due that you finished, {span}", { span })}</div>${barChart(vals, labels)}</section>
   ${weekdayCard(days)}
   ${monthCard()}
@@ -1804,6 +1923,7 @@ function mergeState(A, B) {
   });
   out.settings = pick("settings") === "B" ? B.settings : A.settings;
   out.examples = pick("examples") === "B" ? B.examples : A.examples;
+  out.fish = pick("fish") === "B" ? B.fish : A.fish;
   return out;
 }
 var sb = null, syncUser = null, syncTimer = null, syncing = false, lastSync = store.get("tally.lastsync", 0), syncErr = "";
