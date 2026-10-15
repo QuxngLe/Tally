@@ -508,5 +508,6 @@
  "New code": "Yeni kod",
  "Keep this code private. Anyone with it can add steps to your account.": "Bu kodu gizli tut. Koda sahip olan herkes hesabına adım ekleyebilir.",
  "Shortcut steps": "Kestirme talimatları",
- "Game": "Oyun"
+ "Game": "Oyun",
+ "Removed the example trackers. Only your own trackers are kept in your account.": "Örnek takipçiler kaldırıldı. Hesabında yalnızca kendi takipçilerin tutulur."
 }

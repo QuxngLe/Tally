@@ -508,5 +508,6 @@
  "New code": "새 코드",
  "Keep this code private. Anyone with it can add steps to your account.": "이 코드는 다른 사람에게 알려 주지 마세요. 코드를 가진 사람은 누구나 내 계정에 걸음 수를 추가할 수 있어요.",
  "Shortcut steps": "단축어 만드는 법",
- "Game": "게임"
+ "Game": "게임",
+ "Removed the example trackers. Only your own trackers are kept in your account.": "예시 트래커를 삭제했어요. 계정에는 내 트래커만 저장돼요."
 }

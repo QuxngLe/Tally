@@ -508,5 +508,6 @@
  "New code": "Новый код",
  "Keep this code private. Anyone with it can add steps to your account.": "Никому не показывайте этот код. С ним любой может добавлять шаги в ваш аккаунт.",
  "Shortcut steps": "Инструкция для быстрой команды",
- "Game": "Игра"
+ "Game": "Игра",
+ "Removed the example trackers. Only your own trackers are kept in your account.": "Примеры трекеров удалены. В вашем аккаунте хранятся только ваши собственные трекеры."
 }

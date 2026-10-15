@@ -508,5 +508,6 @@
  "New code": "नया कोड",
  "Keep this code private. Anyone with it can add steps to your account.": "यह कोड किसी को न बताएँ। जिसके पास यह होगा, वह आपके खाते में कदम जोड़ सकता है।",
  "Shortcut steps": "Shortcut बनाने के चरण",
- "Game": "गेम"
+ "Game": "गेम",
+ "Removed the example trackers. Only your own trackers are kept in your account.": "उदाहरण ट्रैकर हटा दिए गए। आपके खाते में सिर्फ़ आपके अपने ट्रैकर रखे जाते हैं।"
 }

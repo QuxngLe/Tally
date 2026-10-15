@@ -949,13 +949,15 @@ const BADGES = [
 function gameStats() {
   const tk = keyOf(today());
   let first = tk;
-  S.trackers.forEach(t => Object.keys(S.log[t.id] || {}).forEach(k => { if (k < first) first = k }));
+  // Example trackers' made-up history doesn't earn XP.
+  S.trackers.forEach(t => { if (!t.example) Object.keys(S.log[t.id] || {}).forEach(k => { if (k < first) first = k }) });
   const days = Math.min(1500, diffDays(today(), fromKey(first)) + 1), runs = {};
   const g = { xp: 0, checks: 0, perfect: 0, bestStreak: 0, bestPerfectRun: 0, today: 0 };
   let pr = 0;
   for (let i = days - 1; i >= 0; i--) {
     const d = addDays(today(), -i), k = keyOf(d); let due = 0, dn = 0, x = 0;
     for (const t of dueList(d)) {
+      if (t.example) continue;
       const on = doneOn(t, k);
       if (t.freq === "weekly") { if (on) { g.checks++; x += XP.done } continue }
       due++;
@@ -1962,7 +1964,10 @@ function mergeState(A, B) {
     keys.forEach(ik => {
       const [id, k] = [ik.slice(0, ik.indexOf("|")), ik.slice(ik.indexOf("|") + 1)];
       if (!keep[id]) return;
-      const src = pick(name + "|" + ik) === "B" ? b : a, v = src && src[id] && src[id][k];
+      const pk = name + "|" + ik, src = pick(pk) === "B" ? b : a, other = src === a ? b : a;
+      let v = src && src[id] && src[id][k];
+      // Same (or no) timestamp on both sides: an entry one side has and the other lacks is kept, not lost.
+      if ((v === undefined || v === null) && (mtA[pk] || 0) === (mtB[pk] || 0)) v = other && other[id] && other[id][k];
       if (v !== undefined && v !== null) (res[id] ||= {})[k] = v;
     });
     return res;
@@ -1971,7 +1976,8 @@ function mergeState(A, B) {
   out.subs = mergeDays("sub", A.subs, B.subs);
   out.notes = {};
   new Set([...Object.keys(A.notes || {}), ...Object.keys(B.notes || {}), ...Object.keys(out.mt).filter(k => k.startsWith("note|")).map(k => k.slice(5))]).forEach(k => {
-    const v = ((pick("note|" + k) === "B" ? B : A).notes || {})[k]; if (v) out.notes[k] = v;
+    const nk = "note|" + k, tie = (mtA[nk] || 0) === (mtB[nk] || 0);
+    const v = ((pick(nk) === "B" ? B : A).notes || {})[k] || (tie ? (A.notes || {})[k] || (B.notes || {})[k] : ""); if (v) out.notes[k] = v;
   });
   out.settings = pick("settings") === "B" ? B.settings : A.settings;
   out.examples = pick("examples") === "B" ? B.examples : A.examples;
@@ -2010,6 +2016,16 @@ async function syncNow(manual) {
     const keepLocal = { fired: S.fired, snooze: S.snooze };
     S = Object.assign(merged, keepLocal); fixSettings(); fixTrackers();
     snap = pieces(S); store.set(KEY, S);
+    // Starter examples only exist to show a new, signed-out user how things work. They never belong in an
+    // account: drop them (and their made-up history) everywhere, recording the removal so other devices drop them too.
+    const ex = S.trackers.filter(t => t.example);
+    if (ex.length || S.examples) {
+      const now = Date.now();
+      ex.forEach(t => { delete S.log[t.id]; delete S.subs[t.id]; S.deleted[t.id] = now; S.mt["t|" + t.id] = now - 1 });
+      S.trackers = S.trackers.filter(t => !t.example); S.examples = false; S.mt.examples = now;
+      snap = pieces(S); store.set(KEY, S);
+      if (ex.length) setTimeout(() => toast(tx("Removed the example trackers. Only your own trackers are kept in your account.")), 600);
+    }
     const up = Object.assign({}, S); delete up.fired; delete up.snooze;
     const { error: e2 } = await sb.from("tally_state").upsert({ user_id: syncUser.id, data: up, updated_at: new Date().toISOString() });
     if (e2) throw e2;

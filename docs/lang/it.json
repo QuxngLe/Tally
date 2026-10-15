@@ -508,5 +508,6 @@
  "New code": "Nuovo codice",
  "Keep this code private. Anyone with it can add steps to your account.": "Tieni questo codice privato. Chiunque lo abbia può aggiungere passi al tuo account.",
  "Shortcut steps": "Istruzioni per il comando rapido",
- "Game": "Gioco"
+ "Game": "Gioco",
+ "Removed the example trackers. Only your own trackers are kept in your account.": "Tracker di esempio rimossi. Nel tuo account restano solo i tuoi tracker."
 }

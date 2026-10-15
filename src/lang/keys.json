@@ -414,6 +414,7 @@
  "Erase",
  "Everything erased",
  "Couldn't load the sync service. Check your internet connection.",
+ "Removed the example trackers. Only your own trackers are kept in your account.",
  "Synced",
  "Sync failed",
  "Sync didn't work: {err}",
