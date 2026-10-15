@@ -1,4 +1,4 @@
-# Tally Tracker
+# Welli
 
 Track anything you can finish: habits, to-dos, counts. One codebase runs in a browser, on a phone, and installs as an app on a PC or laptop (it's a Progressive Web App).
 
@@ -14,7 +14,8 @@ Track anything you can finish: habits, to-dos, counts. One codebase runs in a br
 - **Progress over any range**: week, month, 3 months, year or all time, plus a 12-month heatmap.
 - **Templates**: Morning routine, Evening wind-down, Fitness basics, Study, Healthy habits, Home chores, Weekly review.
 - **Lists**: All, Due this week, Left today, Overdue, and one list per group and #tag.
-- **Steps and calories from your phone**: open `?steps=8421&calories=512` (an iPhone Shortcut can do this nightly from Apple Health).
+- **Steps and calories from your phone**: signed in, an iPhone Shortcut sends Apple Health numbers with a private sync code (Settings → Steps and calories). Without an account, open `?steps=8421&calories=512`.
+- **Reminders with the app closed**: signed-in devices get push notifications from a small Supabase function.
 - **Customize**: name, icon, color, group, schedule (every day, some days, X times a week, one time), amount and unit, notes, archive, reorder, theme and accent color, week start.
 - **Data** stays on the device. Backup/restore moves it between devices.
 
@@ -33,3 +34,8 @@ After `docs/` is on an HTTPS address:
 ## Known limits
 - Reminders fire while the app is open or running in the background; a phone that has fully closed the app won't get them (that needs a push server).
 - Data lives in each browser separately; use Settings → Copy backup / Restore to move it.
+
+## Server setup (reminders and Apple Health)
+One time, in the Supabase dashboard:
+1. SQL Editor: run `supabase/setup.sql` after filling in the VAPID keys, subject and project URL.
+2. Edge Functions: create a function named `remind` from `supabase/functions/remind/index.ts`, with Verify JWT turned off.

@@ -1,6 +1,6 @@
 {
-  "name": "Tally Tracker",
-  "short_name": "Tally",
+  "name": "Welli",
+  "short_name": "Welli",
   "description": "Track anything you can finish: habits, to-dos, counts, with streaks, charts and reminders.",
   "start_url": "./",
   "scope": "./",

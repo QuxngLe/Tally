@@ -1,5 +1,5 @@
 // Offline support: keep the app shell cached, refresh it in the background.
-const CACHE = "tally-v4";
+const CACHE = "welli-v1";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
@@ -25,4 +25,10 @@ self.addEventListener("notificationclick", e => {
     }
     return cs.length ? cs[0].focus() : self.clients.openWindow("./");
   }));
+});
+// Reminders sent by the server (supabase/functions/remind) while the app is closed.
+self.addEventListener("push", e => {
+  let d = {}; try { d = e.data ? e.data.json() : {}; } catch (_) { }
+  const a = d.a || ["Done", "Snooze"];
+  e.waitUntil(self.registration.showNotification(d.title || "Welli", { body: d.body || "", tag: d.id || "welli", icon: "icon-192.png", badge: "icon-192.png", data: { id: d.id }, actions: d.id ? [{ action: "done", title: a[0] }, { action: "snooze", title: a[1] }] : [] }));
 });

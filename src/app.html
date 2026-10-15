@@ -1,4 +1,4 @@
-<title>Tally Tracker</title>
+<title>Welli</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
@@ -164,6 +164,8 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
   body.sides .wrap.wide { max-width: min(1040px, calc(100vw / var(--zoom, 1) - var(--sl) - var(--sr))) }
   body.sides .qadd { width: min(640px, calc(100% - var(--sl) - var(--sr) - 20px)); left: calc(50% + (var(--sl) - var(--sr)) / 2) }
 }
+.sheet ol.steps { padding-left: 20px; margin: 6px 0 14px; display: grid; gap: 10px; line-height: 1.4 }
+.sheet ol.steps .line { margin-top: 6px }
 .sp { background: var(--surface); border-radius: var(--r); padding: 14px; box-shadow: var(--shadow); border: 1px solid var(--line) }
 .small { font-size: 12.5px }
 .sp .gl { width: 46px; height: 46px; font-size: 22px; border-radius: 13px }
@@ -447,7 +449,7 @@ const fmtShort = d => d.toLocaleDateString(LOC, { month: "short", day: "numeric"
 
 // ---------- state ----------
 let S = store.get(KEY, null);
-const defaultLook = () => ({ preset: "pine", accent: "", custom: { bg: "#F3F5F1", surface: "#FFFFFF", fg: "#16201B", accent: "#2E6B57" }, bg: "none", dim: 0.4, glass: true, font: "modern", size: 1, radius: 14, density: "comfy", layout: "list", check: "circle", done: "check", streaks: true, title: "Tally" });
+const defaultLook = () => ({ preset: "pine", accent: "", custom: { bg: "#F3F5F1", surface: "#FFFFFF", fg: "#16201B", accent: "#2E6B57" }, bg: "none", dim: 0.4, glass: true, font: "modern", size: 1, radius: 14, density: "comfy", layout: "list", check: "circle", done: "check", streaks: true, title: "Welli" });
 const defaults = () => ({ trackers: [], log: {}, fired: {}, examples: false, settings: { theme: "system", weekStart: 1, notify: false, showDone: true, game: true, look: defaultLook() } });
 function fixSettings() {
   const st = S.settings = Object.assign(defaults().settings, S.settings || {});
@@ -1143,7 +1145,7 @@ const userName = () => { if (!syncUser) return ""; const m = syncUser.user_metad
 const initial = n => (n || "?").trim().charAt(0).toUpperCase();
 function openAccount(mode) {
   if (!syncReady()) {
-    layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ach"><h2 id="ach">${tx("Sign in")}</h2><p class="muted">${tx("Accounts work in the Tally app at quxngle.github.io/Tally, not in this preview.")}</p><div class="row-btns"><button class="btn" data-ac="close">${tx("Close")}</button></div></div></div>`;
+    layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ach"><h2 id="ach">${tx("Sign in")}</h2><p class="muted">${tx("Accounts work in the Welli app at quxngle.github.io/Tally, not in this preview.")}</p><div class="row-btns"><button class="btn" data-ac="close">${tx("Close")}</button></div></div></div>`;
     layer.onclick = ev => { if (ev.target.closest("[data-ac]") || ev.target.dataset.act === "closebg") closeSheet() };
     return;
   }
@@ -1173,7 +1175,7 @@ function openAccount(mode) {
       <div class="field"><label for="a-pass">${tx("Password")}</label><div class="pw"><input id="a-pass" type="${f.show ? "text" : "password"}" value="${esc(f.pass)}" autocomplete="${up ? "new-password" : "current-password"}" style="padding-right:64px"><button data-ac="show" type="button">${f.show ? tx("Hide") : tx("Show")}</button></div></div>
       ${f.err ? `<div class="err" role="alert">${esc(f.err)}</div>` : ""}
       <div class="row-btns"><button class="btn primary" data-ac="go" ${f.busy ? "disabled" : ""}>${f.busy ? tx("One moment…") : up ? tx("Create account") : tx("Sign in")}</button><button class="btn" data-ac="close">${tx("Not now")}</button></div>
-      <p class="muted">${tx("Tally is free to use without an account, but your data is then saved only on this device. Sign in to keep your trackers in sync across all your devices. You can use more than one account and switch between them at any time.")}</p></div></div>`;
+      <p class="muted">${tx("Welli is free to use without an account, but your data is then saved only on this device. Sign in to keep your trackers in sync across all your devices. You can use more than one account and switch between them at any time.")}</p></div></div>`;
     const first = document.getElementById(up ? "a-name" : "a-email"); if (first && !f[up ? "name" : "email"]) first.focus();
   };
   draw();
@@ -1204,7 +1206,7 @@ function openAccount(mode) {
         if (r.error) throw r.error;
         if (up && !r.data.session) { f.busy = false; f.mode = "signin"; f.err = ""; draw(); toast(tx("Check your email to confirm your account, then sign in here.")); return }
         syncUser = r.data.user; syncErr = ""; closeSheet();
-        toast(up ? tx("Welcome to Tally, {name}!", { name: userName() }) : tx("Welcome back, {name}!", { name: userName() }));
+        toast(up ? tx("Welcome to Welli, {name}!", { name: userName() }) : tx("Welcome back, {name}!", { name: userName() }));
         await syncNow(); render();
       } catch (e) {
         f.busy = false;
@@ -1642,7 +1644,8 @@ function rSettings() {
     : `<div class="muted">${tx("Your own colors, accent color, font, text size, layout, check buttons and streaks.")}</div>`}
   </div>
   <div class="card set"><h3>${tx("Steps and calories from your phone")}</h3>
-    <div class="muted">${tx("Tally can't read Apple Health or Google Fit by itself, but your phone can send it your numbers. Open this link with your numbers in it, and today's steps and calories burned are saved to their own trackers (they're created if you don't have them):")}</div>
+    ${healthCard()}
+    <div class="muted" style="margin-top:10px">${tx("Welli can't read Apple Health or Google Fit by itself, but your phone can send it your numbers. Open this link with your numbers in it, and today's steps and calories burned are saved to their own trackers (they're created if you don't have them):")}</div>
     <div class="line"><code style="overflow-wrap:anywhere;font-size:13px">${esc(location.origin + location.pathname)}?steps=8421&amp;calories=512</code><button class="btn small" data-act="copysteps">${tx("Copy link")}</button></div>
     <div class="muted">${tx("On iPhone, a Shortcut can read today's steps and active calories from Health and open this link for you every evening.")}</div>
   </div>
@@ -1657,9 +1660,10 @@ function rSettings() {
   <div class="card set"><h3>${tx("Reminders")}</h3>
     <div class="muted">${tx("Reminders pop up at the time you set on each tracker while the app is open or running in the background on your device. If something is already done, it stays quiet.")}</div>
     <div class="line"><span>${st.notify && notifOK && Notification.permission === "granted" ? tx("Notifications are on") : tx("Notifications are off")}</span>${notifOK ? `<button class="btn small" data-act="notify">${st.notify && Notification.permission === "granted" ? tx("Turn off") : tx("Turn on")}</button>` : `<span class="muted">${tx("This browser can't show notifications")}</span>`}</div>
+    ${pushLine()}
   </div>
   <div class="card set"><h3>${tx("Install on this device")}</h3>
-    ${standalone ? `<div class="muted">${tx("You're using the installed app.")}</div>` : deferredInstall ? `<div class="line"><span>${tx("Add Tally to your home screen or desktop.")}</span><button class="btn small primary" data-act="install">${tx("Install")}</button></div>`
+    ${standalone ? `<div class="muted">${tx("You're using the installed app.")}</div>` : deferredInstall ? `<div class="line"><span>${tx("Add Welli to your home screen or desktop.")}</span><button class="btn small primary" data-act="install">${tx("Install")}</button></div>`
       : `<div class="muted">${tx("On iPhone: Share → Add to Home Screen. On Android Chrome: menu → Install app. On a PC or Mac in Chrome or Edge: the install icon at the right of the address bar.")}</div>`}
   </div>
   ${syncCard()}
@@ -1822,6 +1826,10 @@ document.addEventListener("click", async ev => {
     case "langs": openLangs(); break;
     case "gohome": goTab("today"); break;
     case "syncnow": syncing = false; await syncNow(true); render(); break;
+    case "pushon": await pushEnable(); break;
+    case "pushoff": await pushDisable(); break;
+    case "healthmake": try { await healthMake(); render(); healthHow() } catch (e) { toast(tx("Couldn't make a sync code: {err}", { err: (e && e.message) || "" })) } break;
+    case "healthhow": healthHow(); break;
     case "adv": ui.adv = !ui.adv; try { sessionStorage.setItem("tally.adv", ui.adv ? "1" : "") } catch { } render(); break;
     case "look": { let v = b.dataset.v; const k2 = b.dataset.k;
       if (["size", "radius"].includes(k2)) v = +v; if (["glass", "streaks"].includes(k2)) v = v === "true";
@@ -1841,7 +1849,7 @@ document.addEventListener("click", async ev => {
     case "download": { try { const blob = new Blob([JSON.stringify(Object.assign({}, S, bgImage ? { bgimg: bgImage } : {}), null, 1)], { type: "application/json" }); const u = URL.createObjectURL(blob); const l = document.createElement("a"); l.href = u; l.download = `tally-backup-${keyOf(today())}.json`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); toast(tx("Backup file saved")) } catch { toast(tx("Saving files isn't allowed here. Use Copy backup instead.")) } break }
     case "importbox": $("#dataio").innerHTML = `<textarea class="data" id="imp" placeholder="${tx("Paste a backup here, or pick a file below")}"></textarea><div class="row-btns" style="margin-top:8px"><button class="btn small primary" data-act="doimport">${tx("Restore")}</button><label class="btn small" style="display:inline-block">${tx("Choose file")}<input id="impf" type="file" accept=".json,application/json" hidden></label></div>`;
       $("#impf").onchange = async e => { const f = e.target.files[0]; if (f) $("#imp").value = await f.text() }; break;
-    case "doimport": try { const d = JSON.parse($("#imp").value); if (!Array.isArray(d.trackers) || typeof d.log !== "object") throw 0; if (d.bgimg) { bgImage = d.bgimg; store.set("tally.bgimg", bgImage) } delete d.bgimg; S = Object.assign(defaults(), d); fixSettings(); fixTrackers(); save(); applyTheme(); render(); toast(tx("Backup restored")) } catch { toast(tx("That text isn't a Tally backup. Copy the whole backup and try again.")) } break;
+    case "doimport": try { const d = JSON.parse($("#imp").value); if (!Array.isArray(d.trackers) || typeof d.log !== "object") throw 0; if (d.bgimg) { bgImage = d.bgimg; store.set("tally.bgimg", bgImage) } delete d.bgimg; S = Object.assign(defaults(), d); fixSettings(); fixTrackers(); save(); applyTheme(); render(); toast(tx("Backup restored")) } catch { toast(tx("That text isn't a Welli backup. Copy the whole backup and try again.")) } break;
     case "reset": $("#dataio").innerHTML = `<div class="banner"><span>${tx("Erase all trackers and history on this device?")}</span><span class="row-btns"><button class="btn small danger" data-act="reset2">${tx("Erase")}</button><button class="btn small" data-act="noreset">${tx("Keep")}</button></span></div>`; break;
     case "noreset": $("#dataio").innerHTML = ""; break;
     case "reset2": S = defaults(); fixTrackers(); bgImage = ""; try { localStorage.removeItem("tally.bgimg") } catch { } save(); applyTheme(); render(); toast(tx("Everything erased")); break;
@@ -1956,6 +1964,7 @@ async function syncNow(manual) {
     const { error: e2 } = await sb.from("tally_state").upsert({ user_id: syncUser.id, data: up, updated_at: new Date().toISOString() });
     if (e2) throw e2;
     lastSync = Date.now(); store.set("tally.lastsync", lastSync); syncErr = "";
+    syncing = false; await healthPull(); pushSchedule();
     if (!layer.innerHTML) { applyTheme(); render() }
     if (manual) toast(tx("Synced"));
   } catch (e) { syncErr = (e && e.message) || tx("Sync failed"); if (manual) toast(tx("Sync didn't work: {err}", { err: syncErr })) }
@@ -1980,10 +1989,13 @@ function remindAction(action, id) {
   if (action === "snooze") snooze(id);
   else if (action === "done") { const k = keyOf(today()); if (t.subtasks.length) setSubs(t, k, t.subtasks.map(x => x.id)); setCount(t, k, t.target); render(); toast(`${t.emoji} ${tx("{name} done", { name: t.name })}`) }
 }
+const remindBody = (t, k) => t.kind === "count" ? tx("{n} of {goal} {unit} so far", { n: cnt(t, k), goal: t.target, unit: t.unit }) : t.subtasks.length ? tx("{done} of {total} steps done", { done: subsDone(t, k).length, total: t.subtasks.length }) : tx("Tap to check it off");
 function fireReminder(t, k) {
-  const body = t.kind === "count" ? tx("{n} of {goal} {unit} so far", { n: cnt(t, k), goal: t.target, unit: t.unit }) : t.subtasks.length ? tx("{done} of {total} steps done", { done: subsDone(t, k).length, total: t.subtasks.length }) : tx("Tap to check it off");
+  const body = remindBody(t, k);
   let shown = false;
-  if (S.settings.notify && "Notification" in window && Notification.permission === "granted") {
+  // When this device gets reminders from the server (works with the app closed), don't show a second copy.
+  if (pushHere && syncUser) shown = true;
+  else if (S.settings.notify && "Notification" in window && Notification.permission === "granted") {
     try {
       if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(`${t.name}`, { body, tag: t.id, icon: "icon-192.png", data: { id: t.id }, actions: [{ action: "done", title: tx("Done") }, { action: "snooze", title: tx("Snooze {n} min", { n: SNOOZE_MIN }) }] }));
       else new Notification(`${t.name}`, { body, tag: t.id });
@@ -2004,6 +2016,116 @@ function checkReminders() {
     }
   });
 }
+// ---------- reminders with the app closed (web push) ----------
+// Each signed-in device can subscribe; the app uploads the next week of reminders, and a Supabase
+// function (supabase/functions/remind) sends each one when it comes due. See supabase/setup.sql.
+const VAPID_PUB = "BOJ3D0BzBYqb-ktsrlkvTh-WkXV1Zp-KjueI4WZNZCmrDcB9_ZOyWCUjUVQTruGgDfOnCawER2wj9RP3MEEXy64";
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const pushOK = () => syncReady() && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+var pushHere = store.get("welli.push", false);
+function b64u(s) { const b = atob((s + "===".slice((s.length + 3) % 4)).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(b, c => c.charCodeAt(0)) }
+function pushItems() {
+  const items = [], now = Date.now(), a = [tx("Done"), tx("Snooze {n} min", { n: SNOOZE_MIN })];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(today(), i), k = keyOf(d);
+    dueList(d).forEach(t => {
+      if (doneOn(t, k)) return;
+      rems(t).forEach(r => {
+        const [h, m] = r.split(":").map(Number), at = new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m);
+        if (+at > now - 15 * 60e3) items.push({ key: `${t.id}@${k}@${r}`, at: at.toISOString(), id: t.id, title: t.name, body: remindBody(t, k), a });
+      });
+    });
+  }
+  Object.entries(S.snooze || {}).forEach(([id, ts]) => { const t = S.trackers.find(x => x.id === id); if (t && ts > now) items.push({ key: `${id}@snooze@${ts}`, at: new Date(ts).toISOString(), id, title: t.name, body: remindBody(t, keyOf(today())), a }) });
+  return items.sort((x, y) => x.at < y.at ? -1 : 1).slice(0, 250);
+}
+async function pushSchedule() {
+  if (!sb || !syncUser || !S.settings.push) return;
+  try { await sb.from("welli_push_schedule").upsert({ user_id: syncUser.id, items: pushItems(), updated_at: new Date().toISOString() }) } catch { }
+}
+async function pushEnable() {
+  if (!syncUser) return openAccount();
+  try {
+    const p = await Notification.requestPermission();
+    if (p !== "granted") return toast(tx("Your browser blocked notifications. Allow them in its settings and try again."));
+    const reg = await navigator.serviceWorker.ready;
+    const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(VAPID_PUB) });
+    const { error } = await sb.from("welli_push_subs").upsert({ endpoint: sub.endpoint, user_id: syncUser.id, sub: sub.toJSON(), updated_at: new Date().toISOString() });
+    if (error) throw error;
+    pushHere = true; store.set("welli.push", true); S.settings.push = true; S.settings.notify = true; save();
+    await pushSchedule(); render(); toast(tx("Reminders are on for this device, even when Welli is closed."));
+  } catch (e) { toast(tx("Couldn't turn on reminders: {err}", { err: (e && e.message) || "" })) }
+}
+async function pushDisable() {
+  try { const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if (sub) { try { await sb.from("welli_push_subs").delete().eq("endpoint", sub.endpoint) } catch { } await sub.unsubscribe() } } catch { }
+  pushHere = false; store.set("welli.push", false); render(); toast(tx("Reminders are off on this device."));
+}
+function pushLine() {
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (!syncReady()) return "";
+  if (isIOS && !standalone && !("PushManager" in window)) return `<div class="muted">${tx("To get reminders on iPhone while Welli is closed, add Welli to your Home Screen (Share, then Add to Home Screen), open it from there and turn this on.")}</div>`;
+  if (!pushOK()) return `<div class="muted">${tx("This browser can't get reminders while Welli is closed.")}</div>`;
+  if (!syncUser) return `<div class="line"><span class="muted">${tx("Sign in to also get reminders while Welli is closed.")}</span><button class="btn small" data-act="account">${tx("Sign in")}</button></div>`;
+  const on = pushHere && Notification.permission === "granted";
+  return `<div class="line"><span>${on ? tx("Reminders when Welli is closed: on") : tx("Reminders when Welli is closed: off")}</span><button class="btn small ${on ? "" : "primary"}" data-act="${on ? "pushoff" : "pushon"}">${on ? tx("Turn off") : tx("Turn on")}</button></div>`;
+}
+
+// ---------- Apple Health (automatic) ----------
+// A Shortcut on the phone posts today's numbers with the account's private sync code to
+// welli_health_push(); the app picks them up on every sync.
+var healthCode = null;
+async function healthLoad() {
+  if (!sb || !syncUser) return;
+  try { const { data } = await sb.from("welli_health_tokens").select("token").eq("user_id", syncUser.id).maybeSingle(); healthCode = data ? data.token : "" } catch { healthCode = "" }
+}
+async function healthMake() {
+  const tok = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2, "0")).join("");
+  const { error } = await sb.from("welli_health_tokens").upsert({ user_id: syncUser.id, token: tok, tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC" });
+  if (error) throw error;
+  healthCode = tok;
+}
+async function healthPull() {
+  if (!sb || !syncUser) return;
+  try {
+    const since = store.get("welli.healthAt", "");
+    let q = sb.from("welli_health").select("day, steps, calories, at").order("at");
+    if (since) q = q.gt("at", since);
+    const { data, error } = await q; if (error || !data || !data.length) return;
+    let saved = [];
+    data.forEach(r => { saved = applyFitness(r.day, { steps: r.steps, calories: r.calories }) });
+    store.set("welli.healthAt", data[data.length - 1].at); save();
+    if (saved.length && document.visibilityState === "visible") toast(tx("From your phone: {list}", { list: saved.join(", ") }));
+  } catch { }
+}
+const HEALTH_URL = SYNC_URL + "/rest/v1/rpc/welli_health_push";
+function healthHow() {
+  const cp = (v, label) => `<div class="line"><code style="overflow-wrap:anywhere;font-size:12.5px">${esc(v)}</code><button class="btn small" data-copy="${esc(v)}">${tx(label)}</button></div>`;
+  /* i18n: tx("Copy") */
+  layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="hh"><h2 id="hh">${tx("Set up the Shortcut")}</h2>
+    <ol class="steps">
+      <li>${tx("Open the Shortcuts app on your iPhone and make a new shortcut.")}</li>
+      <li>${tx("Add Find Health Samples: Type is Steps, Start Date is Today. Then add Calculate Statistics and pick Sum.")}</li>
+      <li>${tx("Do the same again with Active Energy for calories.")}</li>
+      <li>${tx("Add Get Contents of URL with this address:")}${cp(HEALTH_URL, "Copy")}</li>
+      <li>${tx("Tap the arrow to show more. Set Method to POST. Under Headers, add apikey with this value:")}${cp(SYNC_KEY, "Copy")}</li>
+      <li>${tx("Under Request Body pick JSON and add three fields: token (Text) with your sync code, steps (Number) with the first sum, calories (Number) with the second sum.")}${cp(healthCode || "", "Copy")}</li>
+      <li>${tx("Run it once and allow Health access. Your numbers show up in Welli on the next sync.")}</li>
+      <li>${tx("In the Automation tab, add a Time of Day automation that runs it every evening, and choose Run Immediately. Add more times if you want updates during the day.")}</li>
+    </ol>
+    <div class="row-btns"><button class="btn primary" data-ac="close">${tx("Done")}</button></div></div></div>`;
+  layer.onclick = async ev => {
+    const c = ev.target.closest("[data-copy]");
+    if (c) { try { await navigator.clipboard.writeText(c.dataset.copy); toast(tx("Copied")) } catch { toast(c.dataset.copy) } return }
+    if (ev.target.closest("[data-ac]") || ev.target.dataset.act === "closebg") closeSheet();
+  };
+}
+function healthCard() {
+  if (!syncReady() || !syncUser) return `<div class="muted">${tx("Sign in to have your iPhone send your steps and calories on its own, without opening a link.")}</div>`;
+  if (healthCode === null) { healthLoad().then(() => { if (!layer.innerHTML && ui.tab === "settings") render() }); return `<div class="muted">${tx("Loading…")}</div>` }
+  if (!healthCode) return `<div class="line"><span>${tx("Send steps and calories automatically")}</span><button class="btn small primary" data-act="healthmake">${tx("Set up")}</button></div>`;
+  return `<div class="line"><span>${tx("Your sync code")} <code>${esc(healthCode)}</code></span><button class="btn small" data-act="healthmake">${tx("New code")}</button></div>
+    <div class="line"><span class="muted">${tx("Keep this code private. Anyone with it can add steps to your account.")}</span><button class="btn small primary" data-act="healthhow">${tx("Shortcut steps")}</button></div>`;
+}
 try { navigator.serviceWorker && navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.type === "remind") remindAction(e.data.action, e.data.id) }) } catch { }
 setInterval(checkReminders, 20000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { if (syncUser) syncNow(); checkReminders(); if (ui.day !== keyOf(today()) && ui.tab === "today" && !layer.innerHTML) { } render() } });
@@ -2021,9 +2143,16 @@ function importFitness() {
   const hits = FIT.filter(f => q.has(f.key)); if (!hits.length) return;
   const k = /^\d{4}-\d{2}-\d{2}$/.test(q.get("date") || "") ? q.get("date") : keyOf(today());
   try { history.replaceState(null, "", location.pathname + location.hash) } catch { }
+  const saved = applyFitness(k, Object.fromEntries(hits.map(f => [f.key, q.get(f.key)])));
+  if (!saved.length) { toast(tx("That link had no numbers in it.")); return }
+  save(); ui.tab = "today"; ui.day = k;
+  setTimeout(() => toast(tx("Saved {list}", { list: saved.join(", ") })), 300);
+}
+// Sets that day's Steps / Calories burned trackers (creating them if needed); returns what was saved.
+function applyFitness(k, vals) {
   const saved = [];
-  hits.forEach(f => {
-    const n = Math.round(parseFloat(String(q.get(f.key)).replace(/[^\d.]/g, "")));
+  FIT.filter(f => vals[f.key] != null && vals[f.key] !== "").forEach(f => {
+    const n = Math.round(parseFloat(String(vals[f.key]).replace(/[^\d.]/g, "")));
     if (!isFinite(n) || n < 0) return;
     let t = active().find(x => x.kind === "count" && f.unit.test(x.unit)) || active().find(x => f.name.test(x.name));
     if (!t) { t = blankTracker(Object.assign({ kind: "count", category: tx("Health") }, f.make, { name: tx(f.make.name) })); S.trackers.push(t) }
@@ -2031,9 +2160,7 @@ function importFitness() {
     (S.log[t.id] ||= {}); if (n) S.log[t.id][k] = n; else delete S.log[t.id][k];
     saved.push(f.key === "steps" ? tx("{n} steps", { n: n.toLocaleString(LOC) }) : tx("{n} calories", { n: n.toLocaleString(LOC) }));
   });
-  if (!saved.length) { toast(tx("That link had no numbers in it.")); return }
-  save(); ui.tab = "today"; ui.day = k;
-  setTimeout(() => toast(tx("Saved {list}", { list: saved.join(", ") })), 300);
+  return saved;
 }
 try { const q = new URLSearchParams(location.search); if (q.get("remind") && q.get("id")) { const a = q.get("remind"), id = q.get("id"); history.replaceState(null, "", location.pathname + location.hash); setTimeout(() => remindAction(a, id), 400) } } catch { }
 // The open tab lives in the address (#settings etc.), so a refresh or the back button keeps you where you were.
