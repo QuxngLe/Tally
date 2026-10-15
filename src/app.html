@@ -1145,7 +1145,7 @@ const userName = () => { if (!syncUser) return ""; const m = syncUser.user_metad
 const initial = n => (n || "?").trim().charAt(0).toUpperCase();
 function openAccount(mode) {
   if (!syncReady()) {
-    layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ach"><h2 id="ach">${tx("Sign in")}</h2><p class="muted">${tx("Accounts work in the Welli app at quxngle.github.io/Tally, not in this preview.")}</p><div class="row-btns"><button class="btn" data-ac="close">${tx("Close")}</button></div></div></div>`;
+    layer.innerHTML = `<div class="scrim" data-act="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ach"><h2 id="ach">${tx("Sign in")}</h2><p class="muted">${tx("Accounts work in the Welli app at quxngle.github.io/Welli, not in this preview.")}</p><div class="row-btns"><button class="btn" data-ac="close">${tx("Close")}</button></div></div></div>`;
     layer.onclick = ev => { if (ev.target.closest("[data-ac]") || ev.target.dataset.act === "closebg") closeSheet() };
     return;
   }
