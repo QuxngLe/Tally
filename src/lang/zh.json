@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "这是重复项，删除会移除它的每一天。",
  "Add on this day": "添加到这一天",
  "Open day": "打开这一天",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "完成事项后，每天会逐渐填满。圆点是一次性任务。点按某一天即可编辑或删除其中的内容。",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "点按某项即可打勾。点按日期名称即可编辑或删除。",
  "Repeat": "重复",
  "Strike out": "划掉",
@@ -510,5 +509,6 @@
  "Shortcut steps": "快捷指令设置步骤",
  "Game": "游戏",
  "Removed the example trackers. Only your own trackers are kept in your account.": "已移除示例追踪项。你的账户只保留你自己的追踪项。",
- "Add something to track": "添加要追踪的项目"
+ "Add something to track": "添加要追踪的项目",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "完成事项后，每天会逐渐填满。点按某一天即可编辑或删除其中的内容。"
 }

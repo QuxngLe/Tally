@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "Это повторяется, поэтому удаление уберёт его из всех дней.",
  "Add on this day": "Добавить на этот день",
  "Open day": "Открыть день",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Каждый день заполняется по мере того, как вы всё выполняете. Точки — разовые задачи. Нажмите на день, чтобы изменить или удалить его содержимое.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Нажмите на пункт, чтобы отметить его. Нажмите на название дня, чтобы изменить или удалить записи.",
  "Repeat": "Повтор",
  "Strike out": "Зачеркнуть",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Инструкция для быстрой команды",
  "Game": "Игра",
  "Removed the example trackers. Only your own trackers are kept in your account.": "Примеры трекеров удалены. В вашем аккаунте хранятся только ваши собственные трекеры.",
- "Add something to track": "Добавить что-то для отслеживания"
+ "Add something to track": "Добавить что-то для отслеживания",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "Каждый день заполняется по мере того, как вы всё выполняете. Нажмите на день, чтобы изменить или удалить его содержимое."
 }

@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "Bu tekrarlanıyor, silersen tüm günlerden kaldırılır.",
  "Add on this day": "Bu güne ekle",
  "Open day": "Günü aç",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Bir şeyleri bitirdikçe her gün dolar. Noktalar tek seferlik görevlerdir. Bir günün içeriğini düzenlemek veya silmek için o güne dokun.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "İşaretlemek için bir öğeye dokun. Düzenlemek veya silmek için günün adına dokun.",
  "Repeat": "Tekrar",
  "Strike out": "Üstünü çiz",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Kestirme talimatları",
  "Game": "Oyun",
  "Removed the example trackers. Only your own trackers are kept in your account.": "Örnek takipçiler kaldırıldı. Hesabında yalnızca kendi takipçilerin tutulur.",
- "Add something to track": "Takip edilecek bir şey ekle"
+ "Add something to track": "Takip edilecek bir şey ekle",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "Bir şeyleri bitirdikçe her gün dolar. Bir günün içeriğini düzenlemek veya silmek için o güne dokun."
 }

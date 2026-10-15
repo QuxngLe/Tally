@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "இது மீண்டும் வருவது, எனவே நீக்கினால் எல்லா நாட்களிலிருந்தும் நீக்கப்படும்.",
  "Add on this day": "இந்த நாளில் சேர்",
  "Open day": "நாளைத் திற",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "நீங்கள் வேலைகளை முடிக்க முடிக்க ஒவ்வொரு நாளும் நிரம்பும். புள்ளிகள் ஒருமுறை செய்யும் பணிகள். ஒரு நாளில் உள்ளதைத் திருத்த அல்லது நீக்க அந்த நாளைத் தட்டுங்கள்.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "டிக் செய்ய ஒரு உருப்படியைத் தட்டுங்கள். திருத்த அல்லது நீக்க நாளின் பெயரைத் தட்டுங்கள்.",
  "Repeat": "மீண்டும்",
  "Strike out": "அடித்துவிடு",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Shortcut அமைக்கும் படிகள்",
  "Game": "விளையாட்டு",
  "Removed the example trackers. Only your own trackers are kept in your account.": "மாதிரி டிராக்கர்கள் நீக்கப்பட்டன. உங்கள் கணக்கில் உங்கள் சொந்த டிராக்கர்கள் மட்டுமே வைக்கப்படும்.",
- "Add something to track": "கண்காணிக்க ஏதாவது சேர்க்கவும்"
+ "Add something to track": "கண்காணிக்க ஏதாவது சேர்க்கவும்",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "நீங்கள் வேலைகளை முடிக்க முடிக்க ஒவ்வொரு நாளும் நிரம்பும். ஒரு நாளில் உள்ளதைத் திருத்த அல்லது நீக்க அந்த நாளைத் தட்டுங்கள்."
 }

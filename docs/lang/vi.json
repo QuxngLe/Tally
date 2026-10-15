@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "Việc này lặp lại, nên xóa sẽ xóa ở mọi ngày.",
  "Add on this day": "Thêm vào ngày này",
  "Open day": "Mở ngày",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Mỗi ngày sẽ đầy dần khi bạn làm xong việc. Chấm là việc làm một lần. Chạm vào một ngày để sửa hoặc xóa những gì trong đó.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Chạm vào một mục để đánh dấu xong. Chạm vào tên ngày để sửa hoặc xóa.",
  "Repeat": "Lặp lại",
  "Strike out": "Gạch ngang",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Các bước tạo phím tắt",
  "Game": "Trò chơi",
  "Removed the example trackers. Only your own trackers are kept in your account.": "Đã xóa các mục theo dõi mẫu. Tài khoản của bạn chỉ giữ các mục theo dõi của chính bạn.",
- "Add something to track": "Thêm thứ cần theo dõi"
+ "Add something to track": "Thêm thứ cần theo dõi",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "Mỗi ngày sẽ đầy dần khi bạn làm xong việc. Chạm vào một ngày để sửa hoặc xóa những gì trong đó."
 }

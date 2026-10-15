@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "ఇది పునరావృతమవుతుంది, కాబట్టి తొలగిస్తే ప్రతి రోజు నుండి తీసివేయబడుతుంది.",
  "Add on this day": "ఈ రోజుకు జోడించు",
  "Open day": "రోజును తెరువు",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "మీరు పనులు పూర్తి చేస్తున్న కొద్దీ ప్రతి రోజు నిండుతుంది. చుక్కలు ఒక్కసారి చేసే పనులు. ఒక రోజులో ఉన్నవాటిని సవరించడానికి లేదా తొలగించడానికి ఆ రోజును నొక్కండి.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "టిక్ పెట్టడానికి అంశాన్ని నొక్కండి. సవరించడానికి లేదా తొలగించడానికి రోజు పేరును నొక్కండి.",
  "Repeat": "పునరావృతం",
  "Strike out": "కొట్టివేయి",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Shortcut సెటప్ దశలు",
  "Game": "ఆట",
  "Removed the example trackers. Only your own trackers are kept in your account.": "ఉదాహరణ ట్రాకర్లు తీసివేయబడ్డాయి. మీ ఖాతాలో మీ సొంత ట్రాకర్లు మాత్రమే ఉంచబడతాయి.",
- "Add something to track": "ట్రాక్ చేయడానికి ఏదైనా జోడించండి"
+ "Add something to track": "ట్రాక్ చేయడానికి ఏదైనా జోడించండి",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "మీరు పనులు పూర్తి చేస్తున్న కొద్దీ ప్రతి రోజు నిండుతుంది. ఒక రోజులో ఉన్నవాటిని సవరించడానికి లేదా తొలగించడానికి ఆ రోజును నొక్కండి."
 }

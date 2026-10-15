@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "รายการนี้ทำซ้ำ การลบจะลบออกจากทุกวัน",
  "Add on this day": "เพิ่มในวันนี้",
  "Open day": "เปิดวัน",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "แต่ละวันจะเต็มขึ้นเมื่อคุณทำสิ่งต่างๆ เสร็จ จุดคืองานที่ทำครั้งเดียว แตะวันเพื่อแก้ไขหรือลบสิ่งที่อยู่ในวันนั้น",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "แตะรายการเพื่อทำเครื่องหมาย แตะชื่อวันเพื่อแก้ไขหรือลบ",
  "Repeat": "ทำซ้ำ",
  "Strike out": "ขีดฆ่า",
@@ -510,5 +509,6 @@
  "Shortcut steps": "ขั้นตอนสร้างคำสั่งลัด",
  "Game": "เกม",
  "Removed the example trackers. Only your own trackers are kept in your account.": "ลบตัวติดตามตัวอย่างแล้ว บัญชีของคุณจะเก็บเฉพาะตัวติดตามของคุณเอง",
- "Add something to track": "เพิ่มสิ่งที่จะติดตาม"
+ "Add something to track": "เพิ่มสิ่งที่จะติดตาม",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "แต่ละวันจะเต็มขึ้นเมื่อคุณทำสิ่งต่างๆ เสร็จ แตะวันเพื่อแก้ไขหรือลบสิ่งที่อยู่ในวันนั้น"
 }

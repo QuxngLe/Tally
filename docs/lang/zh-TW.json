@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "這是重複項目，刪除會移除它的每一天。",
  "Add on this day": "加到這一天",
  "Open day": "開啟這一天",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "完成事項後，每天會逐漸填滿。圓點是一次性任務。點一下某一天即可編輯或刪除其中的內容。",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "點一下項目即可打勾。點一下日期名稱即可編輯或刪除。",
  "Repeat": "重複",
  "Strike out": "劃掉",
@@ -510,5 +509,6 @@
  "Shortcut steps": "捷徑設定步驟",
  "Game": "遊戲",
  "Removed the example trackers. Only your own trackers are kept in your account.": "已移除範例追蹤項目。你的帳戶只會保留你自己的追蹤項目。",
- "Add something to track": "新增要追蹤的項目"
+ "Add something to track": "新增要追蹤的項目",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "完成事項後，每天會逐漸填滿。點一下某一天即可編輯或刪除其中的內容。"
 }

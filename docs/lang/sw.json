@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "Hii inajirudia, kwa hiyo kufuta kutaiondoa kila siku.",
  "Add on this day": "Ongeza siku hii",
  "Open day": "Fungua siku",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Kila siku hujaa unapomaliza mambo. Vitone ni kazi za mara moja. Gusa siku ili kuhariri au kufuta vilivyomo.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Gusa kipengee ili kuweka tiki. Gusa jina la siku ili kuhariri au kufuta.",
  "Repeat": "Rudia",
  "Strike out": "Piga mstari",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Maelekezo ya Shortcut",
  "Game": "Mchezo",
  "Removed the example trackers. Only your own trackers are kept in your account.": "Vifuatiliaji vya mfano vimeondolewa. Vifuatiliaji vyako tu ndivyo vinahifadhiwa kwenye akaunti yako.",
- "Add something to track": "Ongeza kitu cha kufuatilia"
+ "Add something to track": "Ongeza kitu cha kufuatilia",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "Kila siku hujaa unapomaliza mambo. Gusa siku ili kuhariri au kufuta vilivyomo."
 }

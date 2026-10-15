@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "यह दोहराता है, इसलिए हटाने पर यह हर दिन से हट जाएगा।",
  "Add on this day": "इस दिन जोड़ें",
  "Open day": "दिन खोलें",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "काम पूरे करते-करते हर दिन भरता जाता है। बिंदु एक बार वाले काम हैं। किसी दिन पर टैप करके उसमें जो है उसे बदलें या हटाएँ।",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "टिक करने के लिए किसी आइटम पर टैप करें। बदलने या हटाने के लिए दिन के नाम पर टैप करें।",
  "Repeat": "दोहराएँ",
  "Strike out": "काटें",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Shortcut बनाने के चरण",
  "Game": "गेम",
  "Removed the example trackers. Only your own trackers are kept in your account.": "उदाहरण ट्रैकर हटा दिए गए। आपके खाते में सिर्फ़ आपके अपने ट्रैकर रखे जाते हैं।",
- "Add something to track": "ट्रैक करने के लिए कुछ जोड़ें"
+ "Add something to track": "ट्रैक करने के लिए कुछ जोड़ें",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "काम पूरे करते-करते हर दिन भरता जाता है। किसी दिन पर टैप करके उसमें जो है उसे बदलें या हटाएँ।"
 }

@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "هذا متكرر، لذا سيؤدي الحذف إلى إزالته من كل الأيام.",
  "Add on this day": "أضف إلى هذا اليوم",
  "Open day": "افتح اليوم",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "يمتلئ كل يوم كلما أنجزت أشياء. النقاط مهام لمرة واحدة. اضغط على يوم لتعديل ما فيه أو حذفه.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "اضغط على عنصر للتأشير عليه. اضغط على اسم اليوم للتعديل أو الحذف.",
  "Repeat": "التكرار",
  "Strike out": "شطب",
@@ -510,5 +509,6 @@
  "Shortcut steps": "خطوات إعداد الاختصار",
  "Game": "لعبة",
  "Removed the example trackers. Only your own trackers are kept in your account.": "تمت إزالة المتتبعات التجريبية. يُحفظ في حسابك متتبعاتك أنت فقط.",
- "Add something to track": "أضف شيئًا لتتبعه"
+ "Add something to track": "أضف شيئًا لتتبعه",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "يمتلئ كل يوم كلما أنجزت أشياء. اضغط على يوم لتعديل ما فيه أو حذفه."
 }

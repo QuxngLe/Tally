@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "این تکرار می‌شود، پس حذفش آن را از همه روزها برمی‌دارد.",
  "Add on this day": "افزودن به این روز",
  "Open day": "باز کردن روز",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "هر روز با انجام کارها پر می‌شود. نقطه‌ها کارهای یک‌باره‌اند. روی یک روز بزنید تا محتوای آن را ویرایش یا حذف کنید.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "برای تیک زدن روی یک مورد بزنید. برای ویرایش یا حذف، روی نام روز بزنید.",
  "Repeat": "تکرار",
  "Strike out": "خط زدن",
@@ -510,5 +509,6 @@
  "Shortcut steps": "مراحل ساخت Shortcut",
  "Game": "بازی",
  "Removed the example trackers. Only your own trackers are kept in your account.": "ردیاب‌های نمونه حذف شدند. فقط ردیاب‌های خودتان در حسابتان نگه داشته می‌شوند.",
- "Add something to track": "چیزی برای پیگیری اضافه کنید"
+ "Add something to track": "چیزی برای پیگیری اضافه کنید",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "هر روز با انجام کارها پر می‌شود. روی یک روز بزنید تا محتوای آن را ویرایش یا حذف کنید."
 }

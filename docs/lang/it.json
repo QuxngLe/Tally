@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "Si ripete, quindi eliminarlo lo rimuove da tutti i giorni.",
  "Add on this day": "Aggiungi a questo giorno",
  "Open day": "Apri giorno",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Ogni giorno si riempie man mano che completi le cose. I punti sono attività singole. Tocca un giorno per modificare o eliminare ciò che contiene.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Tocca un elemento per spuntarlo. Tocca il nome di un giorno per modificare o eliminare.",
  "Repeat": "Ripeti",
  "Strike out": "Barrato",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Istruzioni per il comando rapido",
  "Game": "Gioco",
  "Removed the example trackers. Only your own trackers are kept in your account.": "Tracker di esempio rimossi. Nel tuo account restano solo i tuoi tracker.",
- "Add something to track": "Aggiungi qualcosa da monitorare"
+ "Add something to track": "Aggiungi qualcosa da monitorare",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "Ogni giorno si riempie man mano che completi le cose. Tocca un giorno per modificare o eliminare ciò che contiene."
 }

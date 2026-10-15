@@ -337,11 +337,17 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
   .wrap.wide { padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)) }
   .wrap.wide .month { gap: 3px }
   .wrap.wide .cell { aspect-ratio: auto; min-height: calc((100vw - 34px) / 7 * 1.25); font-size: 13.8px; padding: 5px; grid-template-rows: auto auto 1fr; align-content: start }
-  .wrap.wide .cell .dots { display: none }
-  .wrap.wide .cell .evs { display: grid; gap: 2px; position: relative; align-self: start; margin-top: 2px; min-width: 0 }
-  .wrap.wide .cell .evs span { display: block; font-size: 9px; line-height: 1.3; padding: 0 3px; border-radius: 3px; background: color-mix(in srgb, var(--c) 18%, transparent); border-inline-start: 2px solid var(--c); white-space: nowrap; overflow: hidden; text-overflow: clip }
-  .wrap.wide .cell .evs em { display: none }
-  .wrap.wide .cell .evs > em:last-child { display: block; font-style: normal; font-size: 9px; color: var(--muted) }
+  /* each event is a small color square; finished ones follow Settings → Calendar → Finished events */
+  .wrap.wide .cell .evs { display: flex; flex-wrap: wrap; gap: 3px; position: relative; align-self: start; align-content: flex-start; margin-top: 4px; min-width: 0 }
+  .wrap.wide .cell .evs span { display: block; position: relative; flex: none; width: 11px; height: 11px; padding: 0; border-radius: 3px; background: var(--c); font-size: 0; line-height: 0; overflow: hidden; color: transparent }
+  .wrap.wide .cell .evs span em, .wrap.wide .cell .evs em.m3 { display: none }
+  .wrap.wide .cell .evs em.m9 { display: block; font-style: normal; font-size: 9px; line-height: 11px; color: var(--muted) }
+  .wrap.wide .ds-check .evs span.done::before { content: ""; position: absolute; left: 3.75px; top: 1.75px; width: 2.5px; height: 5px; border: solid #fff; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg) }
+  .wrap.wide .ds-strike .evs span.done { opacity: .6 }
+  .wrap.wide .ds-strike .evs span.done::after { content: ""; position: absolute; left: 1px; right: 1px; top: 4.75px; height: 1.5px; background: #fff }
+  .wrap.wide .ds-slash .evs span.done { background: linear-gradient(to top right, transparent calc(50% - .9px), #fff calc(50% - .6px), #fff calc(50% + .6px), transparent calc(50% + .9px)), var(--c) !important; opacity: .7 }
+  .wrap.wide .ds-fill .evs span:not(.done) { background: transparent; box-shadow: inset 0 0 0 1.5px var(--c) }
+  .wrap.wide .ds-fill .evs span.done { background: var(--c) !important }
 }
 @media (min-width: 760px) {
   .wrap.wide { max-width: 1040px }
@@ -353,6 +359,7 @@ textarea.data { width: 100%; min-height: 110px; border: 1px solid var(--line); b
   .cell .evs { display: grid; gap: 2px; position: relative; align-self: start; margin-top: 3px; min-width: 0 }
   .cell .evs span { display: block; font-size: 10.5px; line-height: 1.25; padding: 1px 4px; border-radius: 4px; background: color-mix(in srgb, var(--c) 16%, transparent); border-inline-start: 2px solid var(--c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
   .cell .evs em { font-style: normal; font-size: 10px; color: var(--muted) }
+  .cell .evs span.x, .cell .evs em.m9 { display: none }
   .cell .dots { display: none }
   .qspace { display: block; height: 120px }
   .qadd { display: grid; gap: 6px; position: fixed; z-index: 15; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(640px, calc(100% - 32px)) }
@@ -588,7 +595,7 @@ function setLang() {
 let ui = { calMode: "month", calRef: keyOf(today()), range: 30, list: "all", adv: false, tab: "today", day: keyOf(today()), draft: null, doneOpen: true };
 
 function seedExamples() {
-  const mk = (o) => Object.assign({ id: uid(), emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminder: null, category: "", notes: "", archived: false, example: "basic", created: keyOf(today()) }, o);
+  const mk = (o) => Object.assign({ id: uid(), emoji: "✅", color: COLORS[0], kind: "check", target: 1, unit: "", freq: "daily", days: [], perWeek: 3, due: null, reminders: [], subtasks: [], tags: [], category: "", notes: "", archived: false, example: "basic", created: keyOf(today()) }, o);
   const t = [
     mk({ id: "ex-workout", name: "Work out", emoji: "🏋️", color: COLORS[4], freq: "weekly", perWeek: 3, category: "Health" }),
     mk({ id: "ex-water", name: "Drink water", emoji: "💧", color: COLORS[1], kind: "count", target: 8, unit: "glasses", reminders: ["09:00"], category: "Health" }),
@@ -607,9 +614,9 @@ function isDue(t, d) {
   if (t.freq === "daily" || t.freq === "weekly") return true;
   if (t.freq === "days") return t.days.includes(d.getDay());
   if (t.freq === "once") {
-    if (!t.due) return k === keyOf(today());
     const doneK = Object.keys(S.log[t.id] || {}).find(x => doneOn(t, x));
     if (doneK) return k === doneK;
+    if (!t.due) return k === keyOf(today());
     return k >= t.due && k <= keyOf(today()) ? k === keyOf(today()) || k === t.due : k === t.due;
   }
   return true;
@@ -655,9 +662,9 @@ function dueList(d) {
   const k = keyOf(d), isToday = k === keyOf(today());
   return active().filter(t => {
     if (t.freq === "once") {
-      if (!t.due) return isDue(t, d);
       const doneK = Object.keys(S.log[t.id] || {}).find(x => doneOn(t, x));
       if (doneK) return doneK === k;
+      if (!t.due) return isDue(t, d);
       return isToday ? t.due <= k : t.due === k;
     }
     return isDue(t, d);
@@ -774,7 +781,6 @@ function parsePrompt(raw) {
   if (o.freq === "days" && !o.days.length) o.freq = "daily";
   // Nothing said about repeating: one time.
   if (o.freq === "daily" && !recurring) o.freq = "once";
-  if (o.freq === "daily" && !recurring && o.kind === "check" && /^(buy|pay|finish|submit|send|email|book|fix|return|pick up|cancel|renew|schedule|order|print|sign|reply|answer|mail|post|call|visit|bring|deliver|apply|register|prepare|pack|wash|repair|replace|get)\b/i.test(o.name)) { o.freq = "once"; o.due = keyOf(today()) }
   return o;
 }
 window.parsePrompt = parsePrompt;
@@ -1074,18 +1080,19 @@ function rFish() {
   view.innerHTML = `<header class="head"><div><div class="eyebrow">${tx("Game")}</div><h1>${tx("Fishing")}</h1></div></header><div id="fishslot" class="fishtab"></div>`;
   $("#fishslot").appendChild(fishBox()); fishCounts();
 }
+const fq = sel => fishBox().querySelector(sel);
 function fishCounts() {
-  const f = fishData(), b = $("#bait"), book = $("#fishbook"); if (!b) return;
+  const f = fishData(), b = fq("#bait"), book = fq("#fishbook"); if (!b) return;
   b.textContent = tx("Bait: {n}", { n: baitLeft() });
-  $("#fishcount").textContent = `${Object.keys(f.caught).length}/${FISH.length}`;
+  fq("#fishcount").textContent = `${Object.keys(f.caught).length}/${FISH.length}`;
   book.innerHTML = FISH.map(([id, name, c]) => f.caught[id] ? `<div class="fb on" title="${esc(tx(name))}">${fishSVG(c, 34)}<span>${esc(tx(name))}</span><em class="num">×${f.caught[id]} · ${f.best[id]} cm</em></div>` : `<div class="fb" title="?">${fishSVG("var(--surface-2)", 34)}<span>???</span></div>`).join("");
-  const btn = $("#fishbtn"); if (btn && fishState === "idle") btn.disabled = !baitLeft();
+  const btn = fq("#fishbtn"); if (btn && fishState === "idle") btn.disabled = !baitLeft();
 }
-function fishSay(m) { const e = $("#fishmsg"); if (e) e.textContent = m }
-function fishReset() { fishTimers.forEach(clearTimeout); fishTimers = []; fishState = "idle"; const p = $("#pond"); if (p) p.className = "pond"; const b = $("#fishbtn"); if (b) { b.dataset.fish = "cast"; b.textContent = tx("Cast") } }
+function fishSay(m) { const e = fq("#fishmsg"); if (e) e.textContent = m }
+function fishReset() { fishTimers.forEach(clearTimeout); fishTimers = []; fishState = "idle"; const p = fq("#pond"); if (p) p.className = "pond"; const b = fq("#fishbtn"); if (b) { b.dataset.fish = "cast"; b.textContent = tx("Cast") } }
 function pickFish() { const tot = FISH.reduce((a, f) => a + f[3], 0); let r = Math.random() * tot; for (const f of FISH) { if ((r -= f[3]) < 0) return f } return FISH[0] }
 function fishAct() {
-  const btn = $("#fishbtn"), pond = $("#pond");
+  const btn = fq("#fishbtn"), pond = fq("#pond");
   if (fishState === "idle") {
     if (!baitLeft()) return fishSay(tx("Out of bait. Finish something to earn more."));
     fishData().spent++; save(); fishCounts();
@@ -1122,7 +1129,7 @@ function openMenu() {
     if (a === "account") openAccount();
     else if (a === "lang") openLangs();
     else if (a === "settings") { closeSheet(); goTab("settings") }
-    else if (a === "signout") { try { await sb.auth.signOut() } catch { } syncUser = null; closeSheet(); toast(tx("Signed out. Your data stays on this device.")) }
+    else if (a === "signout") { try { await sb.auth.signOut() } catch { } syncUser = null; healthCode = null; closeSheet(); toast(tx("Signed out. Your data stays on this device.")) }
   };
 }
 function openLangs() {
@@ -1247,7 +1254,7 @@ function openAccount(mode) {
     if (a === "mode") { f.mode = b.dataset.v; f.err = ""; return draw() }
     if (a === "show") { f.show = !f.show; return draw() }
     if (a === "sync") { syncing = false; await syncNow(true); return draw() }
-    if (a === "signout") { try { await sb.auth.signOut() } catch { } syncUser = null; closeSheet(); toast(tx("Signed out. Your data stays on this device.")); return }
+    if (a === "signout") { try { await sb.auth.signOut() } catch { } syncUser = null; healthCode = null; closeSheet(); toast(tx("Signed out. Your data stays on this device.")); return }
     if (a === "savename") {
       const name = f.name.trim(); if (!name) return;
       try { const r = await sb.auth.updateUser({ data: { name } }); if (r.error) throw r.error; syncUser = r.data.user; f.err = ""; toast(tx("Nice to meet you, {name}!", { name })) } catch (e) { f.err = e.message }
@@ -1403,16 +1410,15 @@ function rCal() {
     let cells = "";
     for (let i = 0; i < 42; i++) {
       const d = addDays(start, i); if (i >= 35 && d.getMonth() !== ref.getMonth()) break;
-      const st = dayStats(d), future = st.k > tk, once = st.l.filter(t => t.freq === "once"), evs = st.l.filter(t => t.freq === "once" || t.cal).sort((a, b) => (rems(a)[0] || "99") < (rems(b)[0] || "99") ? -1 : 1);
+      const st = dayStats(d), future = st.k > tk, evs = st.l.filter(t => t.freq === "once" || t.cal).sort((a, b) => (rems(a)[0] || "99") < (rems(b)[0] || "99") ? -1 : 1);
       const fill = future ? 0 : st.pct;
       cells += `<button class="cell ${d.getMonth() !== ref.getMonth() ? "out" : ""} ${st.k === tk ? "today" : ""} ${fill === 1 && st.l.length ? "full" : ""}" data-act="calday" data-k="${st.k}" aria-label="${fmtDate(d)}: ${tx("{done} of {total} done", { done: st.done, total: st.l.length })}">
         <span class="fill" style="height:${Math.round(fill * 100)}%"></span><b class="num">${d.getDate()}${ordSuf(d.getDate())}</b>
         
-        <span class="evs">${evs.slice(0, 3).map(t => `<span class="${doneOn(t, st.k) ? "done" : ""}" style="--c:${t.color}" title="${esc(t.name)}" data-act="calev" data-id="${t.id}" data-k="${st.k}">${rems(t)[0] ? `<em>${esc(fmtTime(rems(t)[0]))}</em> ` : ""}${esc(t.name)}</span>`).join("")}${evs.length > 3 ? `<em>+${evs.length - 3}</em>` : ""}</span>
-        <span class="dots">${once.slice(0, 4).map(t => `<i class="${doneOn(t, st.k) ? "done" : ""}" style="--c:${t.color}" title="${esc(t.name)}"></i>`).join("")}</span></button>`;
+        <span class="evs">${evs.slice(0, 9).map((t, i) => `<span class="${doneOn(t, st.k) ? "done" : ""}${i > 2 ? " x" : ""}" style="--c:${t.color}" title="${esc(t.name)}" data-act="calev" data-id="${t.id}" data-k="${st.k}">${rems(t)[0] ? `<em>${esc(fmtTime(rems(t)[0]))}</em> ` : ""}${esc(t.name)}</span>`).join("")}${evs.length > 3 ? `<em class="m3">+${evs.length - 3}</em>` : ""}${evs.length > 9 ? `<em class="m9">+${evs.length - 9}</em>` : ""}</span></button>`;
     }
     body = `<div class="month ds-${S.settings.look.done || "check"}" style="--rows:${Math.ceil(cells.split('class="cell').length - 1) / 7}">${dows.map(x => `<div class="dow">${x}</div>`).join("")}${cells}</div>
-      <p class="muted">${tx("Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.")}</p>`;
+      <p class="muted">${tx("Each day fills up as you finish things. Tap a day to edit or delete what's on it.")}</p>`;
   } else {
     const start = weekStart(ref, ws);
     title = `${fmtShort(start)} – ${fmtShort(addDays(start, 6))}`;
@@ -1555,7 +1561,7 @@ function importCSV(text) {
       const k = (r[col("date")] || "").trim(), name = (r[col("tracker")] || "").trim(); if (!okDate(k) || !name) return;
       const target = Math.max(1, +r[col("target")] || 1), amt = col("amount") >= 0 && r[col("amount")] !== "" ? +r[col("amount")] : /^(yes|true|1|x)$/i.test(r[col("done")] || "") ? target : 0;
       let t = S.trackers.find(x => x.name.toLowerCase() === name.toLowerCase());
-      if (!t) { t = blankTracker({ name, kind: target > 1 ? "count" : "check", target, unit: col("unit") >= 0 ? r[col("unit")] || "" : "", category: col("group") >= 0 ? r[col("group")] || "" : "", created: k }); S.trackers.push(t) }
+      if (!t) { t = blankTracker({ name, freq: "daily", kind: target > 1 ? "count" : "check", target, unit: col("unit") >= 0 ? r[col("unit")] || "" : "", category: col("group") >= 0 ? r[col("group")] || "" : "", created: k }); S.trackers.push(t) }
       if (t.created && k < t.created) t.created = k;
       if (!isNaN(amt)) { setCount(t, k, amt); n++ }
     });
@@ -1924,7 +1930,7 @@ document.addEventListener("click", async ev => {
     case "doimport": try { const d = JSON.parse($("#imp").value); if (!Array.isArray(d.trackers) || typeof d.log !== "object") throw 0; if (d.bgimg) { bgImage = d.bgimg; store.set("tally.bgimg", bgImage) } delete d.bgimg; S = Object.assign(defaults(), d); fixSettings(); fixTrackers(); save(); applyTheme(); render(); toast(tx("Backup restored")) } catch { toast(tx("That text isn't a Welli backup. Copy the whole backup and try again.")) } break;
     case "reset": $("#dataio").innerHTML = `<div class="banner"><span>${tx("Erase all trackers and history on this device?")}</span><span class="row-btns"><button class="btn small danger" data-act="reset2">${tx("Erase")}</button><button class="btn small" data-act="noreset">${tx("Keep")}</button></span></div>`; break;
     case "noreset": $("#dataio").innerHTML = ""; break;
-    case "reset2": S = defaults(); fixTrackers(); bgImage = ""; try { localStorage.removeItem("tally.bgimg") } catch { } save(); applyTheme(); render(); toast(tx("Everything erased")); break;
+    case "reset2": if (syncUser) { try { sb.auth.signOut() } catch { } syncUser = null; healthCode = null; syncUnlive() } S = defaults(); fixTrackers(); snap = null; bgImage = ""; try { localStorage.removeItem("tally.bgimg") } catch { } save(); applyTheme(); render(); toast(tx("Everything erased")); break;
   }
 });
 document.addEventListener("input", ev => {
@@ -1969,8 +1975,9 @@ function mergeState(A, B) {
   const keep = {};
   ids.forEach(id => {
     const k = "t|" + id, ta = byA[id], tb = byB[id];
-    let t = ta && tb ? (pick(k) === "B" ? tb : ta) : (ta || tb);
-    if ((out.deleted[id] || 0) >= (out.mt[k] || 0) && out.deleted[id]) t = null;
+    // an untouched example never beats someone's edit of it, and once removed it stays removed
+    let t = ta && tb ? (!!ta.example !== !!tb.example ? (ta.example ? tb : ta) : pick(k) === "B" ? tb : ta) : (ta || tb);
+    if (out.deleted[id] && ((out.deleted[id] || 0) >= (out.mt[k] || 0) || t.example)) t = null;
     if (t) keep[id] = t;
   });
   const order = JSON.parse((pick("order") === "B" ? JSON.stringify((B.trackers || []).map(t => t.id)) : JSON.stringify((A.trackers || []).map(t => t.id))));
@@ -2023,7 +2030,7 @@ async function initSync() {
   try {
     await loadSupabase();
     const { data } = await sb.auth.getSession(); syncUser = data.session ? data.session.user : null;
-    sb.auth.onAuthStateChange((_e, session) => { syncUser = session ? session.user : null; if (syncUser) syncLive(); else syncUnlive(); if (!layer.innerHTML) render() });
+    sb.auth.onAuthStateChange((_e, session) => { if ((session ? session.user.id : null) !== (syncUser ? syncUser.id : null)) healthCode = null; syncUser = session ? session.user : null; if (syncUser) syncLive(); else syncUnlive(); if (!layer.innerHTML) render() });
     if (syncUser) syncNow();
   } catch (e) { syncErr = e.message }
 }
@@ -2045,10 +2052,13 @@ function syncUnlive() { if (syncChan && sb) { try { sb.removeChannel(syncChan) }
 async function syncNow(manual) {
   if (!sb || !syncUser) return;
   if (syncing) { syncAgain = true; return } syncing = true; syncLive();
+  clearTimeout(window.__nt); stampChanges(); store.set(KEY, S);
   const before = JSON.stringify(pieces(S));
   try {
     const { data, error } = await sb.from("tally_state").select("data").eq("user_id", syncUser.id).maybeSingle();
     if (error) throw error;
+    const prev = store.get("welli.user", null);
+    if (prev && prev !== syncUser.id) { S = defaults(); seedExamples(); fixTrackers(); snap = pieces(S) }
     const local = Object.assign({}, S);
     const merged = data && data.data ? mergeState(local, data.data) : local;
     const keepLocal = { fired: S.fired, snooze: S.snooze };
@@ -2072,6 +2082,7 @@ async function syncNow(manual) {
       if (e2) throw e2;
       try { syncChan && syncChan.send({ type: "broadcast", event: "changed", payload: { from: DEVICE } }) } catch { }
     }
+    store.set("welli.user", syncUser.id);
     lastSync = Date.now(); store.set("tally.lastsync", lastSync); syncErr = "";
     syncing = false; await healthPull(); pushSchedule();
     if (after !== before) softRender();
@@ -2084,8 +2095,11 @@ async function syncNow(manual) {
 var renderLater = false;
 function softRender() {
   const a = document.activeElement, typing = a && view.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);
-  if (layer.innerHTML || typing) { renderLater = true; return }
-  applyTheme(); render();
+  // the calendar's quick-add box keeps its text in ui.qtext, so it can redraw under the cursor
+  const keep = typing && a.id === "qin" ? [a.selectionStart, a.selectionEnd] : null;
+  if (layer.innerHTML || (typing && !keep)) { renderLater = true; return }
+  renderLater = false; applyTheme(); render();
+  if (keep) { const q = $("#qin"); if (q) { q.focus(); try { q.setSelectionRange(keep[0], keep[1]) } catch { } } }
 }
 document.addEventListener("focusout", () => setTimeout(() => { if (renderLater) { renderLater = false; softRender() } }, 50));
 function syncCard() {
@@ -2205,13 +2219,13 @@ async function healthMake() {
 async function healthPull() {
   if (!sb || !syncUser) return;
   try {
-    const since = store.get("welli.healthAt", "");
+    const since = store.get("welli.healthAt." + syncUser.id, "");
     let q = sb.from("welli_health").select("day, steps, calories, at").order("at");
     if (since) q = q.gt("at", since);
     const { data, error } = await q; if (error || !data || !data.length) return;
     let saved = [];
     data.forEach(r => { saved = applyFitness(r.day, { steps: r.steps, calories: r.calories }) });
-    store.set("welli.healthAt", data[data.length - 1].at); save();
+    store.set("welli.healthAt." + syncUser.id, data[data.length - 1].at); save();
     if (saved.length && document.visibilityState === "visible") toast(tx("From your phone: {list}", { list: saved.join(", ") }));
   } catch { }
 }
@@ -2246,7 +2260,9 @@ function healthCard() {
 }
 try { navigator.serviceWorker && navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.type === "remind") remindAction(e.data.action, e.data.id) }) } catch { }
 setInterval(checkReminders, 20000);
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { if (syncUser) syncNow(); checkReminders(); if (ui.day !== keyOf(today()) && ui.tab === "today" && !layer.innerHTML) { } render() } });
+// Left open overnight: if Today was showing the old today, move it to the new one.
+let lastToday = keyOf(today());
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { const tk = keyOf(today()); if (tk !== lastToday) { if (ui.day === lastToday) ui.day = tk; lastToday = tk } if (syncUser) syncNow(); checkReminders(); if (!layer.innerHTML) render() } });
 
 // ---------- boot ----------
 // Fitness import: opening ...?steps=8421&calories=512 (optionally &date=2026-10-14) sets that day's
@@ -2275,6 +2291,7 @@ function applyFitness(k, vals) {
     let t = active().find(x => x.kind === "count" && f.unit.test(x.unit)) || active().find(x => f.name.test(x.name));
     if (!t) { t = blankTracker(Object.assign({ kind: "count", category: tx("Health") }, f.make, { name: tx(f.make.name) })); S.trackers.push(t) }
     if (t.kind !== "count") { t.kind = "count"; t.target = f.make.target; t.unit = f.make.unit }
+    if (t.created && k < t.created) t.created = k;
     (S.log[t.id] ||= {}); if (n) S.log[t.id][k] = n; else delete S.log[t.id][k];
     saved.push(f.key === "steps" ? tx("{n} steps", { n: n.toLocaleString(LOC) }) : tx("{n} calories", { n: n.toLocaleString(LOC) }));
   });

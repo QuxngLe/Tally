@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "Ini berulang, jadi menghapusnya akan menghapus dari semua hari.",
  "Add on this day": "Tambah di hari ini",
  "Open day": "Buka hari",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Setiap hari terisi saat kamu menyelesaikan sesuatu. Titik adalah tugas sekali saja. Ketuk sebuah hari untuk mengedit atau menghapus isinya.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "Ketuk item untuk mencentangnya. Ketuk nama hari untuk mengedit atau menghapus.",
  "Repeat": "Ulangi",
  "Strike out": "Coret",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Langkah-langkah Pintasan",
  "Game": "Permainan",
  "Removed the example trackers. Only your own trackers are kept in your account.": "Pelacak contoh sudah dihapus. Hanya pelacakmu sendiri yang disimpan di akunmu.",
- "Add something to track": "Tambahkan sesuatu untuk dilacak"
+ "Add something to track": "Tambahkan sesuatu untuk dilacak",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "Setiap hari terisi saat kamu menyelesaikan sesuatu. Ketuk sebuah hari untuk mengedit atau menghapus isinya."
 }

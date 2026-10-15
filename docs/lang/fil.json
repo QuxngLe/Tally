@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "Umuulit ito, kaya kapag binura, mawawala ito sa bawat araw.",
  "Add on this day": "Idagdag sa araw na ito",
  "Open day": "Buksan ang araw",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "Napupuno ang bawat araw habang may natatapos ka. Ang mga tuldok ay isang beses na gawain. I-tap ang isang araw para i-edit o burahin ang laman nito.",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "I-tap ang isang item para i-check. I-tap ang pangalan ng araw para mag-edit o magbura.",
  "Repeat": "Ulitin",
  "Strike out": "Ekis-guhit",
@@ -510,5 +509,6 @@
  "Shortcut steps": "Mga hakbang sa Shortcut",
  "Game": "Laro",
  "Removed the example trackers. Only your own trackers are kept in your account.": "Inalis ang mga halimbawang tracker. Ang sarili mong mga tracker lang ang itinatabi sa account mo.",
- "Add something to track": "Magdagdag ng susubaybayan"
+ "Add something to track": "Magdagdag ng susubaybayan",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "Napupuno ang bawat araw habang may natatapos ka. I-tap ang isang araw para i-edit o burahin ang laman nito."
 }

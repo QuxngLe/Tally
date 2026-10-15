@@ -377,7 +377,6 @@
  "This repeats, so deleting removes every day of it.": "これは繰り返し項目なので、削除するとすべての日から消えます。",
  "Add on this day": "この日に追加",
  "Open day": "この日を開く",
- "Each day fills up as you finish things. Dots are one-time tasks. Tap a day to edit or delete what's on it.": "やることを終えるごとに各日が埋まっていきます。点は1回きりのタスクです。日をタップすると、その日の項目を編集・削除できます。",
  "Tap an item to check it off. Tap a day's name to edit or delete things.": "項目をタップしてチェック。曜日名をタップすると編集・削除できます。",
  "Repeat": "繰り返し",
  "Strike out": "取り消し線",
@@ -510,5 +509,6 @@
  "Shortcut steps": "ショートカットの手順",
  "Game": "ゲーム",
  "Removed the example trackers. Only your own trackers are kept in your account.": "サンプルのトラッカーを削除しました。アカウントにはあなた自身のトラッカーだけが保存されます。",
- "Add something to track": "記録するものを追加"
+ "Add something to track": "記録するものを追加",
+ "Each day fills up as you finish things. Tap a day to edit or delete what's on it.": "やることを終えるごとに各日が埋まっていきます。日をタップすると、その日の項目を編集・削除できます。"
 }
