@@ -154,12 +154,15 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 @media (prefers-reduced-motion: reduce) { .xpfloat { animation: none } }
 .side { display: none }
 @media (min-width: 760px) {
-  body.sides .side { display: block; position: fixed; top: 76px; bottom: 16px; width: 270px; overflow: auto; z-index: 5; zoom: var(--zoom, 1); scrollbar-width: thin }
+  body.sides { --sw: 270px; --sl: calc(var(--sw) + 40px); --sr: calc(var(--sw) + 40px) }
+  body.sides.snarrow { --sw: 224px }
+  body.sides.snoleft { --sl: 0px }
+  body.sides .side { display: block; position: fixed; top: 76px; bottom: 16px; width: var(--sw); overflow: auto; z-index: 5; zoom: var(--zoom, 1); scrollbar-width: thin }
   body.sides .sideL { left: 16px } body.sides .sideR { right: 16px }
   body.sides .side[hidden] { display: none }
-  body.sides .wrap { max-width: min(640px, calc(100vw / var(--zoom, 1) - 620px)) }
-  body.sides .wrap.wide { max-width: min(1040px, calc(100vw / var(--zoom, 1) - 620px)) }
-  body.sides .qadd { width: min(640px, calc(100% - 640px)) }
+  body.sides .wrap { max-width: min(640px, calc(100vw / var(--zoom, 1) - var(--sl) - var(--sr))); left: calc((var(--sl) - var(--sr)) / 2) }
+  body.sides .wrap.wide { max-width: min(1040px, calc(100vw / var(--zoom, 1) - var(--sl) - var(--sr))) }
+  body.sides .qadd { width: min(640px, calc(100% - var(--sl) - var(--sr) - 20px)); left: calc(50% + (var(--sl) - var(--sr)) / 2) }
 }
 .sp { background: var(--surface); border-radius: var(--r); padding: 14px; box-shadow: var(--shadow); border: 1px solid var(--line) }
 .small { font-size: 12.5px }
@@ -167,7 +170,9 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 .sbadges { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px }
 .sbadge { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; font-size: 12px; font-weight: 600; opacity: .4; filter: grayscale(1); min-width: 0 }
 .sbadge svg { width: 20px; height: 20px; flex: none; color: var(--muted) }
-.sbadge span { line-height: 1.2; overflow-wrap: anywhere }
+.sbadge span { line-height: 1.2; overflow-wrap: break-word; min-width: 0 }
+body.snarrow .sbadges { grid-template-columns: 1fr; gap: 4px }
+body.snarrow .sbadge { padding: 4px 8px }
 .sbadge.on { opacity: 1; filter: none; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)) }
 .sbadge.on svg { color: var(--flame) }
 .pond { position: relative; height: 150px; margin-top: 10px; border-radius: 12px; overflow: hidden; background: linear-gradient(#5aa6c9, #2f6f96 70%, #24597a) }
@@ -959,7 +964,10 @@ function gameTick() {
 }
 // ---------- side panels (computers only) ----------
 // Wide screens get a level-and-badges panel on the left and a small fishing game on the right.
-const sidesOn = () => innerWidth / (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--zoom")) || 1) >= 1300;
+// Wide screens get level panel left + pond right; mid-size laptops narrower panels; smaller ones just the pond.
+const sideW = () => innerWidth / (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--zoom")) || 1);
+const sidesOn = () => innerWidth >= 760 && sideW() >= 860;
+const sideLeftOn = () => gameOn() && sidesOn() && sideW() >= 1000;
 function sideGameHTML(g) {
   const p = Math.round(Math.min(1, (g.xp - g.from) / (g.to - g.from)) * 100);
   return `<div class="sp"><div class="gtop"><div class="gl num">${g.level}</div><div style="min-width:0;flex:1"><h3 style="margin:0">${esc(levelTitle(g.level))}</h3>
@@ -973,12 +981,14 @@ function renderSides() {
   const on = sidesOn(), L = $("#sideL"), R = $("#sideR");
   document.body.classList.toggle("sides", on);
   if (!on) { L.innerHTML = ""; R.innerHTML = ""; fishReset(); return }
-  L.innerHTML = gameOn() ? sideGameHTML(gameStats()) : "";
-  L.hidden = !gameOn();
+  const left = sideLeftOn(), b = document.body.classList;
+  b.toggle("snarrow", sideW() < 1300); b.toggle("snoleft", !left);
+  L.innerHTML = left ? sideGameHTML(gameStats()) : "";
+  L.hidden = !left;
   if (!R.firstChild) R.innerHTML = fishHTML();
   fishCounts();
 }
-addEventListener("resize", () => { clearTimeout(window.__sr); window.__sr = setTimeout(renderSides, 150) });
+addEventListener("resize", () => { clearTimeout(window.__sr); window.__sr = setTimeout(() => { const was = document.body.classList.contains("snoleft"), had = document.body.classList.contains("sides"); renderSides(); if (was !== document.body.classList.contains("snoleft") || had !== document.body.classList.contains("sides")) render() }, 150) });
 
 // ---------- fishing ----------
 // Everything you finish earns one bait (plus a few to start). Cast, wait for the bite, reel in fast.
@@ -1113,7 +1123,7 @@ function rToday() {
       <div class="lbl num">${done.length}/${list.length}<small>${tx("done")}</small></div>
     </div>
   </header>
-  ${gameOn() && !sidesOn() ? levelBar(gameStats(), true) : ""}
+  ${gameOn() && !sideLeftOn() ? levelBar(gameStats(), true) : ""}
   <form class="prompt" id="pform" autocomplete="off">
     <input id="pin" type="text" placeholder="${tx("Type anything you want to track…")}" aria-label="${tx("Describe something to track")}" value="${esc(ui.prompt || "")}">
     <button class="go" type="submit">${tx("Add")}</button>
@@ -1519,7 +1529,7 @@ function rStats() {
     <div class="tile"><b class="num" style="color:var(--flame)">${top ? top[1].cur : 0}</b><span>${tx("longest current streak")}${top && top[1].cur ? " · " + esc(top[0].name) : ""}</span></div>
     <div class="tile"><b class="num">${checks.toLocaleString(LOC)}</b><span>${tx("things finished, {span}", { span })}</span></div>
   </div>
-  ${gameOn() && !sidesOn() ? gameCard(gameStats()) : ""}
+  ${gameOn() && !sideLeftOn() ? gameCard(gameStats()) : ""}
   <section class="sec card"><h3>${weekly ? tx("Weekly completion") : tx("Daily completion")}</h3><div class="muted">${tx("Share of what was due that you finished, {span}", { span })}</div>${barChart(vals, labels)}</section>
   ${weekdayCard(days)}
   ${monthCard()}
