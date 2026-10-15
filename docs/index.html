@@ -145,6 +145,24 @@ h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; lette
 .empty { text-align: center; color: var(--muted); padding: 28px 12px; border: 1px dashed var(--line); border-radius: var(--r) }
 
 /* stats */
+.lvl { display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 10px; width: 100%; border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: var(--r); padding: 8px 12px; margin: 0 0 12px; box-shadow: var(--shadow); font: inherit; text-align: start }
+.lvl .lv { font-weight: 800; color: var(--accent) } .lvl .tt { font-weight: 600; font-size: 13px; color: var(--muted) } .lvl .xp { font-size: 12px; color: var(--muted) }
+.xpbar { display: block; height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; min-width: 40px }
+.xpbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, var(--flame))); transition: width .4s }
+.xpbar.big { height: 10px; margin-top: 8px }
+@media (max-width: 420px) { .lvl { grid-template-columns: auto 1fr auto } .lvl .tt { display: none } }
+#game { scroll-margin-top: 90px }
+.gtop { display: flex; gap: 14px; align-items: center }
+.gl { width: 56px; height: 56px; flex: none; border-radius: 16px; display: grid; place-items: center; font-size: 26px; font-weight: 800; color: var(--accent-ink); background: var(--accent); font-family: var(--f-display) }
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 8px }
+.badge { display: grid; grid-template-columns: 30px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; opacity: .45; filter: grayscale(1) }
+.badge svg { width: 30px; height: 30px; grid-row: span 2; color: var(--muted) }
+.badge b { font-size: 13px } .badge span { font-size: 11.5px; color: var(--muted); line-height: 1.3 }
+.badge.on { opacity: 1; filter: none; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)) }
+.badge.on svg { color: var(--flame) }
+.xpfloat { position: fixed; z-index: 60; left: 50%; bottom: 120px; transform: translateX(-50%); background: var(--accent); color: var(--accent-ink); font-weight: 800; padding: 6px 14px; border-radius: 999px; box-shadow: var(--shadow); pointer-events: none; animation: xpup 1.4s ease-out forwards; zoom: var(--zoom, 1) }
+@keyframes xpup { 0% { opacity: 0; transform: translate(-50%, 10px) } 15% { opacity: 1; transform: translate(-50%, 0) } 75% { opacity: 1 } 100% { opacity: 0; transform: translate(-50%, -30px) } }
+@media (prefers-reduced-motion: reduce) { .xpfloat { animation: none } }
 .daynote { width: 100%; resize: vertical; min-height: 64px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); color: inherit; padding: 10px 12px; font: inherit; box-shadow: var(--shadow) }
 .wdbars { display: grid; gap: 6px; margin-top: 10px }
 .wdb { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; font-size: 13px }
@@ -400,7 +418,7 @@ const fmtShort = d => d.toLocaleDateString(LOC, { month: "short", day: "numeric"
 // ---------- state ----------
 let S = store.get(KEY, null);
 const defaultLook = () => ({ preset: "pine", accent: "", custom: { bg: "#F3F5F1", surface: "#FFFFFF", fg: "#16201B", accent: "#2E6B57" }, bg: "none", dim: 0.4, glass: true, font: "modern", size: 1, radius: 14, density: "comfy", layout: "list", check: "circle", done: "check", streaks: true, title: "Tally" });
-const defaults = () => ({ trackers: [], log: {}, fired: {}, examples: false, settings: { theme: "system", weekStart: 1, notify: false, showDone: true, look: defaultLook() } });
+const defaults = () => ({ trackers: [], log: {}, fired: {}, examples: false, settings: { theme: "system", weekStart: 1, notify: false, showDone: true, game: true, look: defaultLook() } });
 function fixSettings() {
   const st = S.settings = Object.assign(defaults().settings, S.settings || {});
   st.look = Object.assign(defaultLook(), st.look || {}); st.look.custom = Object.assign(defaultLook().custom, st.look.custom || {});
@@ -839,7 +857,81 @@ function meBtnHTML() {
   const n = userName(), first = n.split(/\s+/)[0];
   return `<button class="me" data-act="menu" aria-haspopup="menu" aria-label="${tx("Your account")}"><i class="avatar">${esc(initial(n))}</i><span>${tx("Hi, {name}", { name: esc(first) })}</span></button>`;
 }
-function render() { renderTabs(); view.classList.toggle("wide", ui.tab === "calendar"); document.body.classList.toggle("has-q", ui.tab === "calendar"); renderView(); view.insertAdjacentHTML("afterbegin", `<div class="toprow">${meBtnHTML()}</div>`); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth) }
+// ---------- game mode: XP, levels and badges ----------
+// Everything is worked out from your history, so it stays the same on every device and after a sync.
+const XP = { done: 10, streakStep: 2, streakMax: 20, perfect: 25 };
+const LEVEL_TITLES = ["Beginner", "Starter", "Regular", "Steady", "Committed", "Dedicated", "Disciplined", "Pro", "Expert", "Master", "Grandmaster", "Legend"];
+/* i18n: tx("Beginner") tx("Starter") tx("Regular") tx("Steady") tx("Committed") tx("Dedicated") tx("Disciplined") tx("Pro") tx("Expert") tx("Master") tx("Grandmaster") tx("Legend") */
+const needFor = n => 50 * (n - 1) * n; // XP needed to reach level n: 0, 100, 300, 600, 1000…
+const levelTitle = n => tx(LEVEL_TITLES[Math.min(n, LEVEL_TITLES.length) - 1]);
+const BADGES = [
+  ["first", "First step", "Finish anything once", g => g.checks >= 1],
+  ["perfect1", "Perfect day", "Finish everything due in one day", g => g.perfect >= 1],
+  ["streak7", "One week strong", "Keep a 7-day streak", g => g.bestStreak >= 7],
+  ["c100", "Hundred club", "Finish 100 things", g => g.checks >= 100],
+  ["perfect7", "Perfect week", "7 perfect days in a row", g => g.bestPerfectRun >= 7],
+  ["streak30", "Month of focus", "Keep a 30-day streak", g => g.bestStreak >= 30],
+  ["notes7", "Journaler", "Write notes on 7 days", g => g.notes >= 7],
+  ["plan10", "Planner", "Put 10 events on the calendar", g => g.events >= 10],
+  ["lvl5", "Rising", "Reach level 5", g => g.level >= 5],
+  ["c1000", "Thousand club", "Finish 1,000 things", g => g.checks >= 1000],
+  ["streak100", "Unstoppable", "Keep a 100-day streak", g => g.bestStreak >= 100],
+  ["lvl10", "Master", "Reach level 10", g => g.level >= 10]
+];
+/* i18n: tx("First step") tx("Finish anything once") tx("Perfect day") tx("Finish everything due in one day") tx("One week strong") tx("Keep a 7-day streak") tx("Hundred club") tx("Finish 100 things") tx("Perfect week") tx("7 perfect days in a row") tx("Month of focus") tx("Keep a 30-day streak") tx("Journaler") tx("Write notes on 7 days") tx("Planner") tx("Put 10 events on the calendar") tx("Rising") tx("Reach level 5") tx("Thousand club") tx("Finish 1,000 things") tx("Unstoppable") tx("Keep a 100-day streak") tx("Master") tx("Reach level 10") */
+function gameStats() {
+  const tk = keyOf(today());
+  let first = tk;
+  S.trackers.forEach(t => Object.keys(S.log[t.id] || {}).forEach(k => { if (k < first) first = k }));
+  const days = Math.min(1500, diffDays(today(), fromKey(first)) + 1), runs = {};
+  const g = { xp: 0, checks: 0, perfect: 0, bestStreak: 0, bestPerfectRun: 0, today: 0 };
+  let pr = 0;
+  for (let i = days - 1; i >= 0; i--) {
+    const d = addDays(today(), -i), k = keyOf(d); let due = 0, dn = 0, x = 0;
+    for (const t of dueList(d)) {
+      const on = doneOn(t, k);
+      if (t.freq === "weekly") { if (on) { g.checks++; x += XP.done } continue }
+      due++;
+      if (on) { dn++; g.checks++; runs[t.id] = (runs[t.id] || 0) + 1; g.bestStreak = Math.max(g.bestStreak, runs[t.id]); x += XP.done + Math.min((runs[t.id] - 1) * XP.streakStep, XP.streakMax) }
+      else if (k !== tk) runs[t.id] = 0;
+    }
+    if (due && dn === due) { g.perfect++; x += XP.perfect; pr++; g.bestPerfectRun = Math.max(g.bestPerfectRun, pr) } else if (k !== tk) pr = 0;
+    g.xp += x; if (k === tk) g.today = x;
+  }
+  g.notes = Object.values(S.notes || {}).filter(v => v.trim()).length;
+  g.events = S.trackers.filter(t => t.cal).length;
+  let n = 1; while (g.xp >= needFor(n + 1)) n++;
+  g.level = n; g.from = needFor(n); g.to = needFor(n + 1);
+  g.badges = BADGES.filter(b => b[3](g)).map(b => b[0]);
+  return g;
+}
+const gameOn = () => S.settings.game !== false;
+const BADGE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M8 14.5 6 22l6-3 6 3-2-7.5"/><circle cx="12" cy="9" r="6.5"/><path d="m12 5.8 1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z" fill="currentColor"/></svg>';
+function levelBar(g, compact) {
+  const p = Math.min(1, (g.xp - g.from) / (g.to - g.from));
+  return `<button class="lvl ${compact ? "mini" : ""}" data-act="gogame"><span class="lv num">${tx("Level {n}", { n: g.level })}</span><span class="tt">${esc(levelTitle(g.level))}</span><span class="xpbar"><i style="width:${Math.round(p * 100)}%"></i></span><span class="xp num">${(g.xp - g.from).toLocaleString(LOC)} / ${(g.to - g.from).toLocaleString(LOC)} XP</span></button>`;
+}
+function gameCard(g) {
+  return `<section class="sec card" id="game"><div class="gtop"><div class="gl num">${g.level}</div><div style="min-width:0;flex:1"><h3 style="margin:0">${esc(levelTitle(g.level))}</h3>
+    <div class="muted">${tx("{xp} XP in total · {n} XP to level {next}", { xp: g.xp.toLocaleString(LOC), n: (g.to - g.xp).toLocaleString(LOC), next: g.level + 1 })}</div>
+    <span class="xpbar big"><i style="width:${Math.round(Math.min(1, (g.xp - g.from) / (g.to - g.from)) * 100)}%"></i></span></div></div>
+    <div class="muted" style="margin-top:8px">${tx("You get 10 XP for everything you finish, up to 20 more for keeping a streak going, and 25 extra for a perfect day. Today: +{n} XP.", { n: g.today })}</div>
+    <div class="sub" style="margin-top:12px">${tx("Badges")} · ${g.badges.length}/${BADGES.length}</div>
+    <div class="badges">${BADGES.map(([id, name, how]) => { const on = g.badges.includes(id); return `<div class="badge ${on ? "on" : ""}" title="${esc(tx(how))}">${BADGE_SVG}<b>${esc(tx(name))}</b><span>${esc(tx(how))}</span></div>` }).join("")}</div></section>`;
+}
+let lastGame = null;
+function gameTick() {
+  if (!gameOn()) { lastGame = null; return }
+  const g = gameStats(), was = lastGame; lastGame = { xp: g.xp, level: g.level, badges: g.badges };
+  if (!was) return;
+  if (g.xp > was.xp) {
+    const f = document.createElement("div"); f.className = "xpfloat num"; f.textContent = `+${g.xp - was.xp} XP`; document.body.appendChild(f); setTimeout(() => f.remove(), 1400);
+  }
+  const nb = g.badges.find(b => !was.badges.includes(b));
+  if (g.level > was.level) toast(tx("Level up! You're now level {n}: {title}", { n: g.level, title: levelTitle(g.level) }));
+  else if (nb) toast(tx("New badge: {name}", { name: tx(BADGES.find(b => b[0] === nb)[1]) }));
+}
+function render() { renderTabs(); view.classList.toggle("wide", ui.tab === "calendar"); document.body.classList.toggle("has-q", ui.tab === "calendar"); renderView(); view.insertAdjacentHTML("afterbegin", `<div class="toprow">${meBtnHTML()}</div>`); document.querySelectorAll(".heat").forEach(h => h.scrollLeft = h.scrollWidth); gameTick() }
 function openMenu() {
   const cur = (LANGS.find(l => l[0] === LANG) || LANGS[0])[1], n = userName();
   layer.innerHTML = `<div class="scrim clear" data-act="closebg"><div class="menu" role="menu">
@@ -918,6 +1010,7 @@ function rToday() {
       <div class="lbl num">${done.length}/${list.length}<small>${tx("done")}</small></div>
     </div>
   </header>
+  ${gameOn() ? levelBar(gameStats(), true) : ""}
   <form class="prompt" id="pform" autocomplete="off">
     <input id="pin" type="text" placeholder="${tx("Type anything you want to track…")}" aria-label="${tx("Describe something to track")}" value="${esc(ui.prompt || "")}">
     <button class="go" type="submit">${tx("Add")}</button>
@@ -1323,6 +1416,7 @@ function rStats() {
     <div class="tile"><b class="num" style="color:var(--flame)">${top ? top[1].cur : 0}</b><span>${tx("longest current streak")}${top && top[1].cur ? " · " + esc(top[0].name) : ""}</span></div>
     <div class="tile"><b class="num">${checks.toLocaleString(LOC)}</b><span>${tx("things finished, {span}", { span })}</span></div>
   </div>
+  ${gameOn() ? gameCard(gameStats()) : ""}
   <section class="sec card"><h3>${weekly ? tx("Weekly completion") : tx("Daily completion")}</h3><div class="muted">${tx("Share of what was due that you finished, {span}", { span })}</div>${barChart(vals, labels)}</section>
   ${weekdayCard(days)}
   ${monthCard()}
@@ -1438,6 +1532,10 @@ function rSettings() {
     <div class="muted">${tx("Tally can't read Apple Health or Google Fit by itself, but your phone can send it your numbers. Open this link with your numbers in it, and today's steps and calories burned are saved to their own trackers (they're created if you don't have them):")}</div>
     <div class="line"><code style="overflow-wrap:anywhere;font-size:13px">${esc(location.origin + location.pathname)}?steps=8421&amp;calories=512</code><button class="btn small" data-act="copysteps">${tx("Copy link")}</button></div>
     <div class="muted">${tx("On iPhone, a Shortcut can read today's steps and active calories from Health and open this link for you every evening.")}</div>
+  </div>
+  <div class="card set"><h3>${tx("Game mode")}</h3>
+    <div class="line"><span>${tx("XP, levels and badges")}</span>${seg("game", [[true, "On"], [false, "Off"]])}</div>
+    <div class="muted">${tx("Earn XP for everything you finish, level up and collect badges. Turning it off hides it; your progress is kept.")}</div>
   </div>
   <div class="card set"><h3>${tx("Calendar")}</h3>
     <div class="line" style="flex-wrap:wrap;gap:8px"><span>${tx("Finished events")}</span>${lseg("done", [["check", "Check"], ["strike", "Strike out"], ["fade", "Fade"], ["slash", "Slash"], ["fill", "Fill in"], ["hide", "Hide"]])}</div>
@@ -1589,6 +1687,7 @@ document.addEventListener("click", async ev => {
     case "calnav": { const n = +b.dataset.n, r = fromKey(ui.calRef);
       ui.calRef = n === 0 ? keyOf(today()) : ui.calMode === "month" ? keyOf(new Date(r.getFullYear(), r.getMonth() + n, 1)) : keyOf(addDays(r, 7 * n)); render(); break }
     case "calday": openDaySheet(b.dataset.k); break;
+    case "gogame": goTab("stats"); setTimeout(() => { const c = $("#game"); if (c) c.scrollIntoView({ block: "start", behavior: "smooth" }) }, 50); break;
     case "opennote": ui.day = b.dataset.k; goTab("today"); setTimeout(() => { const n = $("#daynote"); if (n) { n.scrollIntoView({ block: "center" }); n.focus() } }, 50); break;
     case "csv": b.dataset.v === "notes" ? saveText(`tally-notes-${keyOf(today())}.csv`, notesCSV()) : saveText(`tally-history-${keyOf(today())}.csv`, historyCSV()); break;
     case "calev": openDaySheet(b.dataset.k, b.dataset.id); break;
@@ -1617,7 +1716,7 @@ document.addEventListener("click", async ev => {
       S.settings.look[k2] = v; save(); applyTheme(); render(); break }
     case "resetlook": { const t = S.settings.look.title; S.settings.look = Object.assign(defaultLook(), { title: t }); S.settings.theme = "system"; save(); applyTheme(); render(); toast(tx("Look reset")); break }
     case "rmphoto": bgImage = ""; try { localStorage.removeItem("tally.bgimg") } catch { } if (S.settings.look.bg === "image") S.settings.look.bg = "none"; save(); applyTheme(); render(); break;
-    case "set": { let v = b.dataset.v; if (b.dataset.k === "weekStart") v = +v; S.settings[b.dataset.k] = v; save(); applyTheme(); render(); break }
+    case "set": { let v = b.dataset.v; if (b.dataset.k === "weekStart") v = +v; if (b.dataset.k === "game") v = v === "true"; S.settings[b.dataset.k] = v; save(); applyTheme(); render(); break }
     case "notify": {
       if (S.settings.notify && Notification.permission === "granted") { S.settings.notify = false; save(); render(); break }
       try { const p = await Notification.requestPermission(); S.settings.notify = p === "granted"; save(); render(); toast(p === "granted" ? tx("Reminders are on") : tx("Your browser blocked notifications. You'll still see reminders inside the app.")) }
