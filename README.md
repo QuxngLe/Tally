@@ -2,6 +2,8 @@
 
 Track anything you can finish: habits, to-dos, counts. One codebase runs in a browser, on a phone, and installs as an app on a PC or laptop (it's a Progressive Web App).
 
+Open it at **https://quxngle.github.io/Welli/**, then use your browser's Share or Install menu to add it to your home screen.
+
 ## What's in it
 - **Today**: check things off, or count up toward an amount (8 glasses, 20 pages). Go back to earlier days to fill in what you missed.
 - **Create by typing**: "drink water 8 times a day at 9am", "gym 3 times a week", "pay rent on 2026-11-01", "meditate weekdays at 7am", "call mom on sunday".
